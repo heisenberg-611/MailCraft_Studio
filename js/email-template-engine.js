@@ -182,11 +182,13 @@ const EmailTemplateEngine = {
                       ${t.headerLogoText || 'Dhrubojyoti Saha'}
                     </span>
                   </td>
+                  ${(t.headerTag && t.headerTag.trim()) ? `
                   <td align="right">
                     <span style="font-size: 11px; color: #94A3B8; letter-spacing: 0.5px;">
-                      Official Correspondence
+                      ${t.headerTag}
                     </span>
                   </td>
+                  ` : ''}
                 </tr>
               </table>
             </td>

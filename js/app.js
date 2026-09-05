@@ -18,6 +18,7 @@ const App = {
       title: 'Project Update',
       preheader: 'Important updates and technical collaboration overview',
       headerLogoText: 'DHRUBOJYOTI SAHA \u2022 PORTFOLIO',
+      headerTag: '',
       headerTextColor: '#FFFFFF',
       headerBgColor: '#0F172A',
       greeting: 'Dear Colleague,',
@@ -98,8 +99,13 @@ const App = {
       }
     }
 
-    // Initialize High-DPI canvas avatar
+    // Initialize High-DPI canvas avatar with state settings synchronized
     if (typeof ImageProcessor !== 'undefined') {
+      ImageProcessor.config.size = this.state.settings.avatarSize || 85;
+      ImageProcessor.config.shape = this.state.settings.avatarShape || 'square';
+      ImageProcessor.config.borderWidth = 0;
+      ImageProcessor.config.borderColor = this.state.settings.avatarBorderColor || '#00DC82';
+      ImageProcessor.config.dpi = this.state.settings.avatarDpi || 2;
       ImageProcessor.init((dataUrl) => {
         this.state.data.avatarUrl = dataUrl;
         this.updateLivePreview();
@@ -110,6 +116,7 @@ const App = {
     this.bindWebsiteInteractions();
     this.syncFormWithState();
     this.syncEmailTemplateFromDom();
+    this.renderClientChrome(this.clientView || 'gmail');
 
     if (requestedMode === 'team' || requestedMode === 'batch') {
       const teamBtn = document.getElementById('modeTeamBtn');
@@ -183,7 +190,7 @@ const App = {
     if (typeof ImageProcessor !== 'undefined' && p.settings) {
       if (p.settings.avatarShape) ImageProcessor.config.shape = p.settings.avatarShape;
       if (p.settings.avatarSize) ImageProcessor.config.size = p.settings.avatarSize;
-      if (p.settings.avatarBorderWidth !== undefined) ImageProcessor.config.borderWidth = p.settings.avatarBorderWidth;
+      ImageProcessor.config.borderWidth = 0;
       if (p.settings.avatarBorderColor) ImageProcessor.config.borderColor = p.settings.avatarBorderColor;
       ImageProcessor.process((dataUrl) => {
         this.state.data.avatarUrl = dataUrl;
@@ -216,7 +223,7 @@ const App = {
       const s = presetObj.settings;
       if (s.avatarShape) ImageProcessor.config.shape = s.avatarShape;
       if (s.avatarSize) ImageProcessor.config.size = s.avatarSize;
-      if (s.avatarBorderWidth !== undefined) ImageProcessor.config.borderWidth = s.avatarBorderWidth;
+      ImageProcessor.config.borderWidth = 0;
       if (s.avatarBorderColor) ImageProcessor.config.borderColor = s.avatarBorderColor;
       ImageProcessor.process((dataUrl) => {
         this.state.data.avatarUrl = dataUrl;
@@ -510,6 +517,13 @@ const App = {
     const avatarSizeVal = document.getElementById('avatarSizeVal');
     if (avatarSizeVal) avatarSizeVal.textContent = `${s.avatarSize || 85}px`;
 
+    if (typeof ImageProcessor !== 'undefined') {
+      ImageProcessor.config.size = s.avatarSize || 85;
+      ImageProcessor.config.shape = s.avatarShape || 'square';
+      ImageProcessor.config.borderWidth = 0;
+      ImageProcessor.config.borderColor = s.avatarBorderColor || '#00DC82';
+    }
+
     setVal('avatarZoom', (typeof ImageProcessor !== 'undefined' && ImageProcessor.config) ? ImageProcessor.config.zoom : 1.0);
     const avatarZoomVal = document.getElementById('avatarZoomVal');
     if (avatarZoomVal) avatarZoomVal.textContent = `${((typeof ImageProcessor !== 'undefined' && ImageProcessor.config) ? ImageProcessor.config.zoom : 1.0).toFixed(1)}x`;
@@ -570,6 +584,7 @@ const App = {
     syncColorPair('tplCtaBgColor', td.ctaBgColor || '#00DC82');
     syncColorPair('tplClosingColor', td.closingColor || '#64748B');
     syncColorPair('tplFooterColor', td.footerTextColor || '#64748B');
+    setVal('tplHeaderTag', td.headerTag || '');
 
     // Typography
     setVal('fontFamily', s.fontFamily || "'Courier New', Courier, monospace");
@@ -667,6 +682,7 @@ const App = {
     this.state.templateData.title = getVal('tplSubject', 'Project Update');
     this.state.templateData.preheader = getVal('tplPreheader', 'Important updates and technical roadmap');
     this.state.templateData.headerLogoText = getVal('tplHeaderLogoText', 'DHRUBOJYOTI SAHA \u2022 PORTFOLIO');
+    this.state.templateData.headerTag = getVal('tplHeaderTag', '');
     this.state.templateData.greeting = getVal('tplGreeting', 'Dear Colleague,');
     this.state.templateData.paragraphs = [
       getVal('tplParagraph1', ''),
@@ -697,7 +713,14 @@ const App = {
     };
 
     const subjectDisplay = document.getElementById('previewSubjectLine');
-    if (subjectDisplay) subjectDisplay.textContent = this.state.templateData.title;
+    if (subjectDisplay) {
+      const title = this.state.templateData.title || 'Introduction & Project Update';
+      if (subjectDisplay.tagName === 'INPUT') {
+        subjectDisplay.value = title;
+      } else {
+        subjectDisplay.textContent = title;
+      }
+    }
   },
 
   /**
@@ -708,6 +731,18 @@ const App = {
     if (!canvas) return;
 
     const isDark = this.inboxTheme === 'dark';
+
+    const subjectDisplay = document.getElementById('previewSubjectLine');
+    if (subjectDisplay) {
+      const title = (this.state && this.state.templateData && this.state.templateData.title) 
+        ? this.state.templateData.title 
+        : 'Introduction & Project Update';
+      if (subjectDisplay.tagName === 'INPUT') {
+        subjectDisplay.value = title;
+      } else {
+        subjectDisplay.textContent = title;
+      }
+    }
 
     if (this.mode === 'template') {
       const introText = document.getElementById('signatureModeIntroText');
@@ -739,6 +774,208 @@ const App = {
     }
 
     this.saveToStorage();
+  },
+
+  /**
+   * Render Authentic Simulator Chrome for Gmail, Apple Mail, and Outlook
+   */
+  renderClientChrome(clientName) {
+    const clientWindow = document.getElementById('clientWindow');
+    const headerEl = document.getElementById('simulatorHeader');
+    const fieldsEl = document.getElementById('simulatorFields');
+    const footerEl = document.getElementById('simulatorFooter');
+    
+    if (clientWindow) {
+      clientWindow.classList.remove('client-gmail', 'client-apple', 'client-outlook');
+      clientWindow.classList.add(`client-${clientName}`);
+    }
+
+    const subjectVal = (this.state && this.state.templateData && this.state.templateData.title) 
+      ? this.state.templateData.title 
+      : 'Introduction & Project Update';
+    const fullName = (this.state && this.state.data && this.state.data.fullName) 
+      ? this.state.data.fullName 
+      : 'Dhrubojyoti Saha';
+    const emailAddr = (this.state && this.state.data && this.state.data.email) 
+      ? this.state.data.email 
+      : 'dhrubojyoti.saha@g.bracu.ac.bd';
+    const fromVal = `${fullName} &lt;${emailAddr}&gt;`;
+
+    if (clientName === 'gmail') {
+      if (headerEl) {
+        headerEl.className = 'gmail-header-wrapper';
+        headerEl.innerHTML = `
+          <div class="gmail-chrome-header">
+            <div class="gmail-title">New Message</div>
+            <div class="gmail-window-controls">
+              <span class="ctrl-btn" title="Minimize">&minus;</span>
+              <span class="ctrl-btn" title="Full screen">&#x2922;</span>
+              <span class="ctrl-btn" title="Save & Close">&times;</span>
+            </div>
+          </div>
+        `;
+      }
+      if (fieldsEl) {
+        fieldsEl.className = 'gmail-compose-fields';
+        fieldsEl.innerHTML = `
+          <div class="gmail-field-row">
+            <span class="gmail-field-label">Recipients</span>
+            <div class="gmail-recipient-chip">
+              <span class="chip-avatar">R</span>
+              <span class="chip-name">recipient@domain.com</span>
+              <span class="chip-remove">&times;</span>
+            </div>
+            <div class="gmail-field-actions">
+              <span class="action-link">Cc</span>
+              <span class="action-link">Bcc</span>
+            </div>
+          </div>
+          <div class="gmail-field-row gmail-subject-row">
+            <input type="text" class="gmail-subject-input" id="previewSubjectLine" readonly value="${subjectVal}">
+          </div>
+        `;
+      }
+      if (footerEl) {
+        footerEl.className = 'gmail-footer-toolbar';
+        footerEl.innerHTML = `
+          <div class="gmail-footer-left">
+            <button class="gmail-send-btn">
+              <span>Send</span>
+              <span class="send-dropdown">&#x25BE;</span>
+            </button>
+            <div class="gmail-formatting-tools">
+              <span class="tool-btn" title="Formatting options">A</span>
+              <span class="tool-btn" title="Attach files">&#x1F4CE;</span>
+              <span class="tool-btn" title="Insert link">&#x1F517;</span>
+              <span class="tool-btn" title="Insert emoji">&#x1F60A;</span>
+              <span class="tool-btn" title="Insert files using Drive">&#x1F4C1;</span>
+              <span class="tool-btn" title="Insert photo">&#x1F5BC;</span>
+              <span class="tool-btn" title="Toggle confidential mode">&#x1F512;</span>
+              <span class="tool-btn" title="Insert signature">&#x270D;</span>
+            </div>
+          </div>
+          <div class="gmail-footer-right">
+            <span class="tool-btn trash-btn" title="Discard draft">&#x1F5D1;</span>
+          </div>
+        `;
+      }
+    } else if (clientName === 'apple') {
+      if (headerEl) {
+        headerEl.className = 'apple-header-wrapper';
+        headerEl.innerHTML = `
+          <div class="apple-chrome-header">
+            <div class="apple-traffic-lights">
+              <span class="traffic-light red" title="Close"></span>
+              <span class="traffic-light yellow" title="Minimize"></span>
+              <span class="traffic-light green" title="Zoom"></span>
+            </div>
+            <div class="apple-title">New Message &mdash; Mail</div>
+            <div class="apple-header-spacer"></div>
+          </div>
+          <div class="apple-toolbar">
+            <button class="apple-tool-action primary" title="Send (&#x2318;D)">
+              <span class="apple-icon">&#x2708;</span> Send
+            </button>
+            <button class="apple-tool-action" title="Attach file">
+              <span class="apple-icon">&#x1F4CE;</span> Attach
+            </button>
+            <button class="apple-tool-action" title="Show format bar">
+              <span class="apple-icon">Aa</span> Format
+            </button>
+            <button class="apple-tool-action" title="Show photo browser">
+              <span class="apple-icon">&#x1F5BC;</span> Media
+            </button>
+          </div>
+        `;
+      }
+      if (fieldsEl) {
+        fieldsEl.className = 'gmail-compose-fields';
+        fieldsEl.innerHTML = `
+          <div class="apple-field-row">
+            <span class="apple-field-label">To:</span>
+            <div class="apple-token-pill">recipient@domain.com</div>
+          </div>
+          <div class="apple-field-row">
+            <span class="apple-field-label">Cc:</span>
+            <span class="apple-field-placeholder"></span>
+          </div>
+          <div class="apple-field-row">
+            <span class="apple-field-label">From:</span>
+            <span class="apple-field-value">${fromVal}</span>
+          </div>
+          <div class="apple-field-row apple-subject-row">
+            <span class="apple-field-label">Subject:</span>
+            <span class="apple-field-value bold" id="previewSubjectLine">${subjectVal}</span>
+          </div>
+        `;
+      }
+      if (footerEl) {
+        footerEl.className = 'apple-status-bar';
+        footerEl.innerHTML = `
+          <span class="apple-status-dot"></span>
+          <span class="apple-status-text">Draft saved to iCloud &bull; macOS Mail</span>
+        `;
+      }
+    } else { // outlook
+      if (headerEl) {
+        headerEl.className = 'outlook-header-wrapper';
+        headerEl.innerHTML = `
+          <div class="outlook-chrome-header">
+            <div class="outlook-header-left">
+              <span class="outlook-app-icon">&#x2709;</span>
+              <span class="outlook-title">Outlook Mail &mdash; Message</span>
+            </div>
+            <div class="outlook-window-controls">
+              <span class="ctrl-btn" title="Minimize">&minus;</span>
+              <span class="ctrl-btn" title="Maximize">&#x25A1;</span>
+              <span class="ctrl-btn close-btn" title="Close">&times;</span>
+            </div>
+          </div>
+          <div class="outlook-ribbon">
+            <button class="outlook-send-btn" title="Send (Ctrl+Enter)">
+              <span class="outlook-send-icon">&#x27A4;</span> Send
+            </button>
+            <div class="outlook-ribbon-group">
+              <button class="outlook-ribbon-btn" title="Discard"><span class="ribbon-icon">&#x1F5D1;</span> Discard</button>
+              <button class="outlook-ribbon-btn" title="Attach File"><span class="ribbon-icon">&#x1F4CE;</span> Attach File</button>
+              <button class="outlook-ribbon-btn" title="Encrypt message"><span class="ribbon-icon">&#x1F512;</span> Encrypt</button>
+              <button class="outlook-ribbon-btn" title="Categorize"><span class="ribbon-icon">&#x1F3F7;</span> Categorize</button>
+            </div>
+          </div>
+        `;
+      }
+      if (fieldsEl) {
+        fieldsEl.className = 'gmail-compose-fields';
+        fieldsEl.innerHTML = `
+          <div class="outlook-field-row">
+            <button class="outlook-field-btn">To</button>
+            <div class="outlook-field-value-box">
+              <span class="outlook-contact-tag">recipient@domain.com</span>
+            </div>
+          </div>
+          <div class="outlook-field-row">
+            <button class="outlook-field-btn">Cc</button>
+            <div class="outlook-field-value-box"></div>
+          </div>
+          <div class="outlook-field-row outlook-subject-row">
+            <input type="text" class="outlook-subject-input" id="previewSubjectLine" readonly value="${subjectVal}">
+          </div>
+        `;
+      }
+      if (footerEl) {
+        footerEl.className = 'outlook-status-bar';
+        footerEl.innerHTML = `
+          <div class="outlook-status-left">
+            <span>Sensitivity: Normal</span>
+            <span class="separator">|</span>
+            <span>Accessibility: Good to go</span>
+          </div>
+          <div class="outlook-status-right">
+            <span>Microsoft 365 &bull; HTML</span>
+          </div>
+        `;
+      }
+    }
   },
 
   /**
@@ -1230,20 +1467,7 @@ const App = {
       clientBtns.forEach(b => b && b.classList.remove('active'));
       if (activeBtn) activeBtn.classList.add('active');
 
-      const titleEl = document.getElementById('simulatorTitle');
-      const headerEl = document.getElementById('simulatorHeader');
-      if (titleEl) {
-        if (clientName === 'gmail') {
-          titleEl.textContent = '~/inbox/gmail.eml';
-          if (headerEl) headerEl.className = 'gmail-header';
-        } else if (clientName === 'apple') {
-          titleEl.textContent = '~/inbox/apple-mail.eml';
-          if (headerEl) headerEl.className = 'apple-mail-header';
-        } else {
-          titleEl.textContent = '~/inbox/outlook.eml';
-          if (headerEl) headerEl.className = 'gmail-header';
-        }
-      }
+      this.renderClientChrome(clientName);
       this.updateLivePreview();
     };
 
@@ -1969,7 +2193,7 @@ const App = {
       });
     }
 
-    const tplInputs = ['tplSubject', 'tplPreheader', 'tplHeaderLogoText', 'tplGreeting', 'tplParagraph1', 'tplParagraph2', 'tplClosing', 'tplCtaText', 'tplCtaUrl', 'tplHighlightTitle', 'tplHighlightContent'];
+    const tplInputs = ['tplSubject', 'tplPreheader', 'tplHeaderLogoText', 'tplHeaderTag', 'tplGreeting', 'tplParagraph1', 'tplParagraph2', 'tplClosing', 'tplCtaText', 'tplCtaUrl', 'tplHighlightTitle', 'tplHighlightContent'];
     tplInputs.forEach(id => {
       const el = document.getElementById(id);
       if (el) {
@@ -2076,11 +2300,29 @@ const App = {
   loadFromStorage() {
     try {
       const raw = localStorage.getItem('mailcraft_state');
+      const trueDefaultAvatar = (typeof DEFAULT_AVATAR_BASE64 !== 'undefined' && DEFAULT_AVATAR_BASE64) 
+        ? DEFAULT_AVATAR_BASE64 
+        : 'assets/default-avatar.jpg';
+
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed.data) this.state.data = Object.assign({}, Presets.defaultData, parsed.data);
+        if (parsed.data) {
+          this.state.data = Object.assign({}, Presets.defaultData, parsed.data);
+          const av = this.state.data.avatarUrl;
+          // Cleanly replace any legacy/stale avatar with the authentic high-res photograph
+          if (!av || 
+              av.length < 50000 || 
+              av.includes('/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHI') ||
+              av.startsWith('data:image/svg') ||
+              av === 'assets/default-avatar.png' ||
+              av === 'assets/avatar.png') {
+            this.state.data.avatarUrl = trueDefaultAvatar;
+          }
+        }
         if (parsed.settings) this.state.settings = Object.assign({}, Presets.styles.developerTerminal.settings, parsed.settings);
         if (parsed.templateData) this.state.templateData = Object.assign({}, this.state.templateData, parsed.templateData);
+      } else {
+        this.state.data.avatarUrl = trueDefaultAvatar;
       }
     } catch (e) {}
   }

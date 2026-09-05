@@ -1,7 +1,7 @@
 /* ==========================================================================
    MailCraft Studio - Email Client Simulator Chrome & Canvas Styling
-   Realistic Gmail, Apple Mail, Outlook UI Simulation
-   Squarish Modern Terminal Architecture • Zero Pill Buttons
+   Authentic High-Fidelity UI for Gmail, Apple Mail (macOS), and Outlook 365
+   Supports Light Inbox & Dark Inbox for All Clients
    ========================================================================== */
 
 /* Preview Client Shell */
@@ -9,14 +9,14 @@
   background-color: #FFFFFF !important;
   color: #1F2937 !important;
   border: 1px solid #E2E8F0;
-  border-radius: 4px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  border-radius: 6px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
   overflow: hidden;
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
   width: 100%;
 }
 
-/* Light Theme Client Simulator */
+/* Base Light / Dark Shell Defaults */
 .client-window.light-inbox,
 .preview-theme-light .client-window {
   background-color: #FFFFFF !important;
@@ -24,126 +24,874 @@
   border-color: #CBD5E1 !important;
 }
 
-.client-window.light-inbox .gmail-header,
-.client-window.light-inbox .apple-mail-header {
-  background-color: #F1F5F9 !important;
-  border-bottom: 1px solid #E2E8F0 !important;
-  color: #1E293B !important;
-}
-
-.client-window.light-inbox .gmail-title {
-  color: #1E293B !important;
-}
-
-.client-window.light-inbox .gmail-window-controls {
-  color: #64748B !important;
-}
-
-.client-window.light-inbox .gmail-compose-fields {
-  background-color: #FFFFFF !important;
-  border-bottom: 1px solid #E2E8F0 !important;
-}
-
-.client-window.light-inbox .gmail-field-row {
-  color: #475569 !important;
-}
-
-.client-window.light-inbox .gmail-field-label {
-  color: #94A3B8 !important;
-}
-
-.client-window.light-inbox .gmail-field-value {
-  color: #0F172A !important;
-}
-
-.client-window.light-inbox .gmail-compose-body {
-  background-color: #FFFFFF !important;
-}
-
-.client-window.light-inbox .gmail-sample-text {
-  color: #334155 !important;
-}
-
-.client-window.light-inbox .gmail-footer-toolbar {
-  background-color: #F8FAFC !important;
-  border-top: 1px solid #E2E8F0 !important;
-}
-
-.client-window.light-inbox .gmail-send-btn {
-  background-color: #2563EB !important;
-  color: #FFFFFF !important;
-  border-radius: 3px !important;
-  font-weight: 600;
-}
-
-.client-window.light-inbox .gmail-tools-icons {
-  color: #64748B !important;
-}
-
-/* Dark Theme Client Simulator */
 .client-window.dark-inbox,
 .preview-theme-dark .client-window {
   background-color: #111317 !important;
   color: #E2E8F0 !important;
   border-color: #242830 !important;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 220, 130, 0.06);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 220, 130, 0.05);
 }
 
-.client-window.dark-inbox .gmail-header,
-.client-window.dark-inbox .apple-mail-header {
-  background-color: #16181D !important;
-  border-bottom: 1px solid #242830 !important;
-  color: #F8FAFC !important;
+/* ==========================================================================
+   1. GMAIL WEB CLIENT SIMULATION (.client-gmail)
+   ========================================================================== */
+
+/* Gmail Header */
+.client-gmail .gmail-chrome-header {
+  background-color: #F2F6FC;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #E2E8F0;
+  user-select: none;
 }
 
-.client-window.dark-inbox .gmail-title {
-  color: #F8FAFC !important;
+.client-gmail.dark-inbox .gmail-chrome-header {
+  background-color: #1E1F20;
+  border-bottom-color: #2D2F31;
 }
 
-.client-window.dark-inbox .gmail-window-controls {
-  color: #64748B !important;
+.client-gmail .gmail-title {
+  font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1F1F1F;
 }
 
-.client-window.dark-inbox .gmail-compose-fields {
-  background-color: #111317 !important;
-  border-bottom: 1px solid #242830 !important;
+.client-gmail.dark-inbox .gmail-title {
+  color: #E3E3E3;
 }
 
-.client-window.dark-inbox .gmail-field-row {
-  color: #94A3B8 !important;
+.client-gmail .gmail-window-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #444746;
 }
 
-.client-window.dark-inbox .gmail-field-label {
-  color: #64748B !important;
+.client-gmail.dark-inbox .gmail-window-controls {
+  color: #C4C7C5;
 }
 
-.client-window.dark-inbox .gmail-field-value {
-  color: #F8FAFC !important;
+.client-gmail .ctrl-btn {
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  transition: opacity 0.15s ease;
 }
 
-.client-window.dark-inbox .gmail-compose-body {
-  background-color: #111317 !important;
+.client-gmail .ctrl-btn:hover {
+  opacity: 0.7;
 }
 
-.client-window.dark-inbox .gmail-sample-text {
-  color: #CBD5E1 !important;
+/* Gmail Fields */
+.client-gmail .gmail-compose-fields {
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-bottom: 1px solid #E2E8F0;
+  background-color: #FFFFFF;
 }
 
-.client-window.dark-inbox .gmail-footer-toolbar {
-  background-color: #16181D !important;
-  border-top: 1px solid #242830 !important;
+.client-gmail.dark-inbox .gmail-compose-fields {
+  background-color: #111317;
+  border-bottom-color: #242830;
 }
 
-.client-window.dark-inbox .gmail-send-btn {
-  background-color: var(--sahinur-accent) !important;
-  color: #001A0E !important;
-  border-radius: 3px !important;
+.client-gmail .gmail-field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 13px;
+  border-bottom: 1px solid #F1F3F4;
+}
+
+.client-gmail.dark-inbox .gmail-field-row {
+  border-bottom-color: #1E2024;
+}
+
+.client-gmail .gmail-field-row:last-child {
+  border-bottom: none;
+}
+
+.client-gmail .gmail-field-label {
+  font-family: 'Google Sans', Roboto, Arial, sans-serif;
+  color: #5F6368;
+  font-size: 13px;
+  width: 75px;
+  flex-shrink: 0;
+}
+
+.client-gmail.dark-inbox .gmail-field-label {
+  color: #9AA0A6;
+}
+
+.client-gmail .gmail-recipient-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #E8F0FE;
+  border: 1px solid #D2E3FC;
+  border-radius: 16px;
+  padding: 2px 10px 2px 4px;
+  font-size: 12px;
+  color: #1967D2;
+  font-weight: 500;
+}
+
+.client-gmail.dark-inbox .gmail-recipient-chip {
+  background-color: #172B4D;
+  border-color: #1D396B;
+  color: #8AB4F8;
+}
+
+.client-gmail .chip-avatar {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: #1A73E8;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
   font-weight: 700;
-  font-family: var(--font-mono);
 }
 
-.client-window.dark-inbox .gmail-tools-icons {
-  color: #64748B !important;
+.client-gmail .chip-remove {
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+.client-gmail .chip-remove:hover {
+  opacity: 1;
+}
+
+.client-gmail .gmail-field-actions {
+  display: flex;
+  gap: 8px;
+  color: #5F6368;
+  font-size: 12px;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.client-gmail .gmail-field-actions .action-link:hover {
+  text-decoration: underline;
+  color: #1A73E8;
+}
+
+.client-gmail .gmail-subject-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'Google Sans', Roboto, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #202124;
+  padding: 4px 0;
+}
+
+.client-gmail.dark-inbox .gmail-subject-input {
+  color: #E8EAED;
+}
+
+/* Gmail Compose Body */
+.client-gmail .gmail-compose-body {
+  padding: 24px 20px 32px 20px;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: Roboto, Arial, Helvetica, sans-serif;
+  font-size: 13.5px;
+  background-color: #FFFFFF;
+}
+
+.client-gmail.dark-inbox .gmail-compose-body {
+  background-color: #111317;
+  color: #E8EAED;
+}
+
+.client-gmail .gmail-sample-text {
+  font-size: 13.5px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  color: #3C4043;
+}
+
+.client-gmail.dark-inbox .gmail-sample-text {
+  color: #BDC1C6;
+}
+
+/* Gmail Bottom Footer Toolbar */
+.client-gmail .gmail-footer-toolbar {
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #FFFFFF;
+  border-top: 1px solid #E2E8F0;
+}
+
+.client-gmail.dark-inbox .gmail-footer-toolbar {
+  background-color: #111317;
+  border-top-color: #242830;
+}
+
+.client-gmail .gmail-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.client-gmail .gmail-send-btn {
+  background-color: #0B57D0 !important;
+  color: #FFFFFF !important;
+  border: none;
+  border-radius: 18px;
+  padding: 7px 18px 7px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  font-family: 'Google Sans', Roboto, sans-serif;
+}
+
+.client-gmail .gmail-send-btn:hover {
+  background-color: #0842A0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.client-gmail.dark-inbox .gmail-send-btn {
+  background-color: #A8C7FA !important;
+  color: #040C19 !important;
+}
+
+.client-gmail.dark-inbox .gmail-send-btn:hover {
+  background-color: #D3E3FD !important;
+}
+
+.client-gmail .send-dropdown {
+  font-size: 10px;
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+  padding-left: 6px;
+  margin-left: 2px;
+}
+
+.client-gmail.dark-inbox .send-dropdown {
+  border-left-color: rgba(0, 0, 0, 0.2);
+}
+
+.client-gmail .gmail-formatting-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #444746;
+}
+
+.client-gmail.dark-inbox .gmail-formatting-tools {
+  color: #C4C7C5;
+}
+
+.client-gmail .tool-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.15s ease;
+}
+
+.client-gmail .tool-btn:hover {
+  background-color: #F2F2F2;
+}
+
+.client-gmail.dark-inbox .tool-btn:hover {
+  background-color: #2D2F31;
+}
+
+.client-gmail .trash-btn {
+  color: #5F6368;
+}
+
+.client-gmail.dark-inbox .trash-btn {
+  color: #9AA0A6;
+}
+
+
+/* ==========================================================================
+   2. APPLE MAIL (macOS) CLIENT SIMULATION (.client-apple)
+   ========================================================================== */
+
+/* Apple macOS Header */
+.client-apple {
+  border-radius: 10px;
+}
+
+.client-apple .apple-chrome-header {
+  background: linear-gradient(180deg, #EAEAEA 0%, #DFDFDF 100%);
+  padding: 10px 16px;
+  display: grid;
+  grid-template-columns: 80px 1fr 80px;
+  align-items: center;
+  border-bottom: 1px solid #C8C8C8;
+  user-select: none;
+}
+
+.client-apple.dark-inbox .apple-chrome-header {
+  background: linear-gradient(180deg, #2D2D2D 0%, #222222 100%);
+  border-bottom-color: #181818;
+}
+
+.client-apple .apple-traffic-lights {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.client-apple .traffic-light {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.client-apple .traffic-light.red {
+  background-color: #FF5F56;
+  border: 1px solid #E0443E;
+}
+
+.client-apple .traffic-light.yellow {
+  background-color: #FFBD2E;
+  border: 1px solid #DEA123;
+}
+
+.client-apple .traffic-light.green {
+  background-color: #27C93F;
+  border: 1px solid #1AAB29;
+}
+
+.client-apple .apple-title {
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333333;
+  letter-spacing: -0.01em;
+}
+
+.client-apple.dark-inbox .apple-title {
+  color: #ECECEC;
+}
+
+.client-apple .apple-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #F6F6F6;
+  border-bottom: 1px solid #E5E5E5;
+}
+
+.client-apple.dark-inbox .apple-toolbar {
+  background-color: #1E1E1E;
+  border-bottom-color: #2D2D2D;
+}
+
+.client-apple .apple-tool-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background-color: #FFFFFF;
+  border: 1px solid #D1D5DB;
+  border-radius: 5px;
+  color: #374151;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.15s ease;
+}
+
+.client-apple .apple-tool-action:hover {
+  background-color: #F9FAFB;
+  border-color: #9CA3AF;
+}
+
+.client-apple .apple-tool-action.primary {
+  background-color: #007AFF;
+  border-color: #0062CC;
+  color: #FFFFFF;
+}
+
+.client-apple .apple-tool-action.primary:hover {
+  background-color: #0062CC;
+}
+
+.client-apple.dark-inbox .apple-tool-action {
+  background-color: #2A2A2A;
+  border-color: #3D3D3D;
+  color: #E5E7EB;
+}
+
+.client-apple.dark-inbox .apple-tool-action:hover {
+  background-color: #333333;
+}
+
+.client-apple.dark-inbox .apple-tool-action.primary {
+  background-color: #0A84FF;
+  border-color: #0071E3;
+  color: #FFFFFF;
+}
+
+/* Apple Fields */
+.client-apple .gmail-compose-fields {
+  padding: 10px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.client-apple.dark-inbox .gmail-compose-fields {
+  background-color: #141414;
+  border-bottom-color: #262626;
+}
+
+.client-apple .apple-field-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  font-size: 13px;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.client-apple.dark-inbox .apple-field-row {
+  border-bottom-color: #1F1F1F;
+}
+
+.client-apple .apple-field-row:last-child {
+  border-bottom: none;
+}
+
+.client-apple .apple-field-label {
+  color: #6B7280;
+  font-size: 12.5px;
+  width: 50px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.client-apple.dark-inbox .apple-field-label {
+  color: #9CA3AF;
+}
+
+.client-apple .apple-token-pill {
+  display: inline-flex;
+  align-items: center;
+  background-color: #E0E7FF;
+  color: #3730A3;
+  border-radius: 12px;
+  padding: 2px 10px;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.client-apple.dark-inbox .apple-token-pill {
+  background-color: #1E1B4B;
+  color: #A5B4FC;
+}
+
+.client-apple .apple-field-value {
+  color: #111827;
+  font-size: 13px;
+}
+
+.client-apple.dark-inbox .apple-field-value {
+  color: #F3F4F6;
+}
+
+.client-apple .apple-field-value.bold {
+  font-weight: 600;
+}
+
+/* Apple Compose Body */
+.client-apple .gmail-compose-body {
+  padding: 24px 20px 32px 20px;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  font-size: 13.5px;
+  background-color: #FFFFFF;
+}
+
+.client-apple.dark-inbox .gmail-compose-body {
+  background-color: #141414;
+  color: #F3F4F6;
+}
+
+.client-apple .gmail-sample-text {
+  font-size: 13.5px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  color: #374151;
+}
+
+.client-apple.dark-inbox .gmail-sample-text {
+  color: #D1D5DB;
+}
+
+/* Apple Footer Status */
+.client-apple .apple-status-bar {
+  padding: 8px 18px;
+  background-color: #F9FAFB;
+  border-top: 1px solid #E5E7EB;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  font-size: 11.5px;
+  color: #6B7280;
+}
+
+.client-apple.dark-inbox .apple-status-bar {
+  background-color: #1A1A1A;
+  border-top-color: #262626;
+  color: #9CA3AF;
+}
+
+.client-apple .apple-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #10B981;
+}
+
+
+/* ==========================================================================
+   3. MICROSOFT OUTLOOK (365) CLIENT SIMULATION (.client-outlook)
+   ========================================================================== */
+
+/* Outlook Header */
+.client-outlook {
+  border-radius: 3px;
+}
+
+.client-outlook .outlook-chrome-header {
+  background-color: #0078D4;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #FFFFFF;
+  user-select: none;
+}
+
+.client-outlook.dark-inbox .outlook-chrome-header {
+  background-color: #0F6CBD;
+  border-bottom: 1px solid #005A9E;
+}
+
+.client-outlook .outlook-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.client-outlook .outlook-app-icon {
+  font-size: 14px;
+}
+
+.client-outlook .outlook-title {
+  font-family: 'Segoe UI', Tahoma, Calibri, sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.client-outlook .outlook-window-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.client-outlook .ctrl-btn {
+  cursor: pointer;
+  line-height: 1;
+  opacity: 0.85;
+}
+
+.client-outlook .ctrl-btn:hover {
+  opacity: 1;
+}
+
+.client-outlook .ctrl-btn.close-btn:hover {
+  color: #FFB900;
+}
+
+/* Outlook Ribbon / Toolbar */
+.client-outlook .outlook-ribbon {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background-color: #F3F2F1;
+  border-bottom: 1px solid #EDEBE9;
+}
+
+.client-outlook.dark-inbox .outlook-ribbon {
+  background-color: #201F1E;
+  border-bottom-color: #323130;
+}
+
+.client-outlook .outlook-send-btn {
+  background-color: #0078D4;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 2px;
+  padding: 6px 14px;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.client-outlook .outlook-send-btn:hover {
+  background-color: #106EBE;
+}
+
+.client-outlook.dark-inbox .outlook-send-btn {
+  background-color: #2886DE;
+}
+
+.client-outlook.dark-inbox .outlook-send-btn:hover {
+  background-color: #4BA0F2;
+}
+
+.client-outlook .outlook-ribbon-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-left: 1px solid #E1DFDD;
+  padding-left: 10px;
+}
+
+.client-outlook.dark-inbox .outlook-ribbon-group {
+  border-left-color: #3B3A39;
+}
+
+.client-outlook .outlook-ribbon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  color: #323130;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.client-outlook .outlook-ribbon-btn:hover {
+  background-color: #EDEBE9;
+  border-color: #C8C6C4;
+}
+
+.client-outlook.dark-inbox .outlook-ribbon-btn {
+  color: #F3F2F1;
+}
+
+.client-outlook.dark-inbox .outlook-ribbon-btn:hover {
+  background-color: #292827;
+  border-color: #484644;
+}
+
+/* Outlook Fields */
+.client-outlook .gmail-compose-fields {
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #EDEBE9;
+}
+
+.client-outlook.dark-inbox .gmail-compose-fields {
+  background-color: #1B1A19;
+  border-bottom-color: #292827;
+}
+
+.client-outlook .outlook-field-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 3px 0;
+  border-bottom: 1px solid #F3F2F1;
+}
+
+.client-outlook.dark-inbox .outlook-field-row {
+  border-bottom-color: #252423;
+}
+
+.client-outlook .outlook-field-row:last-child {
+  border-bottom: none;
+}
+
+.client-outlook .outlook-field-btn {
+  padding: 3px 10px;
+  background-color: #EDEBE9;
+  border: 1px solid #D2D0CE;
+  border-radius: 2px;
+  color: #323130;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  font-size: 11.5px;
+  font-weight: 600;
+  width: 48px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.client-outlook.dark-inbox .outlook-field-btn {
+  background-color: #292827;
+  border-color: #3B3A39;
+  color: #F3F2F1;
+}
+
+.client-outlook .outlook-field-value-box {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.client-outlook .outlook-contact-tag {
+  background-color: #EFF6FC;
+  border: 1px solid #C7E0F4;
+  border-radius: 2px;
+  padding: 2px 8px;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 12px;
+  color: #0078D4;
+}
+
+.client-outlook.dark-inbox .outlook-contact-tag {
+  background-color: #102A43;
+  border-color: #1A4D75;
+  color: #4BA0F2;
+}
+
+.client-outlook .outlook-subject-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'Segoe UI', Tahoma, Calibri, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #201F1E;
+  padding: 4px 0;
+}
+
+.client-outlook.dark-inbox .outlook-subject-input {
+  color: #F3F2F1;
+}
+
+/* Outlook Compose Body */
+.client-outlook .gmail-compose-body {
+  padding: 24px 20px 32px 20px;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: 'Segoe UI', Calibri, Arial, sans-serif;
+  font-size: 14px;
+  background-color: #FFFFFF;
+}
+
+.client-outlook.dark-inbox .gmail-compose-body {
+  background-color: #1B1A19;
+  color: #F3F2F1;
+}
+
+.client-outlook .gmail-sample-text {
+  font-size: 13.5px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  color: #323130;
+}
+
+.client-outlook.dark-inbox .gmail-sample-text {
+  color: #D2D0CE;
+}
+
+/* Outlook Footer Status */
+.client-outlook .outlook-status-bar {
+  padding: 6px 14px;
+  background-color: #F3F2F1;
+  border-top: 1px solid #EDEBE9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  font-size: 11px;
+  color: #605E5C;
+}
+
+.client-outlook.dark-inbox .outlook-status-bar {
+  background-color: #201F1E;
+  border-top-color: #323130;
+  color: #A19F9D;
+}
+
+.client-outlook .outlook-status-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.client-outlook .outlook-status-left .separator {
+  color: #D2D0CE;
+}
+
+.client-outlook.dark-inbox .outlook-status-left .separator {
+  color: #484644;
+}
+
+/* ==========================================================================
+   Shared Canvas & Dark Mode Helpers
+   ========================================================================== */
+.gmail-signature-area {
+  padding-top: 16px;
 }
 
 .client-window.dark-inbox .sig-dark-avatar,
@@ -163,140 +911,4 @@
 .client-window.dark-inbox #liveRenderCanvas .email-footer-bg {
   background-color: #0D0D0D !important;
   border-color: #242424 !important;
-}
-
-/* ==========================================================================
-   Header Chrome Elements
-   ========================================================================== */
-.gmail-header,
-.apple-mail-header {
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  user-select: none;
-}
-
-.gmail-title {
-  font-size: 12px;
-  font-weight: 600;
-  font-family: var(--font-mono);
-}
-
-.gmail-window-controls {
-  display: flex;
-  gap: 12px;
-  font-size: 13px;
-  font-family: var(--font-mono);
-}
-
-.gmail-compose-fields {
-  padding: 8px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.gmail-field-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12.5px;
-}
-
-.gmail-field-label {
-  width: 55px;
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-}
-
-.gmail-field-value {
-  font-weight: 500;
-}
-
-.gmail-compose-body {
-  padding: 24px 20px 32px 20px;
-  min-height: 220px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.gmail-sample-text {
-  font-size: 13.5px;
-  line-height: 1.6;
-  margin-bottom: 24px;
-}
-
-.gmail-signature-area {
-  padding-top: 16px;
-}
-
-/* Gmail Bottom Action Toolbar */
-.gmail-footer-toolbar {
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.gmail-send-btn {
-  border: none;
-  border-radius: 3px;
-  padding: 7px 18px;
-  font-size: 12.5px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.gmail-send-btn:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.gmail-tools-icons {
-  display: flex;
-  gap: 14px;
-  font-family: var(--font-mono);
-}
-
-/* ==========================================================================
-   Apple Mail Simulation
-   ========================================================================== */
-.traffic-lights {
-  display: flex;
-  gap: 6px;
-}
-
-.traffic-light {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-}
-
-.traffic-light.red { background-color: var(--mac-dot-red); }
-.traffic-light.yellow { background-color: var(--mac-dot-yellow); }
-.traffic-light.green { background-color: var(--mac-dot-green); }
-
-/* ==========================================================================
-   Outlook Simulation
-   ========================================================================== */
-.outlook-header {
-  background-color: #0078D4;
-  padding: 10px 16px;
-  color: #FFFFFF;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 12px;
-  font-weight: 600;
-  font-family: var(--font-mono);
-}
-
-.client-window.dark-inbox .outlook-header {
-  background-color: #181818 !important;
-  border-bottom: 1px solid #242424 !important;
 }

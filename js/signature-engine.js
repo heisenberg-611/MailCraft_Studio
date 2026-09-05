@@ -695,15 +695,16 @@ const SignatureEngine = {
     const size = Number(s.avatarSize) || 85;
     let borderRadius = '0px';
     if (s.avatarShape === 'circle') borderRadius = '50%';
-    else if (s.avatarShape === 'squircle') borderRadius = '24%';
-    else if (s.avatarShape === 'rounded') borderRadius = '12%';
+    else if (s.avatarShape === 'squircle') borderRadius = '20%';
+    else if (s.avatarShape === 'rounded') borderRadius = '8px';
+    else if (s.avatarShape === 'square') borderRadius = '0px';
 
     const borderWidth = Number(s.avatarBorderWidth) || 0;
-    const borderCss = borderWidth > 0 ? `border: ${borderWidth}px solid ${s.avatarBorderColor || '#2563EB'};` : 'border: 0;';
+    const borderCss = borderWidth > 0 ? `border: ${borderWidth}px solid ${s.avatarBorderColor || '#00DC82'};` : 'border: 0;';
     const darkGlow = s.isDarkModeActive ? 'filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.25));' : '';
 
     return `
-<img src="${src}" alt="${d.fullName}" class="sig-dark-avatar" width="${size}" height="${size}" border="0" style="display: block; width: ${size}px; height: ${size}px; max-width: ${size}px; max-height: ${size}px; border-radius: ${borderRadius}; ${borderCss} ${darkGlow} outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; image-rendering: -webkit-optimize-contrast;" />
+<img src="${src}" alt="${d.fullName || 'Avatar'}" class="sig-dark-avatar" width="${size}" height="${size}" border="0" style="display: block; width: ${size}px; height: ${size}px; max-width: ${size}px; max-height: ${size}px; border-radius: ${borderRadius}; ${borderCss} ${darkGlow} object-fit: cover; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; image-rendering: -webkit-optimize-contrast;" />
 `.trim();
   },
 
