@@ -1,6 +1,7 @@
 /**
  * Main Application Controller & State Manager
  * Coordinates UI, Live Rendering, Image Processing, and Exporters
+ * Theme: Sahinur.dev Matrix Terminal Architecture
  * Zero emojis
  */
 
@@ -13,7 +14,7 @@ const App = {
   // App State
   state: {
     data: Object.assign({}, Presets.defaultData),
-    settings: Object.assign({}, Presets.styles.dhrubojyoti.settings),
+    settings: Object.assign({}, Presets.styles.sahinurMatrix ? Presets.styles.sahinurMatrix.settings : Presets.styles.dhrubojyoti.settings),
     templateData: {
       title: 'Project Update',
       preheader: 'Important updates and technical collaboration overview',
@@ -45,6 +46,7 @@ const App = {
     });
 
     this.bindEvents();
+    this.bindWebsiteInteractions();
     this.syncFormWithState();
     this.syncEmailTemplateFromDom();
     this.updateLivePreview();
@@ -98,7 +100,7 @@ const App = {
     });
 
     container.innerHTML = orderedKeys.map(key => {
-      const meta = Icons.social[key] || { name: key, color: '#2563EB', svg: '' };
+      const meta = Icons.social[key] || { name: key, color: '#00FF88', svg: '' };
       const current = (this.state.data.socials || []).find(s => s.id === key) || { enabled: false, url: '' };
       const defItem = Presets.defaultData.socials.find(s => s.id === key) || { url: '' };
 
@@ -221,21 +223,21 @@ const App = {
     document.getElementById('avatarSizeVal').textContent = `${s.avatarSize || 85}px`;
     setVal('avatarZoom', ImageProcessor.config.zoom || 1.0);
     document.getElementById('avatarZoomVal').textContent = `${ImageProcessor.config.zoom || 1.0}x`;
-    setVal('avatarBorderWidth', s.avatarBorderWidth || 0);
-    document.getElementById('avatarBorderVal').textContent = `${s.avatarBorderWidth || 0}px`;
-    setVal('avatarBorderColor', s.avatarBorderColor || '#2563EB');
-    setVal('avatarBorderColorHex', s.avatarBorderColor || '#2563EB');
+    setVal('avatarBorderWidth', s.avatarBorderWidth !== undefined ? s.avatarBorderWidth : 2);
+    document.getElementById('avatarBorderVal').textContent = `${s.avatarBorderWidth !== undefined ? s.avatarBorderWidth : 2}px`;
+    setVal('avatarBorderColor', s.avatarBorderColor || '#00FF88');
+    setVal('avatarBorderColorHex', s.avatarBorderColor || '#00FF88');
 
     // DPI chips
     document.querySelectorAll('.dpi-chip').forEach(chip => {
       chip.classList.toggle('active', Number(chip.dataset.dpi) === (s.avatarDpi || 2));
     });
-    document.getElementById('hdBadge').textContent = `Retina ${s.avatarDpi || 2}x`;
-    document.getElementById('dpiLabel').textContent = `${s.avatarDpi || 2}x (${(s.avatarDpi || 2) * 150} DPI)`;
+    document.getElementById('hdBadge').textContent = `ONLINE // RETINA ${s.avatarDpi || 2}X`;
+    document.getElementById('dpiLabel').textContent = `[${s.avatarDpi || 2}x RETINA]`;
 
     // Shapes
     document.querySelectorAll('.shape-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.shape === (s.avatarShape || 'circle'));
+      btn.classList.toggle('active', btn.dataset.shape === (s.avatarShape || 'squircle'));
     });
 
     // Style & Colors
@@ -256,11 +258,11 @@ const App = {
     setVal('dividerThickness', s.dividerThickness || 2);
     document.getElementById('dividerThicknessVal').textContent = `${s.dividerThickness || 2}px`;
     setVal('dividerStyle', s.dividerStyle || 'solid');
-    setVal('iconStyle', s.iconStyle || 'brand');
+    setVal('iconStyle', s.iconStyle || 'accent');
     setVal('iconSize', s.iconSize || 18);
     document.getElementById('iconSizeVal').textContent = `${s.iconSize || 18}px`;
-    setVal('iconSpacing', s.iconSpacing || 6);
-    document.getElementById('iconSpacingVal').textContent = `${s.iconSpacing || 6}px`;
+    setVal('iconSpacing', s.iconSpacing || 8);
+    document.getElementById('iconSpacingVal').textContent = `${s.iconSpacing || 8}px`;
 
     // Addons
     setChecked('showBadge', d.showBadge);
@@ -363,8 +365,8 @@ const App = {
         chip.classList.add('active');
         this.state.settings.avatarDpi = dpi;
         ImageProcessor.config.dpi = dpi;
-        document.getElementById('hdBadge').textContent = `Retina ${dpi}x`;
-        document.getElementById('dpiLabel').textContent = `${dpi}x (${dpi * 150} DPI)`;
+        document.getElementById('hdBadge').textContent = `ONLINE // RETINA ${dpi}X`;
+        document.getElementById('dpiLabel').textContent = `[${dpi}x RETINA]`;
         ImageProcessor.process((dataUrl) => {
           this.state.data.avatarUrl = dataUrl;
           this.updateLivePreview();
@@ -630,9 +632,7 @@ const App = {
       });
       document.getElementById(`client${view.charAt(0).toUpperCase() + view.slice(1)}Btn`).classList.add('active');
       
-      const win = document.getElementById('clientWindow');
       const header = document.getElementById('simulatorHeader');
-      const titleEl = document.getElementById('simulatorTitle');
       const footer = document.getElementById('simulatorFooter');
 
       if (view === 'apple') {
@@ -643,16 +643,26 @@ const App = {
             <div class="traffic-light yellow"></div>
             <div class="traffic-light green"></div>
           </div>
-          <div style="font-size: 13px; font-weight: 600; color: inherit; margin-left: 10px;">New Message</div>
+          <div style="font-size: 12px; font-weight: 600; color: inherit; margin-left: 10px; font-family: var(--font-mono);">~/apple-mail/compose.eml</div>
         `;
         footer.style.display = 'none';
       } else if (view === 'outlook') {
         header.className = 'outlook-header';
-        header.innerHTML = `<div>Outlook Message</div><div style="font-size: 11px;">Send</div>`;
+        header.innerHTML = `<div style="font-family: var(--font-mono); font-size: 12px; font-weight: 600;">~/outlook/message.eml</div><div style="font-size: 11px; font-family: var(--font-mono); background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 3px;">SEND</div>`;
         footer.style.display = 'none';
       } else {
         header.className = 'gmail-header';
-        header.innerHTML = `<div class="gmail-title">New Message</div><div class="gmail-window-controls">&ndash; &Square; &times;</div>`;
+        header.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="sahinur-traffic-dots">
+              <span class="sahinur-traffic-dot red"></span>
+              <span class="sahinur-traffic-dot yellow"></span>
+              <span class="sahinur-traffic-dot green"></span>
+            </div>
+            <div class="gmail-title" style="font-family: var(--font-mono); font-size: 12px;">~/inbox/compose.eml</div>
+          </div>
+          <div class="gmail-window-controls">&ndash; &Square; &times;</div>
+        `;
         footer.style.display = 'flex';
       }
     };
@@ -858,9 +868,9 @@ const App = {
     if (!p) return;
     this.state.settings = Object.assign({}, p.settings);
     ImageProcessor.config.dpi = p.settings.avatarDpi || 2;
-    ImageProcessor.config.shape = p.settings.avatarShape || 'circle';
-    ImageProcessor.config.size = p.settings.avatarSize || 100;
-    ImageProcessor.config.borderWidth = p.settings.avatarBorderWidth || 0;
+    ImageProcessor.config.shape = p.settings.avatarShape || 'squircle';
+    ImageProcessor.config.size = p.settings.avatarSize || 85;
+    ImageProcessor.config.borderWidth = p.settings.avatarBorderWidth !== undefined ? p.settings.avatarBorderWidth : 2;
     ImageProcessor.config.borderColor = p.settings.avatarBorderColor || p.settings.accentColor;
 
     ImageProcessor.process((dataUrl) => {
@@ -889,6 +899,70 @@ const App = {
         this.bindGuideModalEvents();
       });
     });
+  },
+
+  /**
+   * Bind website-wide interactions (Preset showcase clicks, Docs tabs, Smooth scroll tracking)
+   */
+  bindWebsiteInteractions() {
+    // 1. Preset showcase 1-click load buttons
+    document.querySelectorAll('.preset-load-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const presetKey = btn.dataset.preset;
+        if (presetKey && Presets.styles[presetKey]) {
+          const select = document.getElementById('presetSelect');
+          if (select) select.value = presetKey;
+          this.applyPreset(presetKey);
+          
+          // Switch to Signature mode if currently in template mode
+          if (this.mode !== 'signature') {
+            document.getElementById('modeSignatureBtn').click();
+          }
+          
+          // Smooth scroll to studio
+          const studioEl = document.getElementById('studio');
+          if (studioEl) {
+            studioEl.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+      });
+    });
+
+    // 2. Documentation tabs
+    document.querySelectorAll('.docs-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const docKey = btn.dataset.doc;
+        document.querySelectorAll('.docs-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.docs-tab-content').forEach(c => c.classList.remove('active'));
+        
+        btn.classList.add('active');
+        const content = document.getElementById(`doc-${docKey}`);
+        if (content) content.classList.add('active');
+      });
+    });
+
+    // 3. Navigation active state tracking on scroll
+    const sections = document.querySelectorAll('header.hero-section, section.section-wrapper, section.studio-section');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    window.addEventListener('scroll', () => {
+      let current = '';
+      const scrollPos = window.scrollY + 120;
+      
+      sections.forEach(sec => {
+        const top = sec.offsetTop;
+        const height = sec.offsetHeight;
+        if (scrollPos >= top && scrollPos < top + height) {
+          current = sec.getAttribute('id');
+        }
+      });
+
+      if (current) {
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === `#${current}`);
+        });
+      }
+    }, { passive: true });
   },
 
   /**
@@ -986,7 +1060,7 @@ const App = {
           this.state.data.socials = mergedSocials;
         }
         if (parsed.settings) {
-          this.state.settings = Object.assign({}, Presets.styles.dhrubojyoti.settings, parsed.settings);
+          this.state.settings = Object.assign({}, (Presets.styles.sahinurMatrix || Presets.styles.dhrubojyoti).settings, parsed.settings);
         }
       }
     } catch (e) {

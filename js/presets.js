@@ -1,11 +1,48 @@
 /**
  * Pre-configured Style & Template Presets
+ * Integrated with Sahinur.dev Matrix Terminal System
  * Zero emojis - pure professional presets
  */
 
 const Presets = {
   // Style Presets
   styles: {
+    sahinurMatrix: {
+      id: 'sahinurMatrix',
+      name: 'Cyberpunk Matrix (Sahinur.dev)',
+      description: 'Obsidian terminal aesthetic with neon matrix green #00FF88 accent',
+      settings: {
+        template: 'vertical-divider',
+        fontFamily: "'Courier New', Courier, monospace",
+        nameFontSize: 17,
+        nameFontWeight: '700',
+        nameColor: '#0A0A0A',
+        titleFontSize: 13,
+        titleColor: '#00FF88',
+        bodyFontSize: 12.5,
+        bodyColor: '#242424',
+        labelColor: '#00FF88',
+        accentColor: '#00FF88',
+        linkColor: '#00FF88',
+        dividerStyle: 'solid',
+        dividerThickness: 2,
+        dividerColor: '#00FF88',
+        avatarShape: 'squircle',
+        avatarSize: 85,
+        avatarBorderWidth: 2,
+        avatarBorderColor: '#00FF88',
+        avatarDpi: 2,
+        iconStyle: 'accent',
+        iconSize: 18,
+        iconSpacing: 8,
+        showLabels: true,
+        labelPhone: '$ tel:',
+        labelEmail: '$ mail:',
+        labelWebsite: '$ web:',
+        showBadges: true,
+        badgeText: 'Dev Architect'
+      }
+    },
     dhrubojyoti: {
       id: 'dhrubojyoti',
       name: 'Reference - Modern Blue',

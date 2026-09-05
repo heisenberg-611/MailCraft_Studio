@@ -1,5 +1,5 @@
 /**
- * Email Client Installation Guides
+ * Email Client Installation Guides (Sahinur Matrix Terminal)
  * Step-by-step instructions for Gmail, Outlook, Apple Mail, and Thunderbird
  * Zero emojis
  */
@@ -9,7 +9,7 @@ const InstallationGuides = {
     gmail: {
       name: 'Gmail (Web & Workspace)',
       steps: [
-        'Click the "Copy Signature" button in this studio to copy the rich HTML signature.',
+        'Click the "Copy Rich Signature" button in this studio to copy the high-definition HTML signature.',
         'Open Gmail in your web browser and click the Settings icon (gear) in the top right.',
         'Click "See all settings" and scroll down to the "Signature" section.',
         'Click "+ Create new", give your signature a name (e.g., "Professional"), and click Create.',
@@ -17,12 +17,12 @@ const InstallationGuides = {
         'Under "Signature defaults", set your new signature for "For new emails use" and "On reply/forward use".',
         'Scroll to the bottom of the page and click "Save Changes".'
       ],
-      tip: 'Your high-definition logo will appear razor-sharp on Retina and 4K displays automatically.'
+      tip: 'Your high-definition logo and badges will appear razor-sharp on Retina and 4K displays automatically.'
     },
     appleMail: {
       name: 'Apple Mail (macOS)',
       steps: [
-        'Click the "Copy Signature" button in this studio.',
+        'Click the "Copy Rich Signature" button in this studio.',
         'Open Apple Mail on your Mac and go to Mail > Settings (or Preferences) in the menu bar.',
         'Select the "Signatures" tab at the top.',
         'Select your email account from the left column, then click the "+" button below the middle column.',
@@ -35,7 +35,7 @@ const InstallationGuides = {
     outlookWeb: {
       name: 'Outlook (Web & Microsoft 365)',
       steps: [
-        'Click "Copy Signature" in this studio.',
+        'Click "Copy Rich Signature" in this studio.',
         'Open Outlook in your browser and click the Settings (gear) icon in the top right header.',
         'Navigate to Mail > Compose and reply.',
         'Under "Email signature", click "+ New signature" and name it.',
@@ -43,12 +43,12 @@ const InstallationGuides = {
         'Select the signature in the dropdowns for "For New Messages" and "For Replies/Forwards".',
         'Click "Save" at the bottom of the pane.'
       ],
-      tip: 'Our table layout includes MSO-specific fixes for smooth Outlook rendering.'
+      tip: 'Our table layout includes MSO-specific conditionals for pixel-perfect Outlook rendering.'
     },
     outlookDesktop: {
       name: 'Outlook (Desktop App)',
       steps: [
-        'Click "Copy Signature" in this studio.',
+        'Click "Copy Rich Signature" in this studio.',
         'Open Outlook Desktop and go to File > Options > Mail > Signatures.',
         'Click "New", enter a name for your signature, and click OK.',
         'Click in the "Edit signature" text box below and press Ctrl + V to paste.',
@@ -60,7 +60,7 @@ const InstallationGuides = {
     thunderbird: {
       name: 'Mozilla Thunderbird',
       steps: [
-        'Click "Copy HTML Code" in this studio.',
+        'Click "Copy HTML Source" in this studio.',
         'Open Thunderbird, right-click on your email account name in the left pane, and select "Settings".',
         'Check the box that says "Use HTML (e.g., <b>bold</b>)".',
         'Paste the copied HTML code into the "Signature text" field.',
@@ -84,16 +84,24 @@ const InstallationGuides = {
     const stepsList = guide.steps.map((step, idx) => {
       return `
         <div class="guide-step-item">
-          <div class="guide-step-num">${idx + 1}</div>
+          <div class="guide-step-num">${String(idx + 1).padStart(2, '0')}</div>
           <div class="guide-step-text">${step}</div>
         </div>
       `;
     }).join('');
 
     return `
-      <div class="guide-modal-content">
-        <div class="guide-modal-header">
-          <div class="guide-modal-title">Signature Setup Guide</div>
+      <div class="guide-modal-content sahinur-terminal">
+        <div class="sahinur-terminal-header guide-modal-header">
+          <div class="sahinur-traffic-dots">
+            <span class="sahinur-traffic-dot red"></span>
+            <span class="sahinur-traffic-dot yellow"></span>
+            <span class="sahinur-traffic-dot green"></span>
+          </div>
+          <div class="guide-modal-title">
+            <span class="sahinur-prompt-prefix">$</span>
+            <span>docs/setup-guide.md &bull; ${guide.name}</span>
+          </div>
           <button class="modal-close-btn" id="closeGuideBtn" title="Close">
             ${Icons.ui.close}
           </button>
@@ -103,12 +111,12 @@ const InstallationGuides = {
             ${navItems}
           </div>
           <div class="guide-detail-card">
-            <h3 class="guide-client-title">${guide.name}</h3>
+            <h3 class="guide-client-title"><span class="sahinur-prompt-prefix">&gt;</span>${guide.name}</h3>
             <div class="guide-steps-container">
               ${stepsList}
             </div>
             <div class="guide-tip-banner">
-              <span class="guide-tip-label">Optimization Note:</span> ${guide.tip}
+              <span class="guide-tip-label">// TIP:</span> ${guide.tip}
             </div>
           </div>
         </div>
