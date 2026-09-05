@@ -33,15 +33,6 @@
         </div>
       </a>
 
-      <!-- Navigation Menu Links -->
-      <div class="nav-menu">
-        <a href="#overview" class="nav-link active">[01] Overview</a>
-        <a href="#features" class="nav-link">[02] Capabilities</a>
-        <a href="#presets" class="nav-link">[03] Presets</a>
-        <a href="#docs" class="nav-link">[04] Setup Guides</a>
-        <a href="#specs" class="nav-link">[05] Specs</a>
-      </div>
-
       <!-- Nav Actions -->
       <div class="nav-actions">
         <span class="sahinur-status-badge">
@@ -59,10 +50,6 @@
          ========================================================================== -->
     <header class="hero-section" id="overview">
       <div class="hero-status-row">
-        <span class="sahinur-status-badge">
-          <span class="sahinur-status-dot"></span>
-          AVAILABLE &bull; 100% IN-BROWSER ENGINE
-        </span>
         <div class="hero-cmd-line">
           <span class="sahinur-prompt-prefix">$</span> ./mailcraft --init --hd-retina --team-batch
         </div>
@@ -73,27 +60,29 @@
       </h1>
 
       <p class="hero-desc">
-        Developer-grade email signature compiler and full HTML template architecture. Generated entirely in your browser with Retina 2x/4x scaling, automated dark mode contrast algorithms, team batch CSV generation, and zero server transmission.
+        Developer-grade email signature compiler and responsive HTML template architecture. Built with 4x Retina canvas rasterization, automatic dark mode contrast algorithms, team batch CSV generation, and zero server transmission.
       </p>
 
       <div class="hero-cta-group">
         <a href="studio.html" class="btn-primary" style="padding: 12px 26px; font-size: 13.5px;">
-          <span class="sahinur-prompt-prefix">&gt;</span> Launch Individual Studio
+          <span class="sahinur-prompt-prefix">&gt;</span> Launch Studio
         </a>
-        <a href="studio.html?mode=team" class="btn-secondary" style="padding: 12px 22px; font-size: 13.5px;">
-          // Team Batch Generator
+        <a href="#presets" class="btn-secondary" style="padding: 12px 20px; font-size: 13.5px;">
+          // Explore Presets
+        </a>
+        <a href="studio.html?mode=team" class="btn-secondary" style="padding: 12px 20px; font-size: 13.5px;">
+          // Team Batch Mode
         </a>
         <a href="studio.html?mode=email" class="btn-secondary" style="padding: 12px 20px; font-size: 13.5px;">
           // Email Builder
         </a>
-        <a href="#presets" class="btn-secondary" style="padding: 12px 20px; font-size: 13.5px;">
-          # Browse 8+ Presets
-        </a>
       </div>
 
-      <!-- Interactive Hero Preview Window Showcase -->
-      <div style="width: 100%; margin-top: 36px;">
+      <!-- Interactive Hero Terminal Showcase -->
+      <div class="hero-terminal-showcase">
         <div class="sahinur-terminal" style="max-width: 920px; margin: 0 auto; border-color: var(--sahinur-border-strong);">
+          
+          <!-- Terminal Title Bar -->
           <div class="sahinur-terminal-header">
             <div class="sahinur-traffic-dots">
               <span class="sahinur-traffic-dot red"></span>
@@ -102,39 +91,49 @@
             </div>
             <div style="font-family: var(--font-mono); font-size: 12px;">
               <span class="sahinur-prompt-prefix">$</span>
-              <span>mailcraft --preview --preset=developerTerminal</span>
+              <span id="heroTerminalCmd">mailcraft --preview --preset=developerTerminal</span>
             </div>
-            <a href="studio.html?preset=developerTerminal" class="btn-primary" style="padding: 4px 12px; font-size: 11px;">
+            <a href="studio.html?preset=developerTerminal" id="heroOpenStudioBtn" class="btn-primary" style="padding: 4px 12px; font-size: 11px;">
               Open in Studio &rarr;
             </a>
           </div>
+
+          <!-- Interactive Preset Tabs Switcher -->
+          <div class="hero-preset-tabs">
+            <button class="hero-preset-tab active" data-preset="developerTerminal">[01] Developer Terminal</button>
+            <button class="hero-preset-tab" data-preset="academicScholar">[02] Academic Scholar</button>
+            <button class="hero-preset-tab" data-preset="corporateExecutive">[03] Corporate Executive</button>
+            <button class="hero-preset-tab" data-preset="creativeAgency">[04] Creative Agency</button>
+          </div>
           
-          <div style="padding: 24px 28px; background: #0c0e10; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px;">
-            <div style="display: flex; align-items: center; gap: 20px;">
+          <!-- Live Preview Canvas Container -->
+          <div id="heroPreviewCard" class="hero-preview-card">
+            <div class="hero-preview-identity">
+              
               <!-- Avatar Frame -->
-              <div style="width: 78px; height: 78px; border-radius: 4px; border: 2px solid var(--sahinur-accent); overflow: hidden; background: #181b1f; flex-shrink: 0; box-shadow: 0 0 16px var(--sahinur-accent-dim); display: flex; align-items: center; justify-content: center;">
+              <div id="heroAvatarFrame" class="hero-avatar-frame">
                 <img src="assets/default-avatar.jpg" id="heroPreviewAvatar" style="width: 100%; height: 100%; object-fit: cover;" alt="Avatar">
               </div>
 
               <!-- Content Column -->
-              <div style="display: flex; flex-direction: column; gap: 4px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                  <span style="font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.02em;">Dhrubojyoti Saha</span>
-                  <span class="sahinur-status-badge" style="padding: 2px 8px; font-size: 10px; color: var(--sahinur-accent); border-color: var(--sahinur-border-accent);">DEV ARCHITECT</span>
+              <div class="hero-preview-content">
+                <div class="hero-preview-name-row">
+                  <span id="heroNameText" style="font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.02em;">Dhrubojyoti Saha</span>
+                  <span id="heroBadgeText" class="sahinur-status-badge" style="padding: 2px 8px; font-size: 10px; color: #00DC82; border-color: rgba(0, 220, 130, 0.3);">DEV ARCHITECT</span>
                 </div>
-                <div style="font-family: var(--font-mono); font-size: 12.5px; color: var(--sahinur-accent); font-weight: 600;">
+                <div id="heroTitleText" style="font-family: var(--font-mono); font-size: 12.5px; color: #00DC82; font-weight: 600;">
                   Software Engineer &bull; BRAC University
                 </div>
-                <div style="font-family: var(--font-mono); font-size: 11.5px; color: #9CA3AF; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 14px;">
-                  <span><strong style="color: var(--sahinur-accent);">$ tel:</strong> +880 1607-608232</span>
-                  <span><strong style="color: var(--sahinur-accent);">$ mail:</strong> dhrubojyoti.saha@g.bracu.ac.bd</span>
-                  <span><strong style="color: var(--sahinur-accent);">$ web:</strong> www.dhrubojyoti.dev</span>
+                <div id="heroContactText" class="hero-preview-contacts">
+                  <span><strong style="color: #00DC82;">$ tel:</strong> +880 1607-608232</span>
+                  <span><strong style="color: #00DC82;">$ mail:</strong> dhrubojyoti.saha@g.bracu.ac.bd</span>
+                  <span><strong style="color: #00DC82;">$ web:</strong> www.dhrubojyoti.dev</span>
                 </div>
               </div>
             </div>
 
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <a href="studio.html?preset=developerTerminal" class="btn-primary" style="font-size: 12px; padding: 8px 16px;">
+            <div class="hero-preview-actions">
+              <a href="studio.html?preset=developerTerminal" id="heroCustomizeBtn" class="btn-primary" style="font-size: 12px; padding: 8px 16px; white-space: nowrap;">
                 <span class="sahinur-prompt-prefix">&gt;</span> Customize Now
               </a>
             </div>
@@ -179,39 +178,95 @@
     </header>
 
     <!-- ==========================================================================
-         3. Feature Capabilities Matrix (#features)
+         3. The Three Core Product Pillars
          ========================================================================== -->
-    <section class="section-wrapper" id="features">
+    <section class="section-wrapper" id="pillars">
       <div class="section-header-box">
-        <div class="sahinur-eyebrow">// 02. SYSTEM ARCHITECTURE &amp; CAPABILITIES</div>
-        <h2 class="section-main-title">Engineered for Technical Excellence</h2>
-        <p class="section-subtext">Every signature and email layout is compiled using email-safe HTML standards and optimized for crisp high-density displays.</p>
+        <div class="sahinur-eyebrow">// 02. SYSTEM ARCHITECTURE &amp; ENGINES</div>
+        <h2 class="section-main-title">Three Powerful Email Engines in One Studio</h2>
+        <p class="section-subtext">Engineered from the ground up for technical precision, cross-client compatibility, and instant zero-server execution.</p>
       </div>
 
-      <div class="features-grid">
-        <div class="sahinur-card feature-box">
-          <div class="feature-index">// 01. HIGH-DPI RASTERIZATION</div>
-          <h3 class="feature-title">Retina Multiplier Engine</h3>
-          <p class="feature-desc">Utilizes browser Canvas 2D APIs to supersample your avatar image up to 4x native resolution, maintaining razor-sharp edges on Retina &amp; Ultra-HD monitors.</p>
+      <div class="pillars-grid">
+        
+        <!-- Pillar 1: Signature Studio -->
+        <div class="pillar-card">
+          <div>
+            <div class="pillar-header">
+              <span class="pillar-badge">[ENGINE 01]</span>
+              <span class="sahinur-status-badge">INDIVIDUAL</span>
+            </div>
+            <h3 class="pillar-title" style="margin-top: 14px;">Precision Signature Studio</h3>
+            <p class="pillar-desc" style="margin-top: 8px;">
+              Compile razor-sharp email signatures with pixel ratio compensation, 168+ philosophical quotes engine, subpixel vector icons, and granular color customization for every text element.
+            </p>
+            <ul class="pillar-features-list" style="margin-top: 18px;">
+              <li><span class="bullet">&gt;</span> 4x Canvas Retina Supersampling</li>
+              <li><span class="bullet">&gt;</span> 168+ Curated Quotes with Auto-Shuffle</li>
+              <li><span class="bullet">&gt;</span> Granular Text, Title &amp; Divider Colors</li>
+              <li><span class="bullet">&gt;</span> Automatic Light &amp; Dark Inbox Adaptation</li>
+            </ul>
+          </div>
+          <div class="pillar-actions">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--sahinur-text-dim);">8+ Curated Styles</span>
+            <a href="studio.html" class="btn-primary" style="font-size: 11.5px; padding: 6px 14px;">
+              <span class="sahinur-prompt-prefix">&gt;</span> Open Studio
+            </a>
+          </div>
         </div>
 
-        <div class="sahinur-card feature-box">
-          <div class="feature-index">// 02. DUAL INBOX INTELLIGENCE</div>
-          <h3 class="feature-title">Auto Dark Mode Adaptation</h3>
-          <p class="feature-desc">Embedded luminance algorithms dynamically optimize brand logos, borders, and typography so your signature looks stunning in both Light and Dark mode inboxes.</p>
+        <!-- Pillar 2: Team Batch Engine -->
+        <div class="pillar-card">
+          <div>
+            <div class="pillar-header">
+              <span class="pillar-badge">[ENGINE 02]</span>
+              <span class="sahinur-status-badge">ENTERPRISE</span>
+            </div>
+            <h3 class="pillar-title" style="margin-top: 14px;">Team Batch CSV Compiler</h3>
+            <p class="pillar-desc" style="margin-top: 8px;">
+              Standardize corporate branding across hundreds of employees. Upload any CSV roster, preview individual members live in the simulator, and download a ready-to-deploy ZIP archive.
+            </p>
+            <ul class="pillar-features-list" style="margin-top: 18px;">
+              <li><span class="bullet">&gt;</span> 100% In-Browser CSV Roster Parsing</li>
+              <li><span class="bullet">&gt;</span> Master Brand Settings Inheritance</li>
+              <li><span class="bullet">&gt;</span> Live Team Member Switcher &amp; Preview</li>
+              <li><span class="bullet">&gt;</span> 1-Click Batch HTML ZIP Exporter</li>
+            </ul>
+          </div>
+          <div class="pillar-actions">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--sahinur-text-dim);">Zero Server Egress</span>
+            <a href="studio.html?mode=team" class="btn-primary" style="font-size: 11.5px; padding: 6px 14px;">
+              <span class="sahinur-prompt-prefix">&gt;</span> Batch Generator
+            </a>
+          </div>
         </div>
 
-        <div class="sahinur-card feature-box">
-          <div class="feature-index">// 03. TEAM BATCH ENGINE</div>
-          <h3 class="feature-title">CSV Import &amp; ZIP Exporter</h3>
-          <p class="feature-desc">Import company rosters via CSV, preview any team member instantly in the simulator, and download a ready-to-deploy ZIP containing individual HTML files.</p>
+        <!-- Pillar 3: Email Template Builder -->
+        <div class="pillar-card">
+          <div>
+            <div class="pillar-header">
+              <span class="pillar-badge">[ENGINE 03]</span>
+              <span class="sahinur-status-badge">BROADCAST</span>
+            </div>
+            <h3 class="pillar-title" style="margin-top: 14px;">Broadcast Email Builder</h3>
+            <p class="pillar-desc" style="margin-top: 8px;">
+              Design responsive newsletters, outreach emails, and project updates that render flawlessly across Gmail, Apple Mail, Outlook 365, and mobile clients with embedded signatures.
+            </p>
+            <ul class="pillar-features-list" style="margin-top: 18px;">
+              <li><span class="bullet">&gt;</span> Cross-Client Nested HTML Table Structure</li>
+              <li><span class="bullet">&gt;</span> Customizable Callout Boxes &amp; Action CTAs</li>
+              <li><span class="bullet">&gt;</span> Microsoft Word / Outlook MSO Tagging</li>
+              <li><span class="bullet">&gt;</span> Seamless 1-Click HTML &amp; Rich Text Copy</li>
+            </ul>
+          </div>
+          <div class="pillar-actions">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--sahinur-text-dim);">5+ Email Blueprints</span>
+            <a href="studio.html?mode=email" class="btn-primary" style="font-size: 11.5px; padding: 6px 14px;">
+              <span class="sahinur-prompt-prefix">&gt;</span> Email Builder
+            </a>
+          </div>
         </div>
 
-        <div class="sahinur-card feature-box">
-          <div class="feature-index">// 04. INSTANT CLIPBOARD EXPORT</div>
-          <h3 class="feature-title">Rich Text Clipboard API</h3>
-          <p class="feature-desc">Directly transfers formatted rich HTML and fallback plain text to your system clipboard with a single click—no manual coding or server sync required.</p>
-        </div>
       </div>
     </section>
 
@@ -220,25 +275,35 @@
          ========================================================================== -->
     <section class="section-wrapper" id="presets">
       <div class="section-header-box">
-        <div class="sahinur-eyebrow">// 03. PRESET SHOWCASE LIBRARY</div>
-        <h2 class="section-main-title">Curated Multi-Industry Presets</h2>
+        <div class="sahinur-eyebrow">// 03. CURATED PRESETS GALLERY</div>
+        <h2 class="section-main-title">Multi-Industry Signature Presets</h2>
         <p class="section-subtext">Choose a template style below to open it directly in the Studio workspace with 1 click.</p>
       </div>
 
-      <div class="showcase-grid">
+      <!-- Preset Category Filter Bar -->
+      <div class="preset-filter-bar">
+        <button class="preset-filter-btn active" data-filter="all">All Presets (8)</button>
+        <button class="preset-filter-btn" data-filter="tech">Engineering</button>
+        <button class="preset-filter-btn" data-filter="academic">Academia</button>
+        <button class="preset-filter-btn" data-filter="corp">Corporate</button>
+        <button class="preset-filter-btn" data-filter="creative">Creative</button>
+        <button class="preset-filter-btn" data-filter="minimal">Minimalist</button>
+      </div>
+
+      <div class="showcase-grid" id="presetsShowcaseGrid">
         
         <!-- Preset 1: Developer Terminal -->
-        <div class="sahinur-card showcase-card">
+        <div class="sahinur-card showcase-card" data-category="tech">
           <div class="showcase-card-top">
             <div class="showcase-header-row">
               <h3 class="showcase-title">Developer Terminal</h3>
-              <span class="sahinur-status-badge" style="color: var(--sahinur-accent); border-color: var(--sahinur-border-accent);">#00DC82 EMERALD</span>
+              <span class="sahinur-status-badge" style="color: #00DC82; border-color: rgba(0, 220, 130, 0.3);">#00DC82 EMERALD</span>
             </div>
             <p class="showcase-desc">Obsidian terminal aesthetic with squircle avatar, soothing emerald divider, and monospace CLI prefix labels.</p>
             <div class="showcase-tags">
               <span class="showcase-tag">JetBrains Mono</span>
               <span class="showcase-tag">Squircle 2x</span>
-              <span class="showcase-tag">Dark Safe</span>
+              <span class="showcase-tag">CLI Labels</span>
             </div>
           </div>
           <div class="showcase-card-actions">
@@ -249,11 +314,11 @@
         </div>
 
         <!-- Preset 2: Academic Scholar -->
-        <div class="showcase-card sahinur-card">
+        <div class="showcase-card sahinur-card" data-category="academic">
           <div class="showcase-card-top">
             <div class="showcase-header-row">
               <h3 class="showcase-title">Academic Scholar</h3>
-              <span class="sahinur-status-badge">SAPPHIRE SERIF</span>
+              <span class="sahinur-status-badge" style="color: #818CF8; border-color: rgba(129, 140, 248, 0.3);">SAPPHIRE SERIF</span>
             </div>
             <p class="showcase-desc">Classic editorial typography with Georgia serif, deep sapphire divider, circular avatar, ORCID, Google Scholar, and university affiliation badge.</p>
             <div class="showcase-tags">
@@ -263,18 +328,18 @@
             </div>
           </div>
           <div class="showcase-card-actions">
-            <a href="studio.html?preset=academicScholar" class="btn-secondary">
-              Load in Studio
+            <a href="studio.html?preset=academicScholar" class="btn-primary">
+              <span class="sahinur-prompt-prefix">&gt;</span> Load in Studio
             </a>
           </div>
         </div>
 
         <!-- Preset 3: Corporate Executive -->
-        <div class="showcase-card sahinur-card">
+        <div class="showcase-card sahinur-card" data-category="corp">
           <div class="showcase-card-top">
             <div class="showcase-header-row">
               <h3 class="showcase-title">Corporate Executive</h3>
-              <span class="sahinur-status-badge">NAVY EXECUTIVE</span>
+              <span class="sahinur-status-badge" style="color: #60A5FA; border-color: rgba(96, 165, 250, 0.3);">NAVY EXECUTIVE</span>
             </div>
             <p class="showcase-desc">Formal executive two-column layout with deep corporate navy accents, structured contact matrix, and compliance disclaimer.</p>
             <div class="showcase-tags">
@@ -284,20 +349,20 @@
             </div>
           </div>
           <div class="showcase-card-actions">
-            <a href="studio.html?preset=corporateExecutive" class="btn-secondary">
-              Load in Studio
+            <a href="studio.html?preset=corporateExecutive" class="btn-primary">
+              <span class="sahinur-prompt-prefix">&gt;</span> Load in Studio
             </a>
           </div>
         </div>
 
         <!-- Preset 4: Creative Agency -->
-        <div class="showcase-card sahinur-card">
+        <div class="showcase-card sahinur-card" data-category="creative">
           <div class="showcase-card-top">
             <div class="showcase-header-row">
               <h3 class="showcase-title">Creative Agency</h3>
-              <span class="sahinur-status-badge">VIOLET GEOMETRIC</span>
+              <span class="sahinur-status-badge" style="color: #C084FC; border-color: rgba(192, 132, 252, 0.3);">VIOLET MODERN</span>
             </div>
-            <p class="showcase-desc">Dynamic modern card framing with electric violet accents, pill badges, and dual image personal headshot + brand logo support.</p>
+            <p class="showcase-desc">Dynamic modern card framing with electric violet accents, pill badges, and dual media headshot + brand logo support.</p>
             <div class="showcase-tags">
               <span class="showcase-tag">Modern Card</span>
               <span class="showcase-tag">Electric Violet</span>
@@ -305,18 +370,18 @@
             </div>
           </div>
           <div class="showcase-card-actions">
-            <a href="studio.html?preset=creativeAgency" class="btn-secondary">
-              Load in Studio
+            <a href="studio.html?preset=creativeAgency" class="btn-primary">
+              <span class="sahinur-prompt-prefix">&gt;</span> Load in Studio
             </a>
           </div>
         </div>
 
         <!-- Preset 5: Minimalist One-Liner -->
-        <div class="showcase-card sahinur-card">
+        <div class="showcase-card sahinur-card" data-category="minimal">
           <div class="showcase-card-top">
             <div class="showcase-header-row">
               <h3 class="showcase-title">Minimalist One-Liner</h3>
-              <span class="sahinur-status-badge">COMPACT MOBILE</span>
+              <span class="sahinur-status-badge" style="color: #94A3B8; border-color: rgba(148, 163, 184, 0.3);">COMPACT MOBILE</span>
             </div>
             <p class="showcase-desc">Ultra-compact horizontal format designed specifically for rapid high-volume email threads and mobile messaging.</p>
             <div class="showcase-tags">
@@ -326,18 +391,18 @@
             </div>
           </div>
           <div class="showcase-card-actions">
-            <a href="studio.html?preset=minimalistOneLiner" class="btn-secondary">
-              Load in Studio
+            <a href="studio.html?preset=minimalistOneLiner" class="btn-primary">
+              <span class="sahinur-prompt-prefix">&gt;</span> Load in Studio
             </a>
           </div>
         </div>
 
         <!-- Preset 6: Marketing Promo -->
-        <div class="showcase-card sahinur-card">
+        <div class="showcase-card sahinur-card" data-category="corp">
           <div class="showcase-card-top">
             <div class="showcase-header-row">
               <h3 class="showcase-title">Marketing Promo</h3>
-              <span class="sahinur-status-badge">CRIMSON PROMO</span>
+              <span class="sahinur-status-badge" style="color: #F87171; border-color: rgba(248, 113, 113, 0.3);">CRIMSON PROMO</span>
             </div>
             <p class="showcase-desc">Features full-width promotional announcement banner, campaign click tracking URL, and prominent CTA button.</p>
             <div class="showcase-tags">
@@ -347,18 +412,18 @@
             </div>
           </div>
           <div class="showcase-card-actions">
-            <a href="studio.html?preset=marketingPromo" class="btn-secondary">
-              Load in Studio
+            <a href="studio.html?preset=marketingPromo" class="btn-primary">
+              <span class="sahinur-prompt-prefix">&gt;</span> Load in Studio
             </a>
           </div>
         </div>
 
         <!-- Preset 7: Silicon Valley Minimal -->
-        <div class="showcase-card sahinur-card">
+        <div class="showcase-card sahinur-card" data-category="tech">
           <div class="showcase-card-top">
             <div class="showcase-header-row">
               <h3 class="showcase-title">Silicon Valley Minimal</h3>
-              <span class="sahinur-status-badge">TECH MINT</span>
+              <span class="sahinur-status-badge" style="color: #34D399; border-color: rgba(52, 211, 153, 0.3);">TECH MINT</span>
             </div>
             <p class="showcase-desc">Modern startup aesthetic with Inter typography, emerald accents, rounded photo frame, and verified engineer chip.</p>
             <div class="showcase-tags">
@@ -368,18 +433,18 @@
             </div>
           </div>
           <div class="showcase-card-actions">
-            <a href="studio.html?preset=siliconValley" class="btn-secondary">
-              Load in Studio
+            <a href="studio.html?preset=siliconValley" class="btn-primary">
+              <span class="sahinur-prompt-prefix">&gt;</span> Load in Studio
             </a>
           </div>
         </div>
 
         <!-- Preset 8: Nordic Clean Slate -->
-        <div class="showcase-card sahinur-card">
+        <div class="showcase-card sahinur-card" data-category="minimal">
           <div class="showcase-card-top">
             <div class="showcase-header-row">
               <h3 class="showcase-title">Nordic Clean Slate</h3>
-              <span class="sahinur-status-badge">MINIMAL SKY</span>
+              <span class="sahinur-status-badge" style="color: #38BDF8; border-color: rgba(56, 189, 248, 0.3);">MINIMAL SKY</span>
             </div>
             <p class="showcase-desc">Airy Scandinavian design with horizontal separator line, subtle sky blue accents, and compact icon pill badges.</p>
             <div class="showcase-tags">
@@ -389,8 +454,8 @@
             </div>
           </div>
           <div class="showcase-card-actions">
-            <a href="studio.html?preset=nordicClean" class="btn-secondary">
-              Load in Studio
+            <a href="studio.html?preset=nordicClean" class="btn-primary">
+              <span class="sahinur-prompt-prefix">&gt;</span> Load in Studio
             </a>
           </div>
         </div>
@@ -525,44 +590,7 @@
     </section>
 
     <!-- ==========================================================================
-         6. Technical Specifications (#specs)
-         ========================================================================== -->
-    <section class="section-wrapper" id="specs">
-      <div class="section-header-box">
-        <div class="sahinur-eyebrow">// 05. TECHNICAL SPECIFICATIONS</div>
-        <h2 class="section-main-title">Compiler Architecture Specs</h2>
-        <p class="section-subtext">Deep-dive into the rendering engine standards powering MailCraft.</p>
-      </div>
-
-      <div class="features-grid">
-        <div class="sahinur-card feature-box">
-          <div class="feature-index">// SPEC 01. CANVAS RASTERIZER</div>
-          <h3 class="feature-title">Retina Multiplier Algorithm</h3>
-          <p class="feature-desc">Source images are resampled via offscreen <code>HTMLCanvasElement</code> with bicubic filtering and pixel ratio compensation (up to 4x), generating base64 PNG data without server artifacts.</p>
-        </div>
-
-        <div class="sahinur-card feature-box">
-          <div class="feature-index">// SPEC 02. INLINE STYLING</div>
-          <h3 class="feature-title">Zero Class-Dependence</h3>
-          <p class="feature-desc">All styles are inlined at compile time into <code>style=""</code> attributes on nested tables to ensure 100% compliance across stripping webmail clients like Gmail web and Yahoo.</p>
-        </div>
-
-        <div class="sahinur-card feature-box">
-          <div class="feature-index">// SPEC 03. SECURITY &amp; PRIVACY</div>
-          <h3 class="feature-title">Zero Egress Policy</h3>
-          <p class="feature-desc">Operates entirely in-browser. No API tokens, analytics trackers, or contact records are ever transmitted over external networks.</p>
-        </div>
-
-        <div class="sahinur-card feature-box">
-          <div class="feature-index">// SPEC 04. MSO COMPATIBILITY</div>
-          <h3 class="feature-title">Outlook Conditional Tags</h3>
-          <p class="feature-desc">Embedded <code>&lt;!--[if mso]&gt;</code> tags enforce rigid cell widths and prevent Microsoft Word rendering engine glitches.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==========================================================================
-         7. Site Footer
+         6. Site Footer
          ========================================================================== -->
     <footer class="site-footer">
       <div class="footer-inner">
@@ -591,7 +619,7 @@
   <script src="js/dot-matrix.js"></script>
 
   <script>
-    // Tab switching for documentation on landing page
+    // 1. Tab switching for documentation on landing page
     document.querySelectorAll('.docs-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.docs-tab-btn').forEach(b => b.classList.remove('active'));
@@ -609,11 +637,156 @@
       });
     });
 
-    // Check avatar preview on hero
-    if (typeof DEFAULT_AVATAR_BASE64 !== 'undefined' && DEFAULT_AVATAR_BASE64) {
-      const heroAvatar = document.getElementById('heroPreviewAvatar');
-      if (heroAvatar) heroAvatar.src = DEFAULT_AVATAR_BASE64;
-    }
+    // 2. Check avatar preview on hero
+    const defaultAvatarSrc = (typeof DEFAULT_AVATAR_BASE64 !== 'undefined' && DEFAULT_AVATAR_BASE64) ? DEFAULT_AVATAR_BASE64 : 'assets/default-avatar.jpg';
+    const heroAvatar = document.getElementById('heroPreviewAvatar');
+    if (heroAvatar) heroAvatar.src = defaultAvatarSrc;
+
+    // 3. Interactive Hero Preset Switcher
+    const heroPresetsData = {
+      developerTerminal: {
+        cmd: 'mailcraft --preview --preset=developerTerminal',
+        name: 'Dhrubojyoti Saha',
+        badge: 'DEV ARCHITECT',
+        badgeColor: '#00DC82',
+        title: 'Software Engineer • BRAC University',
+        titleColor: '#00DC82',
+        font: "'JetBrains Mono', monospace",
+        borderColor: '#00DC82',
+        borderRadius: '4px',
+        contacts: [
+          { label: '$ tel:', value: '+880 1607-608232' },
+          { label: '$ mail:', value: 'dhrubojyoti.saha@g.bracu.ac.bd' },
+          { label: '$ web:', value: 'www.dhrubojyoti.dev' }
+        ],
+        accentColor: '#00DC82'
+      },
+      academicScholar: {
+        cmd: 'mailcraft --preview --preset=academicScholar',
+        name: 'Dhrubojyoti Saha',
+        badge: 'RESEARCH FELLOW',
+        badgeColor: '#818CF8',
+        title: 'Dept. of Computer Science & Engineering • BRACU',
+        titleColor: '#818CF8',
+        font: "Georgia, 'Times New Roman', serif",
+        borderColor: '#818CF8',
+        borderRadius: '50%',
+        contacts: [
+          { label: 'Cell:', value: '+880 1607-608232' },
+          { label: 'Institutional:', value: 'dhrubojyoti.saha@g.bracu.ac.bd' },
+          { label: 'ORCID:', value: '0009-0002-1234-5678' }
+        ],
+        accentColor: '#818CF8'
+      },
+      corporateExecutive: {
+        cmd: 'mailcraft --preview --preset=corporateExecutive',
+        name: 'Dhrubojyoti Saha',
+        badge: 'LEAD ARCHITECT',
+        badgeColor: '#60A5FA',
+        title: 'Chief Solutions Architect • Systems Engineering',
+        titleColor: '#60A5FA',
+        font: "'Inter', sans-serif",
+        borderColor: '#60A5FA',
+        borderRadius: '0px',
+        contacts: [
+          { label: 'Direct:', value: '+880 1607-608232' },
+          { label: 'Corporate:', value: 'dhrubojyoti.saha@g.bracu.ac.bd' },
+          { label: 'Office:', value: 'Dhaka, Bangladesh' }
+        ],
+        accentColor: '#60A5FA'
+      },
+      creativeAgency: {
+        cmd: 'mailcraft --preview --preset=creativeAgency',
+        name: 'Dhrubojyoti Saha',
+        badge: 'CREATIVE TECH',
+        badgeColor: '#C084FC',
+        title: 'Creative Director & Full-Stack Engineer',
+        titleColor: '#C084FC',
+        font: "'Inter', sans-serif",
+        borderColor: '#C084FC',
+        borderRadius: '8px',
+        contacts: [
+          { label: 'M:', value: '+880 1607-608232' },
+          { label: 'E:', value: 'dhrubojyoti.saha@g.bracu.ac.bd' },
+          { label: 'W:', value: 'www.dhrubojyoti.dev' }
+        ],
+        accentColor: '#C084FC'
+      }
+    };
+
+    document.querySelectorAll('.hero-preset-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.hero-preset-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        const presetKey = tab.dataset.preset;
+        const data = heroPresetsData[presetKey];
+        if (!data) return;
+
+        // Update command line & action URLs
+        const cmdEl = document.getElementById('heroTerminalCmd');
+        if (cmdEl) cmdEl.textContent = data.cmd;
+
+        const openBtn = document.getElementById('heroOpenStudioBtn');
+        if (openBtn) openBtn.href = `studio.html?preset=${presetKey}`;
+
+        const customBtn = document.getElementById('heroCustomizeBtn');
+        if (customBtn) customBtn.href = `studio.html?preset=${presetKey}`;
+
+        // Update preview content
+        const nameEl = document.getElementById('heroNameText');
+        if (nameEl) {
+          nameEl.textContent = data.name;
+          nameEl.style.fontFamily = data.font;
+        }
+
+        const badgeEl = document.getElementById('heroBadgeText');
+        if (badgeEl) {
+          badgeEl.textContent = data.badge;
+          badgeEl.style.color = data.badgeColor;
+          badgeEl.style.borderColor = `${data.badgeColor}4D`;
+        }
+
+        const titleEl = document.getElementById('heroTitleText');
+        if (titleEl) {
+          titleEl.textContent = data.title;
+          titleEl.style.color = data.titleColor;
+          titleEl.style.fontFamily = data.font;
+        }
+
+        const frameEl = document.getElementById('heroAvatarFrame');
+        if (frameEl) {
+          frameEl.style.borderColor = data.borderColor;
+          frameEl.style.borderRadius = data.borderRadius;
+          frameEl.style.boxShadow = `0 0 16px ${data.borderColor}33`;
+        }
+
+        const contactEl = document.getElementById('heroContactText');
+        if (contactEl) {
+          contactEl.style.fontFamily = data.font;
+          contactEl.innerHTML = data.contacts.map(c => `
+            <span><strong style="color: ${data.accentColor};">${c.label}</strong> ${c.value}</span>
+          `).join('');
+        }
+      });
+    });
+
+    // 4. Preset Gallery Filter Tabs
+    document.querySelectorAll('.preset-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.preset-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const filter = btn.dataset.filter;
+        document.querySelectorAll('#presetsShowcaseGrid .showcase-card').forEach(card => {
+          if (filter === 'all' || card.dataset.category === filter) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
   </script>
 </body>
 </html>

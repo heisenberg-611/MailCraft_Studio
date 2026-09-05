@@ -1,9 +1,3 @@
-/* ==========================================================================
-   SAHINUR.DEV THEME & DESIGN SYSTEM
-   Source: https://www.sahinur.dev/
-   Style: Matrix Terminal / Cyberpunk Hacker / Dev CLI Architecture
-   ========================================================================== */
-
 :root {
   /* Core Color Palette */
   --sahinur-accent: #00FF88;
