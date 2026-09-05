@@ -35,8 +35,9 @@ const Presets = {
         iconSize: 18,
         iconSpacing: 6,
         showLabels: true,
-        labelPhone: 'M:',
-        labelEmail: 'E:',
+        labelPhone: 'Mobile:',
+        labelEmail: 'E-mail:',
+        labelWebsite: 'Website:',
         showBadges: false
       }
     },
@@ -69,8 +70,9 @@ const Presets = {
         iconSize: 18,
         iconSpacing: 10,
         showLabels: true,
-        labelPhone: 'P:',
-        labelEmail: 'E:',
+        labelPhone: 'Phone:',
+        labelEmail: 'E-mail:',
+        labelWebsite: 'Website:',
         showBadges: true,
         badgeText: 'Verified Developer'
       }
@@ -106,6 +108,7 @@ const Presets = {
         showLabels: true,
         labelPhone: 'Tel:',
         labelEmail: 'Email:',
+        labelWebsite: 'Web:',
         showBadges: false
       }
     },
@@ -140,6 +143,7 @@ const Presets = {
         showLabels: true,
         labelPhone: 'Cell:',
         labelEmail: 'Institutional:',
+        labelWebsite: 'Web:',
         showBadges: true,
         badgeText: 'BRAC University'
       }
@@ -173,6 +177,7 @@ const Presets = {
         iconSize: 16,
         iconSpacing: 6,
         showLabels: false,
+        labelWebsite: 'Web:',
         showBadges: false
       }
     },
@@ -207,6 +212,7 @@ const Presets = {
         showLabels: true,
         labelPhone: 'MOB//',
         labelEmail: 'NET//',
+        labelWebsite: 'WEB//',
         showBadges: true,
         badgeText: 'Dev Protocol v2'
       }
@@ -242,7 +248,16 @@ const Presets = {
       { id: 'instagram', enabled: true, url: 'https://instagram.com' },
       { id: 'github', enabled: false, url: 'https://github.com' },
       { id: 'website', enabled: false, url: 'https://dhrubojyoti.dev' },
-      { id: 'whatsapp', enabled: false, url: 'https://wa.me/8801607608232' }
+      { id: 'whatsapp', enabled: false, url: 'https://wa.me/8801607608232' },
+      { id: 'telegram', enabled: false, url: 'https://t.me/dhrubojyoti' },
+      { id: 'discord', enabled: false, url: 'https://discord.com' },
+      { id: 'behance', enabled: false, url: 'https://behance.net' },
+      { id: 'dribbble', enabled: false, url: 'https://dribbble.com' },
+      { id: 'medium', enabled: false, url: 'https://medium.com' },
+      { id: 'phone', enabled: false, url: '+880 1607-608232' },
+      { id: 'email', enabled: false, url: 'dhrubojyoti.saha@g.bracu.ac.bd' },
+      { id: 'calendar', enabled: false, url: 'https://calendly.com' },
+      { id: 'location', enabled: false, url: 'https://maps.google.com' }
     ]
   },
 

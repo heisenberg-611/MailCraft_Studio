@@ -100,6 +100,7 @@ const App = {
     container.innerHTML = orderedKeys.map(key => {
       const meta = Icons.social[key] || { name: key, color: '#2563EB', svg: '' };
       const current = (this.state.data.socials || []).find(s => s.id === key) || { enabled: false, url: '' };
+      const defItem = Presets.defaultData.socials.find(s => s.id === key) || { url: '' };
 
       return `
         <div class="social-item" data-social-id="${key}" draggable="true">
@@ -110,7 +111,7 @@ const App = {
           <div class="social-item-icon" style="color: ${meta.color};">
             ${meta.svg}
           </div>
-          <input type="text" class="social-item-input" value="${current.url || ''}" placeholder="${meta.name} URL / username">
+          <input type="text" class="social-item-input" value="${current.url || ''}" placeholder="${defItem.url || meta.name + ' URL'}">
         </div>
       `;
     }).join('');
@@ -544,6 +545,17 @@ const App = {
       this.syncSocialsFromDom();
     });
     document.getElementById('socialsListContainer').addEventListener('change', (e) => {
+      if (e.target.classList.contains('social-enable-cb')) {
+        const item = e.target.closest('.social-item');
+        const input = item.querySelector('.social-item-input');
+        const id = item.dataset.socialId;
+        if (e.target.checked && (!input.value || !input.value.trim())) {
+          const defItem = Presets.defaultData.socials.find(s => s.id === id);
+          if (defItem && defItem.url) {
+            input.value = defItem.url;
+          }
+        }
+      }
       this.syncSocialsFromDom();
     });
 
@@ -950,11 +962,28 @@ const App = {
         const parsed = JSON.parse(saved);
         if (parsed.data) {
           this.state.data = Object.assign({}, Presets.defaultData, parsed.data);
-          if (Array.isArray(parsed.data.socials) && parsed.data.socials.length > 0) {
-            this.state.data.socials = parsed.data.socials;
-          } else {
-            this.state.data.socials = JSON.parse(JSON.stringify(Presets.defaultData.socials));
-          }
+          
+          const availableNetworks = [
+            'facebook', 'x', 'youtube', 'linkedin', 'instagram',
+            'github', 'website', 'whatsapp', 'telegram', 'discord',
+            'behance', 'dribbble', 'medium', 'phone', 'email', 'calendar', 'location'
+          ];
+          const existingSocials = Array.isArray(parsed.data.socials) ? parsed.data.socials : [];
+          const mergedSocials = [];
+          
+          existingSocials.forEach(s => {
+            if (availableNetworks.includes(s.id)) {
+              mergedSocials.push(s);
+            }
+          });
+          
+          Presets.defaultData.socials.forEach(def => {
+            if (!mergedSocials.some(s => s.id === def.id)) {
+              mergedSocials.push(Object.assign({}, def));
+            }
+          });
+          
+          this.state.data.socials = mergedSocials;
         }
         if (parsed.settings) {
           this.state.settings = Object.assign({}, Presets.styles.dhrubojyoti.settings, parsed.settings);

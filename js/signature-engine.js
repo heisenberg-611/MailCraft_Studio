@@ -139,7 +139,7 @@ const SignatureEngine = {
         return this.hslToHex(h, Math.min(s, 0.5), 0.78);
 
       case 'label':
-        // Contact prefixes (M:, E:, Tel:)
+        // Contact prefixes (Mobile:, E-mail:, Tel:)
         if (isNeutral) return '#93C5FD';
         return this.hslToHex(h, Math.max(s, 0.7), 0.75);
 
@@ -292,23 +292,23 @@ const SignatureEngine = {
 <!-- Email Signature Start -->
 <table cellpadding="0" cellspacing="0" border="0" class="sig-table" style="margin: 0; padding: 0; font-family: ${s.fontFamily}; font-size: ${s.bodyFontSize}px; line-height: 1.35; color: ${s.bodyColor}; background-color: transparent; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
   <tr>
-    <td valign="top" style="padding: 0; vertical-align: top;">
+    <td valign="middle" style="padding: 0; vertical-align: middle;">
       <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
         <tr>
           ${avatarHtml ? `
           <!-- Avatar Column -->
-          <td valign="top" style="padding-right: 14px; vertical-align: top; width: ${s.avatarSize || 85}px;">
+          <td valign="middle" align="center" style="padding-right: 14px; vertical-align: middle; width: ${s.avatarSize || 85}px; text-align: center;">
             ${avatarHtml}
           </td>
           ` : ''}
 
           <!-- Vertical Divider Bar -->
-          <td valign="top" class="sig-divider" style="width: 1px; border-left: ${dividerBorder}; padding: 0; font-size: 1px; line-height: 1px; vertical-align: top;">
+          <td valign="middle" class="sig-divider" style="width: 1px; border-left: ${dividerBorder}; padding: 0; font-size: 1px; line-height: 1px; vertical-align: middle;">
             &nbsp;
           </td>
 
           <!-- Details Column -->
-          <td valign="top" style="padding-left: 14px; vertical-align: top;">
+          <td valign="middle" style="padding-left: 14px; vertical-align: middle;">
             <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
               <!-- Name & Title -->
               <tr>
@@ -598,9 +598,9 @@ const SignatureEngine = {
       <span style="color: #94A3B8; margin: 0 4px;">|</span>
       <span class="sig-dark-title" style="color: ${s.titleColor};">${d.jobTitle}${d.company ? `, ${d.company}` : ''}</span>
       <div class="sig-dark-body" style="font-size: ${s.bodyFontSize - 1}px; color: ${s.bodyColor}; padding-top: 2px;">
-        ${d.phone ? `<span>${s.labelPhone || 'M:'} <a href="tel:${d.phone.replace(/[^0-9+]/g, '')}" style="color: ${s.linkColor}; text-decoration: none;">${d.phone}</a></span>` : ''}
-        ${d.email ? `<span style="color: #CBD5E1; margin: 0 4px;">&bull;</span><span>${s.labelEmail || 'E:'} <a href="mailto:${d.email}" style="color: ${s.linkColor}; text-decoration: none;">${d.email}</a></span>` : ''}
-        ${d.website ? `<span style="color: #CBD5E1; margin: 0 4px;">&bull;</span><a href="https://${d.website.replace(/^https?:\/\//, '')}" style="color: ${s.linkColor}; text-decoration: none;">${d.website}</a>` : ''}
+        ${d.phone ? `<span>${s.showLabels !== false ? `${s.labelPhone || 'Mobile:'} ` : ''}<a href="tel:${d.phone.replace(/[^0-9+]/g, '')}" class="sig-dark-link" style="color: ${s.linkColor}; text-decoration: none;">${d.phone}</a></span>` : ''}
+        ${d.email ? `<span style="color: #CBD5E1; margin: 0 4px;">&bull;</span><span>${s.showLabels !== false ? `${s.labelEmail || 'E-mail:'} ` : ''}<a href="mailto:${d.email}" class="sig-dark-link" style="color: ${s.linkColor}; text-decoration: none;">${d.email}</a></span>` : ''}
+        ${d.website ? `<span style="color: #CBD5E1; margin: 0 4px;">&bull;</span><span>${s.showLabels !== false ? `${s.labelWebsite || 'Website:'} ` : ''}<a href="https://${d.website.replace(/^https?:\/\//, '')}" class="sig-dark-link" style="color: ${s.linkColor}; text-decoration: none;">${d.website.replace(/^https?:\/\//, '')}</a></span>` : ''}
       </div>
       ${socialIconsHtml ? `<div style="padding-top: 4px;">${socialIconsHtml}</div>` : ''}
     </td>
@@ -642,20 +642,21 @@ const SignatureEngine = {
 
     // Phone
     if (d.phone) {
-      const label = s.showLabels !== false ? `<span class="sig-dark-label" style="${labelStyle}">${s.labelPhone || 'M:'}</span> ` : '';
+      const label = s.showLabels !== false ? `<span class="sig-dark-label" style="${labelStyle}">${s.labelPhone || 'Mobile:'}</span> ` : '';
       rows.push(`<div style="line-height: 1.35; padding-bottom: 2px;">${label}<a href="tel:${d.phone.replace(/[^0-9+]/g, '')}" class="sig-dark-link" style="${linkStyle}">${d.phone}</a></div>`);
     }
 
-    // Email & Website line
-    const emailPart = d.email ? (s.showLabels !== false ? `<span class="sig-dark-label" style="${labelStyle}">${s.labelEmail || 'E:'}</span> ` : '') + `<a href="mailto:${d.email}" class="sig-dark-link" style="${linkStyle}">${d.email}</a>` : '';
-    const webPart = d.website ? `<a href="https://${d.website.replace(/^https?:\/\//, '')}" class="sig-dark-link" style="${linkStyle}">${d.website}</a>` : '';
+    // Email
+    if (d.email) {
+      const label = s.showLabels !== false ? `<span class="sig-dark-label" style="${labelStyle}">${s.labelEmail || 'E-mail:'}</span> ` : '';
+      rows.push(`<div style="line-height: 1.35; padding-bottom: 2px;">${label}<a href="mailto:${d.email}" class="sig-dark-link" style="${linkStyle}">${d.email}</a></div>`);
+    }
 
-    if (emailPart && webPart) {
-      rows.push(`<div style="line-height: 1.35; padding-bottom: 2px;">${emailPart} <span style="color: #94A3B8; margin: 0 4px;">|</span> ${webPart}</div>`);
-    } else if (emailPart) {
-      rows.push(`<div style="line-height: 1.35; padding-bottom: 2px;">${emailPart}</div>`);
-    } else if (webPart) {
-      rows.push(`<div style="line-height: 1.35; padding-bottom: 2px;">${webPart}</div>`);
+    // Website (Own dedicated row under E-mail)
+    if (d.website) {
+      const cleanWeb = d.website.replace(/^https?:\/\//, '');
+      const label = s.showLabels !== false ? `<span class="sig-dark-label" style="${labelStyle}">${s.labelWebsite || 'Website:'}</span> ` : '';
+      rows.push(`<div style="line-height: 1.35; padding-bottom: 2px;">${label}<a href="https://${cleanWeb}" class="sig-dark-link" style="${linkStyle}">${cleanWeb}</a></div>`);
     }
 
     // Address & Country
@@ -668,11 +669,55 @@ const SignatureEngine = {
   },
 
   /**
+   * Helper: Format and sanitize social media URL
+   */
+  formatSocialUrl(id, rawUrl) {
+    if (!rawUrl || !rawUrl.trim()) {
+      const def = (Presets.defaultData.socials || []).find(s => s.id === id);
+      if (def && def.url) rawUrl = def.url;
+      else return '#';
+    }
+    const url = rawUrl.trim();
+    if (!url) return '#';
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('mailto:') || url.startsWith('tel:')) {
+      return url;
+    }
+    switch (id) {
+      case 'phone':
+        return `tel:${url.replace(/[^0-9+]/g, '')}`;
+      case 'email':
+        return `mailto:${url}`;
+      case 'whatsapp':
+        return `https://wa.me/${url.replace(/[^0-9]/g, '')}`;
+      case 'telegram':
+        return `https://t.me/${url.replace(/^@/, '')}`;
+      case 'x':
+        return `https://x.com/${url.replace(/^@/, '')}`;
+      case 'instagram':
+        return `https://instagram.com/${url.replace(/^@/, '')}`;
+      case 'github':
+        return `https://github.com/${url.replace(/^@/, '')}`;
+      case 'youtube':
+        return `https://youtube.com/${url.startsWith('@') ? url : '@' + url}`;
+      case 'linkedin':
+        return `https://linkedin.com/in/${url.replace(/^@/, '')}`;
+      case 'behance':
+        return `https://behance.net/${url.replace(/^@/, '')}`;
+      case 'dribbble':
+        return `https://dribbble.com/${url.replace(/^@/, '')}`;
+      case 'medium':
+        return `https://medium.com/@${url.replace(/^@/, '')}`;
+      default:
+        return `https://${url}`;
+    }
+  },
+
+  /**
    * Render Social Media Icons Row
    */
   renderSocialsRow(d, s) {
     if (!d.socials || !d.socials.length) return '';
-    const activeSocials = d.socials.filter(item => item.enabled && item.url);
+    const activeSocials = d.socials.filter(item => item && item.enabled);
     if (!activeSocials.length) return '';
 
     const iconSize = Number(s.iconSize) || 18;
@@ -715,10 +760,11 @@ const SignatureEngine = {
       const dataUri = Icons.getIconDataUri(item.id, fillColor, iconSize);
       const paddingRight = index === activeSocials.length - 1 ? '0' : `${spacing}px`;
       const imgClass = (styleType === 'brand' && this.getLuminance(meta.color) < 0.35) ? 'sig-dark-invert' : '';
+      const targetUrl = this.formatSocialUrl(item.id, item.url);
 
       return `
 <td nowrap="nowrap" align="center" valign="middle" width="${iconSize}" style="padding-right: ${paddingRight}; vertical-align: middle; width: ${iconSize}px; white-space: nowrap;">
-  <a href="${item.url}" target="_blank" style="display: inline-block; text-decoration: none; border: 0; outline: none; ${bgStyle} ${paddingStyle} ${borderStyle}">
+  <a href="${targetUrl}" target="_blank" style="display: inline-block; text-decoration: none; border: 0; outline: none; ${bgStyle} ${paddingStyle} ${borderStyle}">
     <img src="${dataUri}" alt="${meta.name}" class="${imgClass}" width="${iconSize}" height="${iconSize}" border="0" style="display: block; border: 0; outline: none; width: ${iconSize}px; height: ${iconSize}px; max-width: ${iconSize}px; max-height: ${iconSize}px; image-rendering: -webkit-optimize-contrast;" />
   </a>
 </td>
