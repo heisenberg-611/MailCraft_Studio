@@ -739,6 +739,10 @@
           <div class="legal-section-title">5. GOVERNING STANDARDS</div>
           <p>All generated signatures conform to W3C HTML 4.01 / XHTML Transitional table layout standards with inline CSS styles to maximize cross-client email rendering compatibility.</p>
         </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--sahinur-border);">
+          <button class="btn-secondary" id="closeTermsModalBtn2" style="font-size: 11.5px; padding: 7px 14px;">Close</button>
+        </div>
       </div>
     </div>
   </div>
@@ -782,6 +786,10 @@
         <div>
           <div class="legal-section-title">4. USER DATA CONTROL &amp; PURGING</div>
           <p>You have full autonomy over your data. You may export your entire preset library as a standalone JSON file at any time or completely purge all stored browser data by clearing your site storage.</p>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--sahinur-border);">
+          <button class="btn-secondary" id="closePrivacyModalBtn2" style="font-size: 11.5px; padding: 7px 14px;">Close</button>
         </div>
       </div>
     </div>
@@ -827,6 +835,13 @@
         <div>
           <div class="legal-section-title">3. HOW TO SAFEGUARD YOUR SIGNATURES</div>
           <p>To ensure your custom configurations are never lost when clearing browser data, open the <strong>Preset Manager (<code>presets --manage</code>)</strong> in Studio and click <strong>[Export JSON]</strong>. This saves a portable backup file to your computer that you can re-import anytime with 1 click.</p>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--sahinur-border);">
+          <button class="btn-secondary" id="closeCookiePolicyModalBtn2" style="font-size: 11.5px; padding: 7px 14px;">Close</button>
+          <button class="btn-primary" id="acceptFromPolicyModalBtn" style="font-size: 11.5px; padding: 7px 16px;">
+            <span class="sahinur-prompt-prefix">&gt;</span> Accept &amp; Dismiss Notice
+          </button>
         </div>
       </div>
     </div>
@@ -1061,6 +1076,25 @@
     bindModal('openTermsBtn', termsModal, 'closeTermsModalBtn');
     bindModal('openPrivacyBtn', privacyModal, 'closePrivacyModalBtn');
     bindModal('openCookiePolicyBtn', cookieModal, 'closeCookiePolicyModalBtn');
+
+    // Secondary in-modal footer close buttons
+    const closeTerms2 = document.getElementById('closeTermsModalBtn2');
+    if (closeTerms2 && termsModal) closeTerms2.addEventListener('click', () => closeModal(termsModal));
+
+    const closePrivacy2 = document.getElementById('closePrivacyModalBtn2');
+    if (closePrivacy2 && privacyModal) closePrivacy2.addEventListener('click', () => closeModal(privacyModal));
+
+    const closeCookie2 = document.getElementById('closeCookiePolicyModalBtn2');
+    if (closeCookie2 && cookieModal) closeCookie2.addEventListener('click', () => closeModal(cookieModal));
+
+    const acceptFromPolicyBtn = document.getElementById('acceptFromPolicyModalBtn');
+    if (acceptFromPolicyBtn && cookieModal) {
+      acceptFromPolicyBtn.addEventListener('click', () => {
+        localStorage.setItem('mailcraft_cookie_consent', 'accepted');
+        if (cookieConsentBanner) cookieConsentBanner.classList.remove('active');
+        closeModal(cookieModal);
+      });
+    }
 
     if (viewCookieDetailsBtn && cookieModal) {
       viewCookieDetailsBtn.addEventListener('click', () => {
