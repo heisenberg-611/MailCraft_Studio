@@ -2216,48 +2216,183 @@ const App = {
   },
 
   /**
-   * Export signature canvas as high-res PNG image
+   * Export signature canvas as high-res 3x HD PNG image
    */
-  exportSignatureAsPng() {
-    const el = document.getElementById('liveRenderCanvas');
-    if (!el) return;
+  async exportSignatureAsPng() {
+    this.showToast('Generating 3x Retina HD PNG...', 'info');
 
-    // Use SVG foreignObject trick on canvas
-    const html = SignatureEngine.generateHtml(this.state.data, this.state.settings, false, false);
-    const width = 600;
-    const height = 300;
+    const isDark = this.inboxTheme === 'dark';
+    const isTemplateMode = this.mode === 'template';
 
-    const data = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-      <foreignObject width="100%" height="100%">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="background:#ffffff; padding:24px; font-family:sans-serif;">
-          ${html}
-        </div>
-      </foreignObject>
-    </svg>`;
+    // 1. Generate clean standalone HTML
+    let html = '';
+    if (isTemplateMode && typeof EmailTemplateEngine !== 'undefined') {
+      html = EmailTemplateEngine.generateEmailHtml(
+        this.state.templateData,
+        this.state.data,
+        this.state.settings,
+        isDark,
+        false
+      );
+    } else if (typeof SignatureEngine !== 'undefined') {
+      html = SignatureEngine.generateHtml(
+        this.state.data,
+        this.state.settings,
+        isDark,
+        false
+      );
+    }
 
-    const img = new Image();
-    const svgBlob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(svgBlob);
+    if (!html) {
+      this.showToast('Failed to generate signature HTML for PNG export', 'error');
+      return;
+    }
 
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = width * 3; // 3x HD
-      canvas.height = height * 3;
-      const ctx = canvas.getContext('2d');
-      ctx.scale(3, 3);
-      ctx.drawImage(img, 0, 0);
-      URL.revokeObjectURL(url);
+    // 2. Create isolated off-screen rendering container to avoid CSS transform/zoom distortion
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'fixed';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.top = '0';
+    tempContainer.style.width = isTemplateMode ? '680px' : '620px';
+    tempContainer.style.maxWidth = '680px';
+    tempContainer.style.padding = '24px';
+    tempContainer.style.boxSizing = 'border-box';
+    tempContainer.style.background = isDark ? '#111317' : '#ffffff';
+    tempContainer.style.color = isDark ? '#f0f0f0' : '#222222';
+    tempContainer.style.display = 'inline-block';
+    tempContainer.style.zIndex = '-9999';
+    tempContainer.innerHTML = html;
 
+    document.body.appendChild(tempContainer);
+
+    try {
+      // Ensure all images (e.g. avatar base64 or logos) are loaded before rasterizing
+      const images = Array.from(tempContainer.querySelectorAll('img'));
+      await Promise.all(images.map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => {
+          img.onload = resolve;
+          img.onerror = resolve;
+          setTimeout(resolve, 400);
+        });
+      }));
+
+      const fullName = (this.state.data && this.state.data.fullName) ? this.state.data.fullName : 'signature';
+      const filename = `mailcraft-${fullName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-3x-hd.png`;
+
+      // 3. Render using html2canvas at scale 3 (3x Retina HD)
+      if (typeof html2canvas !== 'undefined') {
+        const canvas = await html2canvas(tempContainer, {
+          scale: 3,
+          backgroundColor: isDark ? '#111317' : '#ffffff',
+          useCORS: true,
+          allowTaint: true,
+          logging: false
+        });
+
+        if (canvas.toBlob) {
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = filename;
+              document.body.appendChild(a);
+              a.click();
+              setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+              }, 200);
+              this.showToast('Downloaded 3x Retina HD PNG!', 'success');
+            } else {
+              this.downloadCanvasFallback(canvas, filename);
+            }
+          }, 'image/png', 1.0);
+        } else {
+          this.downloadCanvasFallback(canvas, filename);
+        }
+      } else {
+        // Secondary fallback
+        this.fallbackExportPng(tempContainer, html, isDark, filename);
+      }
+    } catch (err) {
+      console.error('PNG export error:', err);
+      const fullName = (this.state.data && this.state.data.fullName) ? this.state.data.fullName : 'signature';
+      const filename = `mailcraft-${fullName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-3x-hd.png`;
+      this.fallbackExportPng(tempContainer, html, isDark, filename);
+    } finally {
+      if (tempContainer.parentNode) {
+        document.body.removeChild(tempContainer);
+      }
+    }
+  },
+
+  /**
+   * Helper to download direct canvas dataURL
+   */
+  downloadCanvasFallback(canvas, filename) {
+    try {
+      const dataUrl = canvas.toDataURL('image/png');
       const a = document.createElement('a');
-      a.href = canvas.toDataURL('image/png');
-      a.download = `mailcraft-${(this.state.data.fullName || 'signature').toLowerCase().replace(/\s+/g, '-')}-hd.png`;
+      a.href = dataUrl;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
-      setTimeout(() => document.body.removeChild(a), 100);
+      setTimeout(() => document.body.removeChild(a), 200);
       this.showToast('Downloaded 3x Retina HD PNG!', 'success');
-    };
+    } catch (e) {
+      this.showToast('Failed to export PNG: ' + e.message, 'error');
+    }
+  },
 
-    img.src = url;
+  /**
+   * Secondary SVG foreignObject rasterizer fallback
+   */
+  fallbackExportPng(tempContainer, html, isDark, filename) {
+    try {
+      const width = 640;
+      const cleanHtml = html
+        .replace(/<img([^>]*?)(?<!\/)>/gi, '<img$1 />')
+        .replace(/<br(?<!\/)>/gi, '<br />')
+        .replace(/<hr(?<!\/)>/gi, '<hr />')
+        .replace(/&nbsp;/g, '&#160;')
+        .replace(/&bull;/g, '&#8226;')
+        .replace(/&mdash;/g, '&#8212;')
+        .replace(/&copy;/g, '&#169;')
+        .replace(/&rarr;/g, '&#8594;');
+
+      const svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="420">
+        <foreignObject width="100%" height="100%">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="background:${isDark ? '#111317' : '#ffffff'}; padding:24px; font-family:sans-serif; color:${isDark ? '#f0f0f0' : '#222222'};">
+            ${cleanHtml}
+          </div>
+        </foreignObject>
+      </svg>`;
+
+      const img = new Image();
+      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = width * 3;
+        canvas.height = 420 * 3;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(3, 3);
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+        this.downloadCanvasFallback(canvas, filename);
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        this.showToast('Could not render PNG export on this browser.', 'error');
+      };
+
+      img.src = url;
+    } catch (e) {
+      this.showToast('PNG export failed: ' + e.message, 'error');
+    }
   },
 
   /**

@@ -7,7 +7,8 @@
 const InstallationGuides = {
   clients: {
     gmail: {
-      name: 'Gmail (Web & Workspace)',
+      name: 'Gmail',
+      fullName: 'Gmail (Web & Google Workspace)',
       steps: [
         'Click the "Copy Rich Signature" button in this studio to copy the high-definition HTML signature.',
         'Open Gmail in your web browser and click the Settings icon (gear) in the top right.',
@@ -20,7 +21,8 @@ const InstallationGuides = {
       tip: 'Your high-definition logo and badges will appear razor-sharp on Retina and 4K displays automatically.'
     },
     appleMail: {
-      name: 'Apple Mail (macOS)',
+      name: 'Apple Mail',
+      fullName: 'Apple Mail (macOS)',
       steps: [
         'Click the "Copy Rich Signature" button in this studio.',
         'Open Apple Mail on your Mac and go to Mail > Settings (or Preferences) in the menu bar.',
@@ -33,7 +35,8 @@ const InstallationGuides = {
       tip: 'Apple Mail preserves Retina image scaling and vector SVG icons without compression.'
     },
     outlookWeb: {
-      name: 'Outlook (Web & Microsoft 365)',
+      name: 'Outlook Web',
+      fullName: 'Outlook (Web & Microsoft 365)',
       steps: [
         'Click "Copy Rich Signature" in this studio.',
         'Open Outlook in your browser and click the Settings (gear) icon in the top right header.',
@@ -46,7 +49,8 @@ const InstallationGuides = {
       tip: 'Our table layout includes MSO-specific conditionals for pixel-perfect Outlook rendering.'
     },
     outlookDesktop: {
-      name: 'Outlook (Desktop App)',
+      name: 'Outlook App',
+      fullName: 'Outlook (Desktop App)',
       steps: [
         'Click "Copy Rich Signature" in this studio.',
         'Open Outlook Desktop and go to File > Options > Mail > Signatures.',
@@ -58,7 +62,8 @@ const InstallationGuides = {
       tip: 'If formatting looks slightly condensed in the small editor preview, test by creating a New Email; it renders in full quality.'
     },
     thunderbird: {
-      name: 'Mozilla Thunderbird',
+      name: 'Thunderbird',
+      fullName: 'Mozilla Thunderbird',
       steps: [
         'Click "Copy HTML Source" in this studio.',
         'Open Thunderbird, right-click on your email account name in the left pane, and select "Settings".',
@@ -70,29 +75,24 @@ const InstallationGuides = {
     }
   },
 
-  /**
-   * Render guide modal HTML
-   */
-  renderGuideModal(clientKey = 'gmail') {
+  resolveClientKey(clientKey) {
     const keyMap = {
       'apple': 'appleMail',
       'outlook': 'outlookWeb'
     };
-    const resolvedKey = keyMap[clientKey] || clientKey;
+    return keyMap[clientKey] || clientKey || 'gmail';
+  },
+
+  /**
+   * Render initial guide modal shell
+   */
+  renderGuideModal(clientKey = 'gmail') {
+    const resolvedKey = this.resolveClientKey(clientKey);
     const guide = this.clients[resolvedKey] || this.clients.gmail;
     
     const navItems = Object.keys(this.clients).map(key => {
       const active = key === resolvedKey ? 'active' : '';
       return `<button class="guide-nav-btn ${active}" data-client="${key}">${this.clients[key].name}</button>`;
-    }).join('');
-
-    const stepsList = guide.steps.map((step, idx) => {
-      return `
-        <div class="guide-step-item">
-          <div class="guide-step-num">${String(idx + 1).padStart(2, '0')}</div>
-          <div class="guide-step-text">${step}</div>
-        </div>
-      `;
     }).join('');
 
     return `
@@ -105,7 +105,7 @@ const InstallationGuides = {
           </div>
           <div class="guide-modal-title">
             <span class="sahinur-prompt-prefix">$</span>
-            <span>docs/setup-guide.md &bull; ${guide.name}</span>
+            <span id="guideModalTitleText">docs/setup-guide.md &bull; ${guide.fullName || guide.name}</span>
           </div>
           <button class="modal-close-btn" id="closeGuideModalInnerBtn" title="Close">
             ${(typeof Icons !== 'undefined' && Icons.ui) ? Icons.ui.close : '&times;'}
@@ -115,14 +115,8 @@ const InstallationGuides = {
           <div class="guide-nav-row">
             ${navItems}
           </div>
-          <div class="guide-detail-card">
-            <h3 class="guide-client-title"><span class="sahinur-prompt-prefix">&gt;</span> ${guide.name}</h3>
-            <div class="guide-steps-container">
-              ${stepsList}
-            </div>
-            <div class="guide-tip-banner">
-              <span class="guide-tip-label">// TIP:</span> ${guide.tip}
-            </div>
+          <div class="guide-detail-card" id="guideDetailCard">
+            ${this.renderDetailCardContent(resolvedKey)}
           </div>
         </div>
       </div>
@@ -130,20 +124,78 @@ const InstallationGuides = {
   },
 
   /**
-   * Open the installation guide modal and bind tab clicks
+   * Render only the inner content of the detail card
+   */
+  renderDetailCardContent(clientKey) {
+    const resolvedKey = this.resolveClientKey(clientKey);
+    const guide = this.clients[resolvedKey] || this.clients.gmail;
+
+    const stepsList = guide.steps.map((step, idx) => {
+      return `
+        <div class="guide-step-item">
+          <div class="guide-step-num">${String(idx + 1).padStart(2, '0')}</div>
+          <div class="guide-step-text">${step}</div>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <h3 class="guide-client-title"><span class="sahinur-prompt-prefix">&gt;</span> ${guide.fullName || guide.name}</h3>
+      <div class="guide-steps-container">
+        ${stepsList}
+      </div>
+      <div class="guide-tip-banner">
+        <span class="guide-tip-label">// TIP:</span> ${guide.tip}
+      </div>
+    `;
+  },
+
+  /**
+   * Smoothly switch guide tab without reloading or flickering the modal container
+   */
+  switchGuideTab(clientKey) {
+    const resolvedKey = this.resolveClientKey(clientKey);
+    const guide = this.clients[resolvedKey] || this.clients.gmail;
+    const modalContainer = document.getElementById('guideModalContainer');
+    if (!modalContainer) return;
+
+    // 1. Update tab active states
+    modalContainer.querySelectorAll('.guide-nav-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.client === resolvedKey);
+    });
+
+    // 2. Update title bar text
+    const titleTextEl = document.getElementById('guideModalTitleText');
+    if (titleTextEl) {
+      titleTextEl.innerHTML = `docs/setup-guide.md &bull; ${guide.fullName || guide.name}`;
+    }
+
+    // 3. Update detail card content directly
+    const cardEl = document.getElementById('guideDetailCard');
+    if (cardEl) {
+      cardEl.innerHTML = this.renderDetailCardContent(resolvedKey);
+    }
+  },
+
+  /**
+   * Open the installation guide modal and bind events
    */
   openGuideModal(clientKey = 'gmail') {
     const modalContainer = document.getElementById('guideModalContainer');
     const modalOverlay = document.getElementById('guideModalOverlay');
     if (!modalContainer || !modalOverlay) return;
 
-    modalContainer.innerHTML = this.renderGuideModal(clientKey);
+    const resolvedKey = this.resolveClientKey(clientKey);
+
+    // Initial render of modal shell
+    modalContainer.innerHTML = this.renderGuideModal(resolvedKey);
     modalOverlay.classList.add('active');
 
-    // Bind tab navigation buttons
+    // Bind tab navigation buttons to smooth tab switch
     modalContainer.querySelectorAll('.guide-nav-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        this.openGuideModal(btn.dataset.client);
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.switchGuideTab(btn.dataset.client);
       });
     });
 

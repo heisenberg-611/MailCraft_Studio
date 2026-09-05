@@ -590,27 +590,247 @@
     </section>
 
     <!-- ==========================================================================
-         6. Site Footer
+         6. Multi-Column Developer Site Footer
          ========================================================================== -->
     <footer class="site-footer">
-      <div class="footer-inner">
-        <div class="footer-left">
-          <div class="brand-logo-badge" style="width: 28px; height: 28px; font-size: 12px;">MC</div>
-          <div class="footer-copy">
-            &copy; 2026 MailCraft Studio &bull; Engineered by <strong>Dhrubojyoti Saha</strong>
+      <div class="footer-top-grid">
+        
+        <!-- Col 1: Brand & Architecture -->
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+            <div class="brand-logo-badge" style="width: 28px; height: 28px; font-size: 12px;">MC</div>
+            <div class="brand-title" style="font-size: 14px;">MailCraft Studio</div>
+            <span class="sahinur-status-badge" style="font-size: 10px; padding: 2px 8px;">v2.4 LTS</span>
+          </div>
+          <p style="font-family: var(--font-mono); font-size: 12px; color: var(--sahinur-text-dim); line-height: 1.6; max-width: 340px;">
+            High-precision signature architecture, 100% client-side privacy, and batch compiling for engineers, academics, and modern teams.
+          </p>
+          <div style="margin-top: 14px; font-family: var(--font-mono); font-size: 11px; color: var(--sahinur-accent); display: flex; align-items: center; gap: 6px;">
+            <span class="sahinur-status-dot"></span>
+            <span>100% Client-Side Verified // Zero Server Tracking</span>
           </div>
         </div>
 
-        <div class="footer-links">
-          <a href="studio.html" class="footer-link">[Open Studio &rarr;]</a>
-          <a href="https://github.com/dhrubojyoti" target="_blank" rel="noopener" class="footer-link">[GitHub]</a>
-          <a href="https://linkedin.com/in/dhrubojyoti" target="_blank" rel="noopener" class="footer-link">[LinkedIn]</a>
-          <a href="https://www.dhrubojyoti.dev" target="_blank" rel="noopener" class="footer-link">[Portfolio]</a>
-          <a href="#overview" class="footer-link">[Top &uarr;]</a>
+        <!-- Col 2: Legal & Privacy Policies -->
+        <div>
+          <div class="footer-col-title">
+            <span class="sahinur-prompt-prefix">//</span> POLICIES &amp; PRIVACY
+          </div>
+          <div class="footer-nav-list">
+            <button class="footer-nav-link policy-link" id="openTermsBtn">[Terms &amp; Conditions]</button>
+            <button class="footer-nav-link policy-link" id="openPrivacyBtn">[Privacy Policy]</button>
+            <button class="footer-nav-link policy-link" id="openCookiePolicyBtn">[Cookie &amp; Storage Policy]</button>
+            <button class="footer-nav-link policy-link" id="reopenConsentBtn">[Storage Consent Notice]</button>
+          </div>
+        </div>
+
+        <!-- Col 3: Product Engines -->
+        <div>
+          <div class="footer-col-title">
+            <span class="sahinur-prompt-prefix">//</span> CORE ENGINES
+          </div>
+          <div class="footer-nav-list">
+            <a href="studio.html?mode=sig" class="footer-nav-link">[Signature Studio]</a>
+            <a href="studio.html?mode=team" class="footer-nav-link">[Team Batch CSV Mode]</a>
+            <a href="studio.html?mode=template" class="footer-nav-link">[Broadcast Email Builder]</a>
+            <a href="#quickstart" class="footer-nav-link">[Setup Documentation]</a>
+          </div>
+        </div>
+
+        <!-- Col 4: Links & Connect -->
+        <div>
+          <div class="footer-col-title">
+            <span class="sahinur-prompt-prefix">//</span> DEVELOPER &amp; SOURCE
+          </div>
+          <div class="footer-nav-list">
+            <a href="https://github.com/dhrubojyoti" target="_blank" rel="noopener" class="footer-nav-link">[GitHub Source]</a>
+            <a href="https://linkedin.com/in/dhrubojyoti" target="_blank" rel="noopener" class="footer-nav-link">[LinkedIn Profile]</a>
+            <a href="https://www.dhrubojyoti.dev" target="_blank" rel="noopener" class="footer-nav-link">[Engineer Portfolio]</a>
+            <a href="#overview" class="footer-nav-link">[Back to Top &uarr;]</a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Status & Copyright Bar -->
+      <div class="footer-bottom-row">
+        <div class="footer-copy">
+          &copy; 2026 MailCraft Studio &bull; Engineered by <strong>Dhrubojyoti Saha</strong> &bull; MIT Open License
+        </div>
+        <div style="font-family: var(--font-mono); font-size: 11px; color: var(--sahinur-text-dim);">
+          LocalStorage: <span style="color: var(--sahinur-accent);">Enabled (On-Device)</span> &bull; Telemetry: <span style="color: #60A5FA;">Disabled (Zero-Log)</span>
         </div>
       </div>
     </footer>
 
+  </div>
+
+  <!-- Mandatory Cache & Storage Consent Banner -->
+  <div id="cookieConsentBanner" class="cookie-consent-banner">
+    <div class="cookie-consent-inner sahinur-terminal">
+      <div class="sahinur-terminal-header" style="padding: 10px 16px;">
+        <div class="sahinur-traffic-dots">
+          <span class="sahinur-traffic-dot red"></span>
+          <span class="sahinur-traffic-dot yellow"></span>
+          <span class="sahinur-traffic-dot green"></span>
+        </div>
+        <div class="guide-modal-title" style="font-size: 12px;">
+          <span class="sahinur-prompt-prefix">$</span>
+          <span>storage --mandatory-cache // CLIENT PRIVACY &amp; LOCAL STORAGE NOTICE</span>
+        </div>
+      </div>
+      <div class="cookie-consent-body">
+        <div class="cookie-consent-text">
+          <p style="margin-bottom: 8px;">
+            <strong>Mandatory Local Cache Notice:</strong> MailCraft Studio operates <strong>100% client-side</strong> in your browser with zero backend databases. We utilize HTML5 LocalStorage and memory cache to preserve your signature configurations, custom presets, and avatar data.
+          </p>
+          <div class="cookie-warning-box">
+            <span class="sahinur-prompt-prefix">&gt;</span> <strong>CRITICAL DATA RETENTION WARNING:</strong> If you delete your browser cookies, local storage, or site cache, <strong>all custom-created presets, signature drafts, and preferences will be permanently wiped</strong>. Please export your custom presets as JSON backup files from the Studio to safeguard your data.
+          </div>
+        </div>
+        <div class="cookie-consent-actions">
+          <button id="acceptCookieConsentBtn" class="btn-primary" style="padding: 9px 18px; font-size: 12px; white-space: nowrap;">
+            <span class="sahinur-prompt-prefix">&gt;</span> Accept &amp; Continue
+          </button>
+          <button id="viewCookieDetailsBtn" class="btn-secondary" style="padding: 9px 14px; font-size: 12px; white-space: nowrap;">
+            Read Policy
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Terms & Conditions -->
+  <div class="modal-overlay" id="termsModalOverlay">
+    <div class="guide-modal-content sahinur-terminal" style="max-width: 760px;">
+      <div class="sahinur-terminal-header guide-modal-header">
+        <div class="sahinur-traffic-dots">
+          <span class="sahinur-traffic-dot red"></span>
+          <span class="sahinur-traffic-dot yellow"></span>
+          <span class="sahinur-traffic-dot green"></span>
+        </div>
+        <div class="guide-modal-title">
+          <span class="sahinur-prompt-prefix">$</span>
+          <span>docs/terms-and-conditions.md</span>
+        </div>
+        <button class="modal-close-btn" id="closeTermsModalBtn" title="Close">&times;</button>
+      </div>
+      <div class="legal-modal-body">
+        <div>
+          <div class="legal-section-title">1. ACCEPTANCE OF TERMS</div>
+          <p>By accessing and utilizing MailCraft Studio (the "Application"), you agree to be bound by these Terms and Conditions. If you do not agree to these terms, please do not use the service.</p>
+        </div>
+
+        <div>
+          <div class="legal-section-title">2. SOFTWARE LICENSE &amp; USAGE RIGHTS</div>
+          <p>MailCraft Studio is provided free of charge under the open MIT License for individual engineers, academics, researchers, corporate teams, and commercial organizations. You are permitted to generate, customize, export, and embed an unlimited number of email signatures and HTML templates for personal and enterprise communications.</p>
+        </div>
+
+        <div class="legal-highlight-box">
+          <strong>3. 100% CLIENT-SIDE EXECUTION &amp; ZERO LIABILITY:</strong><br>
+          MailCraft Studio executes entirely on-device within your web browser. All HTML compilation, image cropping, base64 encoding, quotes shuffling, CSV parsing, and ZIP batch generation occur locally on your machine. The author and contributors assume zero liability for any rendering inconsistencies caused by third-party email service providers or mail client updates.
+        </div>
+
+        <div>
+          <div class="legal-section-title">4. USER CONTENT &amp; OWNERSHIP</div>
+          <p>You retain 100% intellectual property and ownership rights over all content, profile information, logos, photographs, contact details, and custom presets created using MailCraft Studio. No content generated in this studio is claimed, transmitted, or monitored by MailCraft Studio.</p>
+        </div>
+
+        <div>
+          <div class="legal-section-title">5. GOVERNING STANDARDS</div>
+          <p>All generated signatures conform to W3C HTML 4.01 / XHTML Transitional table layout standards with inline CSS styles to maximize cross-client email rendering compatibility.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Privacy Policy -->
+  <div class="modal-overlay" id="privacyModalOverlay">
+    <div class="guide-modal-content sahinur-terminal" style="max-width: 760px;">
+      <div class="sahinur-terminal-header guide-modal-header">
+        <div class="sahinur-traffic-dots">
+          <span class="sahinur-traffic-dot red"></span>
+          <span class="sahinur-traffic-dot yellow"></span>
+          <span class="sahinur-traffic-dot green"></span>
+        </div>
+        <div class="guide-modal-title">
+          <span class="sahinur-prompt-prefix">$</span>
+          <span>docs/privacy-policy.md</span>
+        </div>
+        <button class="modal-close-btn" id="closePrivacyModalBtn" title="Close">&times;</button>
+      </div>
+      <div class="legal-modal-body">
+        <div class="legal-highlight-box" style="border-left-color: #00DC82;">
+          <strong>CORE PRIVACY GUARANTEE: ZERO SERVER TELEMETRY</strong><br>
+          MailCraft Studio does NOT transmit, collect, log, sell, or store your personal data, email addresses, phone numbers, avatars, or company rosters on any remote server.
+        </div>
+
+        <div>
+          <div class="legal-section-title">1. DATA PROCESSING ARCHITECTURE</div>
+          <p>Every single feature in MailCraft Studio—including the 4x Retina Canvas rasterizer, Quote Selector, Team CSV Compiler, and HTML Template Engine—operates exclusively within your client browser environment using HTML5 APIs.</p>
+        </div>
+
+        <div>
+          <div class="legal-section-title">2. LOCAL STORAGE USAGE</div>
+          <p>We use browser <code>localStorage</code> solely to provide persistence for your active signature drafts and custom preset library between sessions so you do not lose your work upon refreshing the tab.</p>
+        </div>
+
+        <div>
+          <div class="legal-section-title">3. AVATAR &amp; MEDIA PROCESSING</div>
+          <p>Uploaded photos are cropped, scaled, and converted to base64 data URIs completely inside your browser's HTML5 Canvas. Your photos are NEVER uploaded to an external image hosting service or third-party cloud.</p>
+        </div>
+
+        <div>
+          <div class="legal-section-title">4. USER DATA CONTROL &amp; PURGING</div>
+          <p>You have full autonomy over your data. You may export your entire preset library as a standalone JSON file at any time or completely purge all stored browser data by clearing your site storage.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Cookie & Local Storage Policy -->
+  <div class="modal-overlay" id="cookiePolicyModalOverlay">
+    <div class="guide-modal-content sahinur-terminal" style="max-width: 760px;">
+      <div class="sahinur-terminal-header guide-modal-header">
+        <div class="sahinur-traffic-dots">
+          <span class="sahinur-traffic-dot red"></span>
+          <span class="sahinur-traffic-dot yellow"></span>
+          <span class="sahinur-traffic-dot green"></span>
+        </div>
+        <div class="guide-modal-title">
+          <span class="sahinur-prompt-prefix">$</span>
+          <span>docs/cookie-and-storage-policy.md</span>
+        </div>
+        <button class="modal-close-btn" id="closeCookiePolicyModalBtn" title="Close">&times;</button>
+      </div>
+      <div class="legal-modal-body">
+        <div>
+          <div class="legal-section-title">1. WHAT ARE COOKIES &amp; LOCAL STORAGE?</div>
+          <p>Cookies and HTML5 LocalStorage are standard web browser technologies that allow applications to remember state and data on your device across browsing sessions without requiring server logins.</p>
+        </div>
+
+        <div>
+          <div class="legal-section-title">2. WHAT STORAGE WE USE &amp; WHY</div>
+          <p>MailCraft Studio uses <strong>zero advertising cookies and zero tracking cookies</strong>. We exclusively utilize mandatory functional LocalStorage keys:</p>
+          <ul style="padding-left: 20px; margin: 8px 0;">
+            <li><code>mailcraft_state</code>: Stores your active signature draft (name, job title, phone, email, color selections, quotes, and avatar).</li>
+            <li><code>mailcraft_user_presets</code>: Stores your saved named custom presets created in the Preset Manager.</li>
+            <li><code>mailcraft_cookie_consent</code>: Stores your acknowledgment of this client storage policy.</li>
+          </ul>
+        </div>
+
+        <div class="legal-warning-card">
+          <strong>⚠ CRITICAL WARNING: WHAT HAPPENS IF YOU DELETE COOKIES OR LOCAL STORAGE?</strong><br>
+          Because MailCraft Studio does not utilize any cloud databases or user accounts, your browser's LocalStorage is the <strong>sole repository</strong> of your saved custom presets and draft edits.<br><br>
+          If you clear your browser cookies, site cache, or browser history, <strong>all your custom presets and draft signature modifications will be permanently deleted</strong> and reset back to initial factory defaults.
+        </div>
+
+        <div>
+          <div class="legal-section-title">3. HOW TO SAFEGUARD YOUR SIGNATURES</div>
+          <p>To ensure your custom configurations are never lost when clearing browser data, open the <strong>Preset Manager (<code>presets --manage</code>)</strong> in Studio and click <strong>[Export JSON]</strong>. This saves a portable backup file to your computer that you can re-import anytime with 1 click.</p>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Assets & Scripts -->
@@ -786,6 +1006,83 @@
           }
         });
       });
+    });
+
+    // 5. Mandatory Cache & Storage Consent Banner Logic
+    const cookieConsentBanner = document.getElementById('cookieConsentBanner');
+    const acceptCookieBtn = document.getElementById('acceptCookieConsentBtn');
+    const viewCookieDetailsBtn = document.getElementById('viewCookieDetailsBtn');
+    const reopenConsentBtn = document.getElementById('reopenConsentBtn');
+
+    const hasConsent = localStorage.getItem('mailcraft_cookie_consent');
+    if (!hasConsent && cookieConsentBanner) {
+      setTimeout(() => {
+        cookieConsentBanner.classList.add('active');
+      }, 500);
+    }
+
+    if (acceptCookieBtn && cookieConsentBanner) {
+      acceptCookieBtn.addEventListener('click', () => {
+        localStorage.setItem('mailcraft_cookie_consent', 'accepted');
+        cookieConsentBanner.classList.remove('active');
+      });
+    }
+
+    if (reopenConsentBtn && cookieConsentBanner) {
+      reopenConsentBtn.addEventListener('click', () => {
+        cookieConsentBanner.classList.add('active');
+      });
+    }
+
+    // 6. Legal Policy Modals (Terms, Privacy, Cookie Policy)
+    const termsModal = document.getElementById('termsModalOverlay');
+    const privacyModal = document.getElementById('privacyModalOverlay');
+    const cookieModal = document.getElementById('cookiePolicyModalOverlay');
+
+    const openModal = (modal) => {
+      if (modal) modal.classList.add('active');
+    };
+
+    const closeModal = (modal) => {
+      if (modal) modal.classList.remove('active');
+    };
+
+    const bindModal = (btnId, modalEl, closeBtnId) => {
+      const btn = document.getElementById(btnId);
+      const closeBtn = document.getElementById(closeBtnId);
+      if (btn && modalEl) {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          openModal(modalEl);
+        });
+      }
+      if (closeBtn && modalEl) {
+        closeBtn.addEventListener('click', () => closeModal(modalEl));
+      }
+      if (modalEl) {
+        modalEl.addEventListener('click', (e) => {
+          if (e.target === modalEl) closeModal(modalEl);
+        });
+      }
+    };
+
+    bindModal('openTermsBtn', termsModal, 'closeTermsModalBtn');
+    bindModal('openPrivacyBtn', privacyModal, 'closePrivacyModalBtn');
+    bindModal('openCookiePolicyBtn', cookieModal, 'closeCookiePolicyModalBtn');
+
+    if (viewCookieDetailsBtn && cookieModal) {
+      viewCookieDetailsBtn.addEventListener('click', () => {
+        openModal(cookieModal);
+      });
+    }
+
+    // Escape key closes open modals
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        [termsModal, privacyModal, cookieModal].forEach(m => {
+          if (m && m.classList.contains('active')) closeModal(m);
+        });
+      }
     });
   </script>
 </body>
