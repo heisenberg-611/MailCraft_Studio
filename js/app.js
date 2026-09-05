@@ -1008,7 +1008,7 @@ const App = {
         modeTeamBtn.classList.add('active');
         if (modeSigBtn) modeSigBtn.classList.remove('active');
         if (modeTplBtn) modeTplBtn.classList.remove('active');
-        if (tabTeamNavBtn) tabTeamNavBtn.style.display = 'block';
+        if (tabTeamNavBtn) tabTeamNavBtn.style.display = 'flex';
         if (tabEmailNavBtn) tabEmailNavBtn.style.display = 'none';
         tabTeamNavBtn.click();
         this.renderTeamRosterList();
@@ -1023,7 +1023,7 @@ const App = {
         if (modeSigBtn) modeSigBtn.classList.remove('active');
         if (modeTeamBtn) modeTeamBtn.classList.remove('active');
         if (tabTeamNavBtn) tabTeamNavBtn.style.display = 'none';
-        if (tabEmailNavBtn) tabEmailNavBtn.style.display = 'block';
+        if (tabEmailNavBtn) tabEmailNavBtn.style.display = 'flex';
         tabEmailNavBtn.click();
         this.updateLivePreview();
       });

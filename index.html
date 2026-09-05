@@ -620,7 +620,6 @@
             <button class="footer-nav-link policy-link" id="openTermsBtn">[Terms &amp; Conditions]</button>
             <button class="footer-nav-link policy-link" id="openPrivacyBtn">[Privacy Policy]</button>
             <button class="footer-nav-link policy-link" id="openCookiePolicyBtn">[Cookie &amp; Storage Policy]</button>
-            <button class="footer-nav-link policy-link" id="reopenConsentBtn">[Storage Consent Notice]</button>
           </div>
         </div>
 
@@ -633,7 +632,7 @@
             <a href="studio.html?mode=sig" class="footer-nav-link">[Signature Studio]</a>
             <a href="studio.html?mode=team" class="footer-nav-link">[Team Batch CSV Mode]</a>
             <a href="studio.html?mode=template" class="footer-nav-link">[Broadcast Email Builder]</a>
-            <a href="#quickstart" class="footer-nav-link">[Setup Documentation]</a>
+            <a href="#docs" class="footer-nav-link">[Setup Documentation]</a>
           </div>
         </div>
 
@@ -643,8 +642,8 @@
             <span class="sahinur-prompt-prefix">//</span> DEVELOPER &amp; SOURCE
           </div>
           <div class="footer-nav-list">
-            <a href="https://github.com/dhrubojyoti" target="_blank" rel="noopener" class="footer-nav-link">[GitHub Source]</a>
-            <a href="https://linkedin.com/in/dhrubojyoti" target="_blank" rel="noopener" class="footer-nav-link">[LinkedIn Profile]</a>
+            <a href="https://github.com/heisenberg-611" target="_blank" rel="noopener" class="footer-nav-link">[GitHub Source]</a>
+            <a href="https://www.linkedin.com/in/dhrubojyoti-saha-3084a02bb/" target="_blank" rel="noopener" class="footer-nav-link">[LinkedIn Profile]</a>
             <a href="https://www.dhrubojyoti.dev" target="_blank" rel="noopener" class="footer-nav-link">[Engineer Portfolio]</a>
             <a href="#overview" class="footer-nav-link">[Back to Top &uarr;]</a>
           </div>
@@ -1012,7 +1011,6 @@
     const cookieConsentBanner = document.getElementById('cookieConsentBanner');
     const acceptCookieBtn = document.getElementById('acceptCookieConsentBtn');
     const viewCookieDetailsBtn = document.getElementById('viewCookieDetailsBtn');
-    const reopenConsentBtn = document.getElementById('reopenConsentBtn');
 
     const hasConsent = localStorage.getItem('mailcraft_cookie_consent');
     if (!hasConsent && cookieConsentBanner) {
@@ -1025,12 +1023,6 @@
       acceptCookieBtn.addEventListener('click', () => {
         localStorage.setItem('mailcraft_cookie_consent', 'accepted');
         cookieConsentBanner.classList.remove('active');
-      });
-    }
-
-    if (reopenConsentBtn && cookieConsentBanner) {
-      reopenConsentBtn.addEventListener('click', () => {
-        cookieConsentBanner.classList.add('active');
       });
     }
 
