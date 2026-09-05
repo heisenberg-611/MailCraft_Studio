@@ -3,7 +3,7 @@
  * Style: Sahinur.dev Matrix Terminal Architecture
  * Renders a crisp dot matrix grid covering the entire viewport.
  * When the cursor hovers or moves, individual matrix dots illuminate in
- * glowing neon green (#00FF88) with smooth proximity scaling and decay.
+ * soothing emerald green (#00DC82) with smooth proximity scaling and decay.
  */
 
 const DotMatrixEngine = {
@@ -15,9 +15,9 @@ const DotMatrixEngine = {
   
   // Matrix grid configuration
   gridSpacing: 28,        // Distance between grid dots in px
-  baseDotRadius: 1.2,     // Idle dot radius
-  maxDotRadius: 2.8,      // Hovered dot radius
-  hoverRadius: 170,       // Mouse interaction influence radius in px
+  baseDotRadius: 1.0,     // Idle dot radius
+  maxDotRadius: 2.4,      // Hovered dot radius
+  hoverRadius: 160,       // Mouse interaction influence radius in px
   
   // Mouse coordinates (viewport relative)
   mouse: {
@@ -130,28 +130,28 @@ const DotMatrixEngine = {
       dot.intensity += (targetIntensity - dot.intensity) * (targetIntensity > dot.intensity ? 0.45 : 0.08);
       
       if (dot.intensity > 0.02) {
-        // Active illuminated dot: Neon Matrix Green (#00FF88)
+        // Active illuminated dot: Soothing Matrix Emerald (#00DC82)
         const rad = this.baseDotRadius + dot.intensity * (this.maxDotRadius - this.baseDotRadius);
         const alpha = 0.25 + dot.intensity * 0.75;
         
         // Center core
         this.ctx.beginPath();
         this.ctx.arc(dot.x, dot.y, rad, 0, Math.PI * 2);
-        this.ctx.fillStyle = `rgba(0, 255, 136, ${alpha})`;
+        this.ctx.fillStyle = `rgba(0, 220, 130, ${alpha})`;
         this.ctx.fill();
         
         // Glowing halo for close dots
         if (dot.intensity > 0.35) {
           this.ctx.beginPath();
-          this.ctx.arc(dot.x, dot.y, rad + 2, 0, Math.PI * 2);
-          this.ctx.fillStyle = `rgba(0, 255, 136, ${(dot.intensity - 0.35) * 0.3})`;
+          this.ctx.arc(dot.x, dot.y, rad + 1.5, 0, Math.PI * 2);
+          this.ctx.fillStyle = `rgba(0, 220, 130, ${(dot.intensity - 0.35) * 0.22})`;
           this.ctx.fill();
         }
       } else {
         // Idle Matrix Dot: Crisp subtle dot
         this.ctx.beginPath();
         this.ctx.arc(dot.x, dot.y, this.baseDotRadius, 0, Math.PI * 2);
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.14)';
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
         this.ctx.fill();
       }
     }

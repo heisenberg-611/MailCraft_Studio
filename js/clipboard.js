@@ -167,5 +167,29 @@ const ClipboardExporter = {
       console.error('Export PNG failed:', err);
       if (callback) callback(false, 'PNG export error: ' + err.message);
     }
+  },
+
+  /**
+   * Alias helper for async rich HTML direct copying
+   */
+  async copyHtmlDirectly(htmlString, plainText = '') {
+    return new Promise((resolve) => {
+      this.copyRichHtml(htmlString, plainText, (success) => {
+        resolve(success);
+      });
+    });
   }
 };
+
+// Universal environment exports
+if (typeof window !== 'undefined') {
+  window.ClipboardExporter = ClipboardExporter;
+  window.ClipboardHelper = ClipboardExporter;
+}
+if (typeof globalThis !== 'undefined') {
+  globalThis.ClipboardExporter = ClipboardExporter;
+  globalThis.ClipboardHelper = ClipboardExporter;
+}
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = ClipboardExporter;
+}

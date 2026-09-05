@@ -25,9 +25,9 @@ const EmailTemplateEngine = {
         'Here is a summary of our recent work and engineering progress.'
       ],
       highlightBox: {
-        enabled: true,
+        enabled: false,
         title: 'Key Highlights',
-        content: '- High-Definition Retina graphics (2x, 3x, 4x DPI)\n- 100% in-browser generation with zero backend dependencies\n- Seamless 1-click clipboard paste into Gmail and Outlook'
+        content: ''
       },
       ctaText: 'View Project Details',
       ctaUrl: 'https://www.dhrubojyoti.dev',
@@ -47,39 +47,53 @@ const EmailTemplateEngine = {
     const bodyBg = isDark ? '#090D16' : '#F1F5F9';
     const cardBg = isDark ? '#0F172A' : '#FFFFFF';
     const cardBorder = isDark ? '1px solid #334155' : '1px solid #E2E8F0';
-    const textColor = isDark ? '#E2E8F0' : '#334155';
-    const titleColor = isDark ? '#F8FAFC' : '#0F172A';
-    const highlightBg = isDark ? '#1E293B' : '#F8FAFC';
+    const defaultTextColor = isDark ? '#CBD5E1' : '#334155';
+    const defaultTitleColor = isDark ? '#F8FAFC' : '#0F172A';
+    const defaultFooterText = isDark ? '#94A3B8' : '#64748B';
+
+    // Granular User-Configurable Colors
+    const headerTextColor = t.headerTextColor || '#FFFFFF';
+    const headerBgColor = t.headerBgColor || '#0F172A';
+    const emailGreetingColor = isDark ? (t.greetingColor ? SignatureEngine.adjustColorForDark(t.greetingColor, 'name') : defaultTitleColor) : (t.greetingColor || defaultTitleColor);
+    const emailBodyColor = isDark ? (t.bodyColor ? SignatureEngine.adjustColorForDark(t.bodyColor, 'body') : defaultTextColor) : (t.bodyColor || defaultTextColor);
+    const emailClosingColor = isDark ? (t.closingColor ? SignatureEngine.adjustColorForDark(t.closingColor, 'body') : defaultFooterText) : (t.closingColor || defaultFooterText);
+    const emailFooterColor = isDark ? (t.footerTextColor ? SignatureEngine.adjustColorForDark(t.footerTextColor, 'body') : defaultFooterText) : (t.footerTextColor || defaultFooterText);
+    
+    const highlightTitleColor = isDark ? (t.highlightTitleColor ? SignatureEngine.adjustColorForDark(t.highlightTitleColor, 'accent') : accentColor) : (t.highlightTitleColor || accentColor);
+    const highlightTextColor = isDark ? (t.highlightTextColor ? SignatureEngine.adjustColorForDark(t.highlightTextColor, 'body') : emailBodyColor) : (t.highlightTextColor || emailBodyColor);
+    const highlightBgColor = isDark ? '#1E293B' : (t.highlightBgColor || '#F8FAFC');
     const highlightBorder = isDark ? '1px solid #334155' : '1px solid #E2E8F0';
+
+    const ctaBgColor = isDark ? (t.ctaBgColor ? SignatureEngine.adjustColorForDark(t.ctaBgColor, 'accent') : accentColor) : (t.ctaBgColor || accentColor);
+    const ctaTextColor = t.ctaTextColor || (SignatureEngine.getLuminance(ctaBgColor) > 0.55 ? '#0F172A' : '#FFFFFF');
     const footerBg = isDark ? '#0B1120' : '#F8FAFC';
-    const footerText = isDark ? '#94A3B8' : '#64748B';
 
     // Format paragraphs
     const paragraphsHtml = (t.paragraphs || []).map(p => {
       if (p.includes('\n- ') || p.startsWith('- ')) {
         const items = p.split('\n').filter(line => line.trim().length > 0).map(line => {
           const cleanLine = line.replace(/^-\s*/, '');
-          return `<li style="margin-bottom: 6px; color: ${textColor};">${cleanLine}</li>`;
+          return `<li style="margin-bottom: 6px; color: ${emailBodyColor};">${cleanLine}</li>`;
         }).join('');
-        return `<ul class="email-text-body" style="margin: 12px 0 16px 20px; padding: 0; font-size: 14px; line-height: 1.6; color: ${textColor};">${items}</ul>`;
+        return `<ul class="email-text-body" style="margin: 12px 0 16px 20px; padding: 0; font-size: 14px; line-height: 1.6; color: ${emailBodyColor};">${items}</ul>`;
       }
-      return `<p class="email-text-body" style="margin: 0 0 14px 0; font-size: 14px; line-height: 1.6; color: ${textColor};">${p}</p>`;
+      return `<p class="email-text-body" style="margin: 0 0 14px 0; font-size: 14px; line-height: 1.6; color: ${emailBodyColor};">${p}</p>`;
     }).join('');
 
     // Format highlight box
     let highlightHtml = '';
-    if (t.highlightBox && t.highlightBox.enabled) {
+    if (t.highlightBox && t.highlightBox.enabled && t.highlightBox.content && t.highlightBox.content.trim().length > 0) {
       const items = (t.highlightBox.content || '').split('\n').filter(l => l.trim()).map(line => {
         const clean = line.replace(/^-\s*/, '');
-        return `<div class="email-text-body" style="padding: 3px 0; font-size: 13.5px; color: ${textColor};">&bull; ${clean}</div>`;
+        return `<div class="email-text-body" style="padding: 3px 0; font-size: 13.5px; color: ${highlightTextColor};">&bull; ${clean}</div>`;
       }).join('');
 
       highlightHtml = `
       <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; margin: 18px 0; border-collapse: collapse;">
         <tr>
-          <td class="email-highlight-box" style="background-color: ${highlightBg}; border: ${highlightBorder}; border-left: 4px solid ${accentColor}; border-radius: 6px; padding: 14px 18px;">
-            <div class="email-highlight-title" style="font-size: 13.5px; font-weight: 700; color: ${accentColor}; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
-              ${t.highlightBox.title || 'Summary'}
+          <td class="email-highlight-box" style="background-color: ${highlightBgColor}; border: ${highlightBorder}; border-left: 4px solid ${highlightTitleColor}; border-radius: 6px; padding: 14px 18px;">
+            <div class="email-highlight-title" style="font-size: 13.5px; font-weight: 700; color: ${highlightTitleColor}; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+              ${t.highlightBox.title || 'Key Highlights'}
             </div>
             ${items}
           </td>
@@ -91,11 +105,10 @@ const EmailTemplateEngine = {
     // Format CTA Button
     let ctaHtml = '';
     if (t.showCta && t.ctaText) {
-      const ctaTextColor = SignatureEngine.getLuminance(accentColor) > 0.55 ? '#0F172A' : '#FFFFFF';
       ctaHtml = `
       <table cellpadding="0" cellspacing="0" border="0" style="margin: 22px 0 24px 0; border-collapse: collapse;">
         <tr>
-          <td align="center" class="email-cta-btn" style="background-color: ${accentColor}; border-radius: 6px; padding: 10px 22px;">
+          <td align="center" class="email-cta-btn" style="background-color: ${ctaBgColor}; border-radius: 6px; padding: 10px 22px;">
             <a href="${t.ctaUrl || '#'}" target="_blank" style="font-family: ${fontFamily}; font-size: 14px; font-weight: 600; color: ${ctaTextColor}; text-decoration: none; display: inline-block;">
               ${t.ctaText}
             </a>
@@ -161,11 +174,11 @@ const EmailTemplateEngine = {
           
           <!-- Brand Header Bar -->
           <tr>
-            <td style="background-color: #0F172A; padding: 18px 28px; border-bottom: 3px solid ${accentColor};">
+            <td style="background-color: ${headerBgColor}; padding: 18px 28px; border-bottom: 3px solid ${accentColor};">
               <table border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tr>
                   <td>
-                    <span style="font-family: ${fontFamily}; font-size: 13px; font-weight: 700; color: #FFFFFF; letter-spacing: 1px; text-transform: uppercase;">
+                    <span style="font-family: ${fontFamily}; font-size: 13px; font-weight: 700; color: ${headerTextColor}; letter-spacing: 1px; text-transform: uppercase;">
                       ${t.headerLogoText || 'Dhrubojyoti Saha'}
                     </span>
                   </td>
@@ -181,10 +194,10 @@ const EmailTemplateEngine = {
 
           <!-- Main Body Content -->
           <tr>
-            <td style="padding: 32px 32px 24px 32px; font-family: ${fontFamily}; color: ${textColor};">
+            <td style="padding: 32px 32px 24px 32px; font-family: ${fontFamily}; color: ${emailBodyColor};">
               
               <!-- Salutation -->
-              <div class="email-text-title" style="font-size: 16px; font-weight: 600; color: ${titleColor}; margin-bottom: 16px;">
+              <div class="email-text-title" style="font-size: 16px; font-weight: 600; color: ${emailGreetingColor}; margin-bottom: 16px;">
                 ${t.greeting || 'Hello,'}
               </div>
 
@@ -198,7 +211,7 @@ const EmailTemplateEngine = {
               ${ctaHtml}
 
               <!-- Closing -->
-              <div style="font-size: 14px; color: ${footerText}; margin-top: 20px; margin-bottom: 18px;">
+              <div style="font-size: 14px; color: ${emailClosingColor}; margin-top: 20px; margin-bottom: 18px;">
                 ${t.closing || 'Best regards,'}
               </div>
 
@@ -213,7 +226,7 @@ const EmailTemplateEngine = {
           <!-- Footer Bar -->
           <tr>
             <td class="email-footer-bg" style="background-color: ${footerBg}; padding: 16px 28px; border-top: ${cardBorder}; text-align: center;">
-              <div style="font-size: 11px; color: ${footerText}; line-height: 1.5;">
+              <div style="font-size: 11px; color: ${emailFooterColor}; line-height: 1.5;">
                 ${t.footerNote || 'Sent with High-Definition Email Studio'}
               </div>
             </td>
@@ -227,5 +240,23 @@ const EmailTemplateEngine = {
 </body>
 </html>
     `.trim();
+  },
+
+  /**
+   * Method alias for App.js compatibility
+   */
+  generateEmailHtml(templateData, signatureData, signatureSettings, isDark = false, isExport = true) {
+    return this.generateFullEmail(templateData, signatureData, signatureSettings, isDark, isExport);
   }
 };
+
+// Universal environment exports
+if (typeof window !== 'undefined') {
+  window.EmailTemplateEngine = EmailTemplateEngine;
+}
+if (typeof globalThis !== 'undefined') {
+  globalThis.EmailTemplateEngine = EmailTemplateEngine;
+}
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = EmailTemplateEngine;
+}

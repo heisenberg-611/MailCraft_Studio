@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MailCraft Studio - High-Definition Email Signature & Architecture Engine</title>
+  <title>MailCraft Studio - High-Definition Email Signature &amp; Architecture Engine</title>
   
   <!-- Google Fonts: JetBrains Mono & Geist & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,18 +37,18 @@
       <div class="nav-menu">
         <a href="#overview" class="nav-link active">[01] Overview</a>
         <a href="#features" class="nav-link">[02] Capabilities</a>
-        <a href="#studio" class="nav-link">[03] Studio Workspace</a>
-        <a href="#presets" class="nav-link">[04] Presets</a>
-        <a href="#docs" class="nav-link">[05] Docs</a>
+        <a href="#presets" class="nav-link">[03] Presets</a>
+        <a href="#docs" class="nav-link">[04] Setup Guides</a>
+        <a href="#specs" class="nav-link">[05] Specs</a>
       </div>
 
       <!-- Nav Actions -->
       <div class="nav-actions">
         <span class="sahinur-status-badge">
           <span class="sahinur-status-dot"></span>
-          <span id="hdBadge">ONLINE // RETINA 2X</span>
+          <span>ONLINE // RETINA 2X</span>
         </span>
-        <a href="#studio" class="btn-primary" id="navLaunchStudioBtn">
+        <a href="studio.html" class="btn-primary" id="navLaunchStudioBtn">
           <span class="sahinur-prompt-prefix">&gt;</span> Launch Studio
         </a>
       </div>
@@ -64,7 +64,7 @@
           AVAILABLE &bull; 100% IN-BROWSER ENGINE
         </span>
         <div class="hero-cmd-line">
-          <span class="sahinur-prompt-prefix">$</span> ./mailcraft --init --hd-retina
+          <span class="sahinur-prompt-prefix">$</span> ./mailcraft --init --hd-retina --team-batch
         </div>
       </div>
 
@@ -73,19 +73,73 @@
       </h1>
 
       <p class="hero-desc">
-        Developer-grade email signature and full HTML template architecture. Generated entirely in your browser with Retina 2x/4x scaling, automated dark mode contrast algorithms, and zero server transmission.
+        Developer-grade email signature compiler and full HTML template architecture. Generated entirely in your browser with Retina 2x/4x scaling, automated dark mode contrast algorithms, team batch CSV generation, and zero server transmission.
       </p>
 
       <div class="hero-cta-group">
-        <a href="#studio" class="btn-primary" style="padding: 12px 24px; font-size: 13.5px;">
-          <span class="sahinur-prompt-prefix">&gt;</span> Open Signature Studio
+        <a href="studio.html" class="btn-primary" style="padding: 12px 26px; font-size: 13.5px;">
+          <span class="sahinur-prompt-prefix">&gt;</span> Launch Individual Studio
+        </a>
+        <a href="studio.html?mode=team" class="btn-secondary" style="padding: 12px 22px; font-size: 13.5px;">
+          // Team Batch Generator
+        </a>
+        <a href="studio.html?mode=email" class="btn-secondary" style="padding: 12px 20px; font-size: 13.5px;">
+          // Email Builder
         </a>
         <a href="#presets" class="btn-secondary" style="padding: 12px 20px; font-size: 13.5px;">
-          // Browse 6+ Presets
+          # Browse 8+ Presets
         </a>
-        <a href="#docs" class="btn-secondary" style="padding: 12px 20px; font-size: 13.5px;">
-          ? Client Setup Guides
-        </a>
+      </div>
+
+      <!-- Interactive Hero Preview Window Showcase -->
+      <div style="width: 100%; margin-top: 36px;">
+        <div class="sahinur-terminal" style="max-width: 920px; margin: 0 auto; border-color: var(--sahinur-border-strong);">
+          <div class="sahinur-terminal-header">
+            <div class="sahinur-traffic-dots">
+              <span class="sahinur-traffic-dot red"></span>
+              <span class="sahinur-traffic-dot yellow"></span>
+              <span class="sahinur-traffic-dot green"></span>
+            </div>
+            <div style="font-family: var(--font-mono); font-size: 12px;">
+              <span class="sahinur-prompt-prefix">$</span>
+              <span>mailcraft --preview --preset=developerTerminal</span>
+            </div>
+            <a href="studio.html?preset=developerTerminal" class="btn-primary" style="padding: 4px 12px; font-size: 11px;">
+              Open in Studio &rarr;
+            </a>
+          </div>
+          
+          <div style="padding: 24px 28px; background: #0c0e10; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px;">
+            <div style="display: flex; align-items: center; gap: 20px;">
+              <!-- Avatar Frame -->
+              <div style="width: 78px; height: 78px; border-radius: 4px; border: 2px solid var(--sahinur-accent); overflow: hidden; background: #181b1f; flex-shrink: 0; box-shadow: 0 0 16px var(--sahinur-accent-dim); display: flex; align-items: center; justify-content: center;">
+                <img src="assets/default-avatar.jpg" id="heroPreviewAvatar" style="width: 100%; height: 100%; object-fit: cover;" alt="Avatar">
+              </div>
+
+              <!-- Content Column -->
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.02em;">Dhrubojyoti Saha</span>
+                  <span class="sahinur-status-badge" style="padding: 2px 8px; font-size: 10px; color: var(--sahinur-accent); border-color: var(--sahinur-border-accent);">DEV ARCHITECT</span>
+                </div>
+                <div style="font-family: var(--font-mono); font-size: 12.5px; color: var(--sahinur-accent); font-weight: 600;">
+                  Software Engineer &bull; BRAC University
+                </div>
+                <div style="font-family: var(--font-mono); font-size: 11.5px; color: #9CA3AF; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 14px;">
+                  <span><strong style="color: var(--sahinur-accent);">$ tel:</strong> +880 1607-608232</span>
+                  <span><strong style="color: var(--sahinur-accent);">$ mail:</strong> dhrubojyoti.saha@g.bracu.ac.bd</span>
+                  <span><strong style="color: var(--sahinur-accent);">$ web:</strong> www.dhrubojyoti.dev</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <a href="studio.html?preset=developerTerminal" class="btn-primary" style="font-size: 12px; padding: 8px 16px;">
+                <span class="sahinur-prompt-prefix">&gt;</span> Customize Now
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Feature Metric Grid -->
@@ -95,7 +149,23 @@
             <span class="sahinur-prompt-prefix">&gt;</span> RESOLUTION
           </div>
           <div class="hero-metric-val">2x / 3x / 4x Retina HD</div>
-          <div class="hero-metric-desc">Anti-aliased canvas rendering with zero compression blur.</div>
+          <div class="hero-metric-desc">Anti-aliased canvas rendering with zero compression blur on 4K displays.</div>
+        </div>
+
+        <div class="hero-metric-card">
+          <div class="hero-metric-header">
+            <span class="sahinur-prompt-prefix">&gt;</span> TEAM BATCH
+          </div>
+          <div class="hero-metric-val">CSV &rarr; ZIP Generator</div>
+          <div class="hero-metric-desc">Batch compile hundreds of employee signatures with master branding &amp; 1-click ZIP export.</div>
+        </div>
+
+        <div class="hero-metric-card">
+          <div class="hero-metric-header">
+            <span class="sahinur-prompt-prefix">&gt;</span> CUSTOM PRESETS
+          </div>
+          <div class="hero-metric-val">Local &amp; JSON Hub</div>
+          <div class="hero-metric-desc">Save unlimited named custom presets in browser storage or export/import JSON files.</div>
         </div>
 
         <div class="hero-metric-card">
@@ -103,23 +173,7 @@
             <span class="sahinur-prompt-prefix">&gt;</span> PRIVACY
           </div>
           <div class="hero-metric-val">100% Client-Side</div>
-          <div class="hero-metric-desc">Zero telemetry, no backend servers, total data privacy.</div>
-        </div>
-
-        <div class="hero-metric-card">
-          <div class="hero-metric-header">
-            <span class="sahinur-prompt-prefix">&gt;</span> CONTRAST
-          </div>
-          <div class="hero-metric-val">Auto Dark Mode</div>
-          <div class="hero-metric-desc">Automatic luminance detection for 100% dark inbox legibility.</div>
-        </div>
-
-        <div class="hero-metric-card">
-          <div class="hero-metric-header">
-            <span class="sahinur-prompt-prefix">&gt;</span> COMPATIBILITY
-          </div>
-          <div class="hero-metric-val">Universal Safe Tables</div>
-          <div class="hero-metric-desc">Direct 1-click clipboard paste into Gmail, Apple Mail &amp; Outlook.</div>
+          <div class="hero-metric-desc">Zero telemetry, no backend servers, complete local browser data privacy.</div>
         </div>
       </div>
     </header>
@@ -131,14 +185,14 @@
       <div class="section-header-box">
         <div class="sahinur-eyebrow">// 02. SYSTEM ARCHITECTURE &amp; CAPABILITIES</div>
         <h2 class="section-main-title">Engineered for Technical Excellence</h2>
-        <p class="section-subtext">Every signature is compiled using email-safe HTML standards and optimized for crisp high-density displays.</p>
+        <p class="section-subtext">Every signature and email layout is compiled using email-safe HTML standards and optimized for crisp high-density displays.</p>
       </div>
 
       <div class="features-grid">
         <div class="sahinur-card feature-box">
           <div class="feature-index">// 01. HIGH-DPI RASTERIZATION</div>
           <h3 class="feature-title">Retina Multiplier Engine</h3>
-          <p class="feature-desc">Utilizes browser Canvas 2D APIs to supersample your avatar image up to 4x native resolution, maintaining razor-sharp edges on 4K &amp; Retina monitors.</p>
+          <p class="feature-desc">Utilizes browser Canvas 2D APIs to supersample your avatar image up to 4x native resolution, maintaining razor-sharp edges on Retina &amp; Ultra-HD monitors.</p>
         </div>
 
         <div class="sahinur-card feature-box">
@@ -148,746 +202,39 @@
         </div>
 
         <div class="sahinur-card feature-box">
-          <div class="feature-index">// 03. EMAIL-CLIENT SAFE HTML</div>
-          <h3 class="feature-title">MSO Outlook Fixed Tables</h3>
-          <p class="feature-desc">Generates standards-compliant nested HTML tables with MSO-specific conditionals to prevent broken formatting across desktop Outlook and web mail clients.</p>
+          <div class="feature-index">// 03. TEAM BATCH ENGINE</div>
+          <h3 class="feature-title">CSV Import &amp; ZIP Exporter</h3>
+          <p class="feature-desc">Import company rosters via CSV, preview any team member instantly in the simulator, and download a ready-to-deploy ZIP containing individual HTML files.</p>
         </div>
 
         <div class="sahinur-card feature-box">
           <div class="feature-index">// 04. INSTANT CLIPBOARD EXPORT</div>
           <h3 class="feature-title">Rich Text Clipboard API</h3>
-          <p class="feature-desc">Directly transfers formatted rich HTML and fallback plain text to your system clipboard with a single click—no manual coding required.</p>
+          <p class="feature-desc">Directly transfers formatted rich HTML and fallback plain text to your system clipboard with a single click—no manual coding or server sync required.</p>
         </div>
       </div>
     </section>
 
     <!-- ==========================================================================
-         4. Interactive Studio Workspace Section (#studio)
-         ========================================================================== -->
-    <section class="studio-section" id="studio">
-      <div class="section-header-box">
-        <div class="sahinur-eyebrow">// 03. LIVE COMPILER &amp; SIMULATOR WORKSPACE</div>
-        <h2 class="section-main-title">Signature &amp; Email Studio</h2>
-        <p class="section-subtext">Customize your identity, logo, typography, and layout with real-time multi-client preview.</p>
-      </div>
-
-      <div class="app-container">
-        
-        <!-- Header Navigation Bar inside Studio Frame -->
-        <header class="studio-header">
-          <!-- Mode Switcher -->
-          <div class="mode-switcher">
-            <button class="mode-tab-btn active" id="modeSignatureBtn">
-              <span class="btn-icon" id="modeSigIcon"></span>
-              [01] Signature Studio
-            </button>
-            <button class="mode-tab-btn" id="modeTemplateBtn">
-              <span class="btn-icon" id="modeTplIcon"></span>
-              [02] Full Email Builder
-            </button>
-          </div>
-
-          <!-- Header Actions -->
-          <div class="header-actions">
-            <!-- Preset Dropdown Selector -->
-            <select class="form-select" id="presetSelect" style="width: auto; padding: 5px 10px; font-family: var(--font-mono); font-size: 11px;">
-              <option value="sahinurMatrix">Preset: Cyberpunk Matrix (Sahinur.dev)</option>
-              <option value="dhrubojyoti">Preset: Dhrubojyoti (Reference)</option>
-              <option value="siliconValley">Preset: Silicon Valley Minimal</option>
-              <option value="corporateNavy">Preset: Corporate Executive</option>
-              <option value="academicScholar">Preset: Academic Scholar</option>
-              <option value="nordicMinimal">Preset: Nordic Clean Slate</option>
-              <option value="cyberpunkSlate">Preset: Cyberpunk Violet</option>
-            </select>
-
-            <button class="btn-secondary" id="openGuideBtn">
-              <span class="btn-icon" id="guideIcon"></span>
-              Setup Guide
-            </button>
-
-            <button class="btn-primary" id="copyPrimaryBtn">
-              <span class="btn-icon" id="copyPrimaryIcon"></span>
-              Copy Signature
-            </button>
-          </div>
-        </header>
-
-        <!-- Main Studio Split View -->
-        <main class="studio-main">
-          
-          <!-- Left Sidebar Controls -->
-          <aside class="studio-sidebar">
-            <div class="sahinur-terminal-header">
-              <div class="sahinur-traffic-dots">
-                <span class="sahinur-traffic-dot red"></span>
-                <span class="sahinur-traffic-dot yellow"></span>
-                <span class="sahinur-traffic-dot green"></span>
-              </div>
-              <div class="sahinur-terminal-title">
-                <span class="dir">~/studio/</span>config.json
-              </div>
-              <div style="font-family: var(--font-mono); font-size: 10px; color: var(--sahinur-accent);">v2.4.0</div>
-            </div>
-
-            <!-- Tab Navigation -->
-            <nav class="sidebar-tab-nav">
-              <button class="sidebar-nav-btn active" data-tab="tab-identity">[01] Identity</button>
-              <button class="sidebar-nav-btn" data-tab="tab-avatar">[02] HD Photo</button>
-              <button class="sidebar-nav-btn" data-tab="tab-style">[03] Design</button>
-              <button class="sidebar-nav-btn" data-tab="tab-socials">[04] Socials</button>
-              <button class="sidebar-nav-btn" data-tab="tab-addons">[05] Add-ons</button>
-              <button class="sidebar-nav-btn" data-tab="tab-email" id="tabEmailNavBtn" style="display: none;">[06] Email Body</button>
-            </nav>
-
-            <div class="sidebar-content">
-              
-              <!-- Tab 1: Identity & Contact Info -->
-              <div class="sidebar-panel active" id="tab-identity">
-                <div class="control-section">
-                  <div class="section-title">
-                    <span class="sahinur-eyebrow">// 01. PERSONAL PROFILE</span>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="fullName">Full Name</label>
-                    <input type="text" id="fullName" class="form-input" value="Dhrubojyoti" placeholder="e.g. John Doe">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="jobTitle">Job Title / Role</label>
-                    <input type="text" id="jobTitle" class="form-input" value="Undergraduate Student" placeholder="e.g. Software Engineer">
-                  </div>
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label class="form-label" for="company">Organization</label>
-                      <input type="text" id="company" class="form-input" value="BRAC University" placeholder="e.g. Tech Corp">
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label" for="department">Department</label>
-                      <input type="text" id="department" class="form-input" value="Dept. of CSE" placeholder="e.g. Engineering">
-                    </div>
-                  </div>
-                </div>
-
-                <div class="control-section">
-                  <div class="section-title">
-                    <span class="sahinur-eyebrow">// 02. DIRECT CHANNELS</span>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="phone">Phone / Mobile</label>
-                    <input type="text" id="phone" class="form-input" value="+880 1607-608232" placeholder="+1 (555) 000-0000">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="email">Email Address</label>
-                    <input type="email" id="email" class="form-input" value="dhrubojyoti.saha@g.bracu.ac.bd" placeholder="name@domain.com">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="website">Website / Portfolio</label>
-                    <input type="text" id="website" class="form-input" value="www.dhrubojyoti.dev" placeholder="www.yourdomain.com">
-                  </div>
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label class="form-label" for="address">Street / Location</label>
-                      <input type="text" id="address" class="form-input" value="38/1, Block-B, Aftabnagar, Dhaka-1212" placeholder="Street address">
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label" for="country">Country</label>
-                      <input type="text" id="country" class="form-input" value="Bangladesh" placeholder="Country">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Tab 2: High-Definition Logo & Avatar -->
-              <div class="sidebar-panel" id="tab-avatar">
-                <div class="control-section">
-                  <div class="section-title">
-                    <span class="sahinur-eyebrow">// 01. PHOTO &amp; LOGO MATRIX</span>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Upload High-Res Image</label>
-                    <input type="file" id="avatarFileInput" accept="image/*" class="form-input" style="padding: 6px;">
-                    <span class="form-label-desc">Supports PNG, JPEG, WEBP, and SVG vector logos.</span>
-                  </div>
-                  
-                  <div class="form-group">
-                    <label class="form-label">
-                      High-DPI Scaling Factor
-                      <span class="form-label-desc" id="dpiLabel">[2x RETINA]</span>
-                    </label>
-                    <div class="dpi-chips-container">
-                      <button class="dpi-chip" data-dpi="1">1x STD</button>
-                      <button class="dpi-chip active" data-dpi="2">2x RETINA</button>
-                      <button class="dpi-chip" data-dpi="3">3x SUPER</button>
-                      <button class="dpi-chip" data-dpi="4">4x ULTRA</button>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="control-section">
-                  <div class="section-title">
-                    <span class="sahinur-eyebrow">// 02. GEOMETRY &amp; FRAMING</span>
-                  </div>
-                  
-                  <div class="form-group">
-                    <label class="form-label">Avatar Shape Profile</label>
-                    <div class="shape-picker-grid">
-                      <button class="shape-btn" data-shape="circle">
-                        <div class="shape-preview-icon circle"></div>
-                        Circle
-                      </button>
-                      <button class="shape-btn active" data-shape="squircle">
-                        <div class="shape-preview-icon squircle"></div>
-                        Squircle
-                      </button>
-                      <button class="shape-btn" data-shape="rounded">
-                        <div class="shape-preview-icon rounded"></div>
-                        Rounded
-                      </button>
-                      <button class="shape-btn" data-shape="square">
-                        <div class="shape-preview-icon square"></div>
-                        Square
-                      </button>
-                    </div>
-                  </div>
-
-                  <div class="slider-group">
-                    <div class="slider-header">
-                      <span>Display Size</span>
-                      <span class="slider-val-badge" id="avatarSizeVal">85px</span>
-                    </div>
-                    <input type="range" id="avatarSize" class="custom-range" min="40" max="140" value="85">
-                  </div>
-
-                  <div class="slider-group">
-                    <div class="slider-header">
-                      <span>Photo Zoom / Crop</span>
-                      <span class="slider-val-badge" id="avatarZoomVal">1.0x</span>
-                    </div>
-                    <input type="range" id="avatarZoom" class="custom-range" min="1.0" max="2.5" step="0.05" value="1.0">
-                  </div>
-
-                  <div class="form-row">
-                    <div class="slider-group">
-                      <div class="slider-header">
-                        <span>Border Width</span>
-                        <span class="slider-val-badge" id="avatarBorderVal">2px</span>
-                      </div>
-                      <input type="range" id="avatarBorderWidth" class="custom-range" min="0" max="8" value="2">
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label" for="avatarBorderColor">Border Color</label>
-                      <div class="color-picker-row">
-                        <div class="color-input-wrapper">
-                          <input type="color" id="avatarBorderColor" class="color-input" value="#00FF88">
-                        </div>
-                        <input type="text" id="avatarBorderColorHex" class="form-input color-hex-input" value="#00FF88">
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="control-section">
-                  <div class="section-title">
-                    <span class="sahinur-eyebrow">// 03. SHARPNESS &amp; TONE</span>
-                  </div>
-                  <div class="slider-group">
-                    <div class="slider-header">
-                      <span>Brightness</span>
-                      <span class="slider-val-badge" id="brightnessVal">100%</span>
-                    </div>
-                    <input type="range" id="imgBrightness" class="custom-range" min="60" max="140" value="100">
-                  </div>
-                  <div class="slider-group">
-                    <div class="slider-header">
-                      <span>Contrast</span>
-                      <span class="slider-val-badge" id="contrastVal">100%</span>
-                    </div>
-                    <input type="range" id="imgContrast" class="custom-range" min="60" max="140" value="100">
-                  </div>
-                  <div class="slider-group">
-                    <div class="slider-header">
-                      <span>Saturation</span>
-                      <span class="slider-val-badge" id="saturationVal">100%</span>
-                    </div>
-                    <input type="range" id="imgSaturation" class="custom-range" min="0" max="160" value="100">
-                  </div>
-                </div>
-              </div>
-
-              <!-- Tab 3: Design, Typography & Colors -->
-              <div class="sidebar-panel" id="tab-style">
-                <div class="control-section">
-                  <div class="section-title">
-                    <span class="sahinur-eyebrow">// 01. LAYOUT ARCHITECTURE</span>
-                  </div>
-                  <div class="template-cards-grid">
-                    <div class="template-card active" data-template="vertical-divider">
-                      <div class="template-card-preview">
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                          <div style="width: 22px; height: 22px; border-radius: 6px; background: #00FF88;"></div>
-                          <div style="width: 2px; height: 30px; background: #00FF88;"></div>
-                          <div style="display: flex; flex-direction: column; gap: 3px;">
-                            <div style="width: 48px; height: 5px; background: #FFFFFF; border-radius: 2px;"></div>
-                            <div style="width: 36px; height: 4px; background: #00FF88; border-radius: 2px;"></div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="template-card-title">Vertical Divider</div>
-                    </div>
-
-                    <div class="template-card" data-template="horizontal-bar">
-                      <div class="template-card-preview">
-                        <div style="display: flex; flex-direction: column; gap: 4px; width: 80%;">
-                          <div style="display: flex; align-items: center; gap: 6px;">
-                            <div style="width: 16px; height: 16px; border-radius: 4px; background: #00FF88;"></div>
-                            <div style="width: 45px; height: 5px; background: #FFFFFF;"></div>
-                          </div>
-                          <div style="width: 100%; height: 2px; background: #00FF88;"></div>
-                        </div>
-                      </div>
-                      <div class="template-card-title">Horizontal Bar</div>
-                    </div>
-
-                    <div class="template-card" data-template="two-column">
-                      <div class="template-card-preview">
-                        <div style="display: flex; gap: 8px; width: 80%;">
-                          <div style="flex: 1; height: 26px; background: #1c1c1c; border-radius: 3px; border: 1px solid #00FF88;"></div>
-                          <div style="flex: 1; height: 26px; background: #1c1c1c; border-radius: 3px;"></div>
-                        </div>
-                      </div>
-                      <div class="template-card-title">Two Column Grid</div>
-                    </div>
-
-                    <div class="template-card" data-template="modern-card">
-                      <div class="template-card-preview">
-                        <div style="width: 80%; height: 30px; border: 1px solid #00FF88; border-left: 3px solid #00FF88; border-radius: 4px;"></div>
-                      </div>
-                      <div class="template-card-title">Modern Card</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="control-section">
-                  <div class="section-title">
-                    <span class="sahinur-eyebrow">// 02. COLOR MATRIX</span>
-                  </div>
-                  
-                  <div class="form-group">
-                    <label class="form-label" for="accentColor">Accent Color (Dividers, Highlights, Icons)</label>
-                    <div class="color-picker-row">
-                      <div class="color-input-wrapper">
-                        <input type="color" id="accentColor" class="color-input" value="#00FF88">
-                      </div>
-                      <input type="text" id="accentColorHex" class="form-input color-hex-input" value="#00FF88">
-                    </div>
-                    <div class="quick-swatches">
-                      <div class="color-swatch" style="background: #00FF88; color: #00FF88;" data-color="#00FF88" title="Sahinur Matrix Neon"></div>
-                      <div class="color-swatch" style="background: #2563EB; color: #2563EB;" data-color="#2563EB" title="Electric Blue"></div>
-                      <div class="color-swatch" style="background: #10B981; color: #10B981;" data-color="#10B981" title="Emerald Green"></div>
-                      <div class="color-swatch" style="background: #8B5CF6; color: #8B5CF6;" data-color="#8B5CF6" title="Cyber Violet"></div>
-                      <div class="color-swatch" style="background: #EF4444; color: #EF4444;" data-color="#EF4444" title="Neon Crimson"></div>
-                      <div class="color-swatch" style="background: #F59E0B; color: #F59E0B;" data-color="#F59E0B" title="Amber Gold"></div>
-                      <div class="color-swatch" style="background: #0A0A0A; color: #0A0A0A;" data-color="#0A0A0A" title="Obsidian Black"></div>
-                    </div>
-                  </div>
-
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label class="form-label" for="nameColor">Name Color</label>
-                      <div class="color-picker-row">
-                        <div class="color-input-wrapper">
-                          <input type="color" id="nameColor" class="color-input" value="#0A0A0A">
-                        </div>
-                        <input type="text" id="nameColorHex" class="form-input color-hex-input" value="#0A0A0A">
-                      </div>
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label" for="bodyColor">Body Text Color</label>
-                      <div class="color-picker-row">
-                        <div class="color-input-wrapper">
-                          <input type="color" id="bodyColor" class="color-input" value="#242424">
-                        </div>
-                        <input type="text" id="bodyColorHex" class="form-input color-hex-input" value="#242424">
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="control-section">
-                  <div class="section-title">
-                    <span class="sahinur-eyebrow">// 03. TYPOGRAPHY &amp; SIZING</span>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="fontFamily">Email-Safe Font Family</label>
-                    <select id="fontFamily" class="form-select">
-                      <option value="'Courier New', Courier, monospace">Courier New / JetBrains Mono (Hacker Monospace)</option>
-                      <option value="'Segoe UI', Roboto, Helvetica, Arial, sans-serif">Segoe UI / Roboto (Modern Clean)</option>
-                      <option value="Arial, Helvetica, sans-serif">Arial / Helvetica (Universal Standard)</option>
-                      <option value="Georgia, 'Times New Roman', serif">Georgia (Academic &amp; Editorial)</option>
-                      <option value="'Trebuchet MS', 'Lucida Grande', sans-serif">Trebuchet MS (Friendly Geometric)</option>
-                      <option value="Verdana, Geneva, sans-serif">Verdana (High Legibility)</option>
-                    </select>
-                  </div>
-
-                  <div class="slider-group">
-                    <div class="slider-header">
-                      <span>Name Font Size</span>
-                      <span class="slider-val-badge" id="nameFontSizeVal">17px</span>
-                    </div>
-                    <input type="range" id="nameFontSize" class="custom-range" min="13" max="24" value="17">
-                  </div>
-
-                  <div class="slider-group">
-                    <div class="slider-header">
-                      <span>Details Font Size</span>
-                      <span class="slider-val-badge" id="bodyFontSizeVal">12.5px</span>
-                    </div>
-                    <input type="range" id="bodyFontSize" class="custom-range" min="10" max="16" step="0.5" value="12.5">
-                  </div>
-
-                  <div class="form-row">
-                    <div class="slider-group">
-                      <div class="slider-header">
-                        <span>Divider Thickness</span>
-                        <span class="slider-val-badge" id="dividerThicknessVal">2px</span>
-                      </div>
-                      <input type="range" id="dividerThickness" class="custom-range" min="1" max="6" value="2">
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label" for="dividerStyle">Divider Style</label>
-                      <select id="dividerStyle" class="form-select">
-                        <option value="solid">Solid</option>
-                        <option value="dashed">Dashed</option>
-                        <option value="dotted">Dotted</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Tab 4: Social Media Icons -->
-              <div class="sidebar-panel" id="tab-socials">
-                <div class="control-section">
-                  <div class="section-title">
-                    <span class="sahinur-eyebrow">// 01. ICON SCHEME</span>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="iconStyle">Visual Style</label>
-                    <select id="iconStyle" class="form-select">
-                      <option value="accent">Unified Accent Color (#00FF88)</option>
-                      <option value="brand">Official Brand Colors</option>
-                      <option value="monochrome">Monochrome Neutral</option>
-                      <option value="pill">Rounded Pill Badge</option>
-                      <option value="circle">Circular Solid Badge</option>
-                    </select>
-                  </div>
-
-                  <div class="form-row">
-                    <div class="slider-group">
-                      <div class="slider-header">
-                        <span>Icon Size</span>
-                        <span class="slider-val-badge" id="iconSizeVal">18px</span>
-                      </div>
-                      <input type="range" id="iconSize" class="custom-range" min="14" max="28" value="18">
-                    </div>
-                    <div class="slider-group">
-                      <div class="slider-header">
-                        <span>Spacing</span>
-                        <span class="slider-val-badge" id="iconSpacingVal">8px</span>
-                      </div>
-                      <input type="range" id="iconSpacing" class="custom-range" min="3" max="16" value="8">
-                    </div>
-                  </div>
-                </div>
-
-                <div class="control-section">
-                  <div class="section-title">
-                    <span class="sahinur-eyebrow">// 02. ACTIVE NETWORKS &amp; URLS</span>
-                  </div>
-                  <div class="socials-list" id="socialsListContainer">
-                    <!-- Dynamically populated social rows -->
-                  </div>
-                </div>
-              </div>
-
-              <!-- Tab 5: Badges & Add-ons -->
-              <div class="sidebar-panel" id="tab-addons">
-                <div class="control-section">
-                  <label class="toggle-row" for="showBadge">
-                    <div class="toggle-label-group">
-                      <span class="toggle-label">Status Badge Chip</span>
-                      <span class="toggle-desc">Displays a verified role or institution tag</span>
-                    </div>
-                    <input type="checkbox" id="showBadge" class="switch-input" checked>
-                    <div class="switch-track"><div class="switch-thumb"></div></div>
-                  </label>
-                  <div class="form-group" id="badgeInputGroup" style="padding-top: 8px;">
-                    <label class="form-label" for="badgeText">Badge Label Text</label>
-                    <input type="text" id="badgeText" class="form-input" value="Dev Architect">
-                  </div>
-                </div>
-
-                <div class="control-section">
-                  <label class="toggle-row" for="showCta">
-                    <div class="toggle-label-group">
-                      <span class="toggle-label">Call To Action (CTA) Button</span>
-                      <span class="toggle-desc">Adds a direct link button below your signature</span>
-                    </div>
-                    <input type="checkbox" id="showCta" class="switch-input">
-                    <div class="switch-track"><div class="switch-thumb"></div></div>
-                  </label>
-                  <div id="ctaInputGroup" style="display: none; display: flex; flex-direction: column; gap: 10px; padding-top: 8px;">
-                    <div class="form-group">
-                      <label class="form-label" for="ctaText">Button Text</label>
-                      <input type="text" id="ctaText" class="form-input" value="Schedule a 1:1 Sync">
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label" for="ctaUrl">Target URL</label>
-                      <input type="text" id="ctaUrl" class="form-input" value="https://calendly.com">
-                    </div>
-                  </div>
-                </div>
-
-                <div class="control-section">
-                  <label class="toggle-row" for="showGreenNote">
-                    <div class="toggle-label-group">
-                      <span class="toggle-label">Environmental Note</span>
-                      <span class="toggle-desc">Eco-friendly printing reminder</span>
-                    </div>
-                    <input type="checkbox" id="showGreenNote" class="switch-input">
-                    <div class="switch-track"><div class="switch-thumb"></div></div>
-                  </label>
-                  <div class="form-group" id="greenNoteInputGroup" style="display: none; padding-top: 8px;">
-                    <label class="form-label" for="greenNoteText">Eco Message</label>
-                    <input type="text" id="greenNoteText" class="form-input" value="Please consider the environment before printing this email.">
-                  </div>
-                </div>
-
-                <div class="control-section">
-                  <label class="toggle-row" for="showDisclaimer">
-                    <div class="toggle-label-group">
-                      <span class="toggle-label">Legal Disclaimer</span>
-                      <span class="toggle-desc">Formal confidentiality notice at bottom</span>
-                    </div>
-                    <input type="checkbox" id="showDisclaimer" class="switch-input">
-                    <div class="switch-track"><div class="switch-thumb"></div></div>
-                  </label>
-                  <div class="form-group" id="disclaimerInputGroup" style="display: none; padding-top: 8px;">
-                    <label class="form-label" for="disclaimerText">Disclaimer Text</label>
-                    <textarea id="disclaimerText" class="form-textarea">CONFIDENTIALITY NOTICE: This transmission may contain confidential information intended only for the use of the individual named.</textarea>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Tab 6: Full Email Template Builder Blocks -->
-              <div class="sidebar-panel" id="tab-email">
-                <div class="control-section">
-                  <div class="section-title">
-                    <span class="sahinur-eyebrow">// 01. TEMPLATE BLUEPRINT</span>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="emailBlueprintSelect">Select Email Blueprint</label>
-                    <select id="emailBlueprintSelect" class="form-select">
-                      <option value="professional-outreach">Professional Outreach / Intro</option>
-                      <option value="portfolio-showcase">Portfolio &amp; Project Showcase</option>
-                      <option value="meeting-followup">Meeting Follow-up &amp; Action Items</option>
-                      <option value="academic-thesis">Academic Research &amp; Thesis Update</option>
-                      <option value="formal-inquiry">Formal Inquiry / Application</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="control-section">
-                  <div class="section-title">
-                    <span class="sahinur-eyebrow">// 02. HEADER &amp; SUBJECT</span>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="tplSubject">Subject Line</label>
-                    <input type="text" id="tplSubject" class="form-input" value="Introduction &amp; Project Collaboration">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="tplPreheader">Preheader Preview Text</label>
-                    <input type="text" id="tplPreheader" class="form-input" value="Brief overview and technical roadmap specifications.">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="tplHeaderLogoText">Header Brand Banner</label>
-                    <input type="text" id="tplHeaderLogoText" class="form-input" value="DHRUBOJYOTI SAHA &bull; PORTFOLIO">
-                  </div>
-                </div>
-
-                <div class="control-section">
-                  <div class="section-title">
-                    <span class="sahinur-eyebrow">// 03. BODY CONTENT</span>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="tplGreeting">Salutation</label>
-                    <input type="text" id="tplGreeting" class="form-input" value="Dear Colleague,">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="tplParagraph1">Paragraph 1</label>
-                    <textarea id="tplParagraph1" class="form-textarea">I hope this message finds you well. I am reaching out regarding our recent developments in automated workflow systems and software architecture.</textarea>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="tplParagraph2">Paragraph 2 / Bullet Points</label>
-                    <textarea id="tplParagraph2" class="form-textarea">- High-Definition Retina graphics (2x, 3x, 4x DPI)
-- 100% in-browser generation with zero backend
-- Direct 1-click clipboard paste into Gmail and Outlook</textarea>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="tplClosing">Closing Salutation</label>
-                    <input type="text" id="tplClosing" class="form-input" value="Best regards,">
-                  </div>
-                </div>
-
-                <div class="control-section">
-                  <div class="section-title">
-                    <span class="sahinur-eyebrow">// 04. CALL TO ACTION</span>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="tplCtaText">Button Label</label>
-                    <input type="text" id="tplCtaText" class="form-input" value="Explore Project Showcase">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="tplCtaUrl">Button URL</label>
-                    <input type="text" id="tplCtaUrl" class="form-input" value="https://www.dhrubojyoti.dev">
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </aside>
-
-          <!-- Center Live Preview Canvas -->
-          <section class="studio-canvas">
-            
-            <!-- Canvas Simulator Toolbar -->
-            <div class="canvas-toolbar">
-              <div class="toolbar-group">
-                <button class="toolbar-btn active" id="clientGmailBtn">[GMAIL]</button>
-                <button class="toolbar-btn" id="clientAppleBtn">[APPLE MAIL]</button>
-                <button class="toolbar-btn" id="clientOutlookBtn">[OUTLOOK]</button>
-              </div>
-
-              <div class="toolbar-group">
-                <button class="toolbar-btn active" id="themeLightBtn">Light Inbox</button>
-                <button class="toolbar-btn" id="themeDarkBtn">Dark Inbox</button>
-
-                <div class="zoom-controls">
-                  <button class="zoom-btn" id="zoomOutBtn" title="Zoom Out">-</button>
-                  <span class="zoom-val" id="zoomVal">100%</span>
-                  <button class="zoom-btn" id="zoomInBtn" title="Zoom In">+</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Scrollable Preview Area -->
-            <div class="preview-scroll-area" id="previewArea">
-              <div class="preview-wrapper" id="previewWrapper">
-                
-                <div class="client-window sahinur-terminal" id="clientWindow">
-                  
-                  <div class="gmail-header" id="simulatorHeader">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                      <div class="sahinur-traffic-dots">
-                        <span class="sahinur-traffic-dot red"></span>
-                        <span class="sahinur-traffic-dot yellow"></span>
-                        <span class="sahinur-traffic-dot green"></span>
-                      </div>
-                      <div class="gmail-title" id="simulatorTitle">~/inbox/compose.eml</div>
-                    </div>
-                    <div class="gmail-window-controls">&ndash; &Square; &times;</div>
-                  </div>
-
-                  <div class="gmail-compose-fields" id="simulatorFields">
-                    <div class="gmail-field-row">
-                      <span class="gmail-field-label">To:</span>
-                      <span class="gmail-field-value" style="font-family: var(--font-mono);">recipient@domain.com</span>
-                    </div>
-                    <div class="gmail-field-row">
-                      <span class="gmail-field-label">Subject:</span>
-                      <span class="gmail-field-value" id="previewSubjectLine">Introduction &amp; Project Update</span>
-                    </div>
-                  </div>
-
-                  <div class="gmail-compose-body" id="simulatorBody">
-                    <div class="gmail-sample-text" id="signatureModeIntroText">
-                      Hello,<br><br>
-                      Thank you for your message. Please find my contact details and professional profile below.<br><br>
-                      Best regards,
-                    </div>
-
-                    <div class="gmail-signature-area" id="liveRenderCanvas">
-                      <!-- Live generated HTML rendered here -->
-                    </div>
-                  </div>
-
-                  <div class="gmail-footer-toolbar" id="simulatorFooter">
-                    <button class="gmail-send-btn">Send</button>
-                    <div class="gmail-tools-icons" style="font-family: var(--font-mono); font-size: 11px;">
-                      <span>[A]</span>
-                      <span>[&bull;]</span>
-                      <span>[&infin;]</span>
-                    </div>
-                  </div>
-
-                </div>
-
-              </div>
-            </div>
-
-            <!-- Bottom Export Action Bar -->
-            <footer class="export-bar">
-              <div class="export-info">
-                <span class="btn-icon" id="shieldIcon"></span>
-                <span>100% Client-Side Engine &bull; Zero Server Data Transmission</span>
-              </div>
-
-              <div class="export-btn-group">
-                <button class="btn-secondary" id="copyRawHtmlBtn">
-                  <span class="btn-icon" id="codeIcon"></span>
-                  Copy HTML Source
-                </button>
-                <button class="btn-secondary" id="downloadHtmlBtn">
-                  <span class="btn-icon" id="downloadIcon"></span>
-                  Download .html
-                </button>
-                <button class="btn-secondary" id="exportPngBtn">
-                  <span class="btn-icon" id="imageIcon"></span>
-                  Export 3x HD PNG
-                </button>
-                <button class="btn-primary" id="copyRichBtn">
-                  <span class="btn-icon" id="copyBtnIcon"></span>
-                  Copy Rich Signature
-                </button>
-              </div>
-            </footer>
-
-          </section>
-
-        </main>
-
-      </div>
-    </section>
-
-    <!-- ==========================================================================
-         5. Preset Showcase Section (#presets)
+         4. Preset Showcase Section (#presets)
          ========================================================================== -->
     <section class="section-wrapper" id="presets">
       <div class="section-header-box">
-        <div class="sahinur-eyebrow">// 04. PRESET SHOWCASE LIBRARY</div>
-        <h2 class="section-main-title">Curated Developer &amp; Executive Presets</h2>
-        <p class="section-subtext">Choose a template style below to load it directly into the Studio workspace with 1 click.</p>
+        <div class="sahinur-eyebrow">// 03. PRESET SHOWCASE LIBRARY</div>
+        <h2 class="section-main-title">Curated Multi-Industry Presets</h2>
+        <p class="section-subtext">Choose a template style below to open it directly in the Studio workspace with 1 click.</p>
       </div>
 
       <div class="showcase-grid">
         
-        <!-- Preset 1: Cyberpunk Matrix -->
+        <!-- Preset 1: Developer Terminal -->
         <div class="sahinur-card showcase-card">
           <div class="showcase-card-top">
             <div class="showcase-header-row">
-              <h3 class="showcase-title">Cyberpunk Matrix</h3>
-              <span class="sahinur-status-badge" style="color: var(--sahinur-accent); border-color: var(--sahinur-border-accent);">#00FF88 NEON</span>
+              <h3 class="showcase-title">Developer Terminal</h3>
+              <span class="sahinur-status-badge" style="color: var(--sahinur-accent); border-color: var(--sahinur-border-accent);">#00DC82 EMERALD</span>
             </div>
-            <p class="showcase-desc">Obsidian terminal aesthetic inspired by Sahinur.dev with squircle avatar, neon green divider, and CLI prefix labels.</p>
+            <p class="showcase-desc">Obsidian terminal aesthetic with squircle avatar, soothing emerald divider, and monospace CLI prefix labels.</p>
             <div class="showcase-tags">
               <span class="showcase-tag">JetBrains Mono</span>
               <span class="showcase-tag">Squircle 2x</span>
@@ -895,20 +242,125 @@
             </div>
           </div>
           <div class="showcase-card-actions">
-            <button class="btn-primary preset-load-btn" data-preset="sahinurMatrix">
+            <a href="studio.html?preset=developerTerminal" class="btn-primary">
               <span class="sahinur-prompt-prefix">&gt;</span> Load in Studio
-            </button>
+            </a>
           </div>
         </div>
 
-        <!-- Preset 2: Silicon Valley -->
-        <div class="sahinur-card showcase-card">
+        <!-- Preset 2: Academic Scholar -->
+        <div class="showcase-card sahinur-card">
+          <div class="showcase-card-top">
+            <div class="showcase-header-row">
+              <h3 class="showcase-title">Academic Scholar</h3>
+              <span class="sahinur-status-badge">SAPPHIRE SERIF</span>
+            </div>
+            <p class="showcase-desc">Classic editorial typography with Georgia serif, deep sapphire divider, circular avatar, ORCID, Google Scholar, and university affiliation badge.</p>
+            <div class="showcase-tags">
+              <span class="showcase-tag">Georgia Serif</span>
+              <span class="showcase-tag">ORCID &amp; Scholar</span>
+              <span class="showcase-tag">Affiliation Chip</span>
+            </div>
+          </div>
+          <div class="showcase-card-actions">
+            <a href="studio.html?preset=academicScholar" class="btn-secondary">
+              Load in Studio
+            </a>
+          </div>
+        </div>
+
+        <!-- Preset 3: Corporate Executive -->
+        <div class="showcase-card sahinur-card">
+          <div class="showcase-card-top">
+            <div class="showcase-header-row">
+              <h3 class="showcase-title">Corporate Executive</h3>
+              <span class="sahinur-status-badge">NAVY EXECUTIVE</span>
+            </div>
+            <p class="showcase-desc">Formal executive two-column layout with deep corporate navy accents, structured contact matrix, and compliance disclaimer.</p>
+            <div class="showcase-tags">
+              <span class="showcase-tag">Two Column</span>
+              <span class="showcase-tag">Navy &amp; Slate</span>
+              <span class="showcase-tag">MSO Compliance</span>
+            </div>
+          </div>
+          <div class="showcase-card-actions">
+            <a href="studio.html?preset=corporateExecutive" class="btn-secondary">
+              Load in Studio
+            </a>
+          </div>
+        </div>
+
+        <!-- Preset 4: Creative Agency -->
+        <div class="showcase-card sahinur-card">
+          <div class="showcase-card-top">
+            <div class="showcase-header-row">
+              <h3 class="showcase-title">Creative Agency</h3>
+              <span class="sahinur-status-badge">VIOLET GEOMETRIC</span>
+            </div>
+            <p class="showcase-desc">Dynamic modern card framing with electric violet accents, pill badges, and dual image personal headshot + brand logo support.</p>
+            <div class="showcase-tags">
+              <span class="showcase-tag">Modern Card</span>
+              <span class="showcase-tag">Electric Violet</span>
+              <span class="showcase-tag">Dual Media</span>
+            </div>
+          </div>
+          <div class="showcase-card-actions">
+            <a href="studio.html?preset=creativeAgency" class="btn-secondary">
+              Load in Studio
+            </a>
+          </div>
+        </div>
+
+        <!-- Preset 5: Minimalist One-Liner -->
+        <div class="showcase-card sahinur-card">
+          <div class="showcase-card-top">
+            <div class="showcase-header-row">
+              <h3 class="showcase-title">Minimalist One-Liner</h3>
+              <span class="sahinur-status-badge">COMPACT MOBILE</span>
+            </div>
+            <p class="showcase-desc">Ultra-compact horizontal format designed specifically for rapid high-volume email threads and mobile messaging.</p>
+            <div class="showcase-tags">
+              <span class="showcase-tag">One-Liner</span>
+              <span class="showcase-tag">Mobile First</span>
+              <span class="showcase-tag">Low Profile</span>
+            </div>
+          </div>
+          <div class="showcase-card-actions">
+            <a href="studio.html?preset=minimalistOneLiner" class="btn-secondary">
+              Load in Studio
+            </a>
+          </div>
+        </div>
+
+        <!-- Preset 6: Marketing Promo -->
+        <div class="showcase-card sahinur-card">
+          <div class="showcase-card-top">
+            <div class="showcase-header-row">
+              <h3 class="showcase-title">Marketing Promo</h3>
+              <span class="sahinur-status-badge">CRIMSON PROMO</span>
+            </div>
+            <p class="showcase-desc">Features full-width promotional announcement banner, campaign click tracking URL, and prominent CTA button.</p>
+            <div class="showcase-tags">
+              <span class="showcase-tag">Promo Banner</span>
+              <span class="showcase-tag">CTA Button</span>
+              <span class="showcase-tag">Lead Gen</span>
+            </div>
+          </div>
+          <div class="showcase-card-actions">
+            <a href="studio.html?preset=marketingPromo" class="btn-secondary">
+              Load in Studio
+            </a>
+          </div>
+        </div>
+
+        <!-- Preset 7: Silicon Valley Minimal -->
+        <div class="showcase-card sahinur-card">
           <div class="showcase-card-top">
             <div class="showcase-header-row">
               <h3 class="showcase-title">Silicon Valley Minimal</h3>
-              <span class="sahinur-status-badge">TECH EMERALD</span>
+              <span class="sahinur-status-badge">TECH MINT</span>
             </div>
-            <p class="showcase-desc">Modern startup aesthetic with Inter sans typography, emerald accents, rounded photo, and verified engineer chip.</p>
+            <p class="showcase-desc">Modern startup aesthetic with Inter typography, emerald accents, rounded photo frame, and verified engineer chip.</p>
             <div class="showcase-tags">
               <span class="showcase-tag">Inter / Sans</span>
               <span class="showcase-tag">Rounded Frame</span>
@@ -916,56 +368,14 @@
             </div>
           </div>
           <div class="showcase-card-actions">
-            <button class="btn-secondary preset-load-btn" data-preset="siliconValley">
+            <a href="studio.html?preset=siliconValley" class="btn-secondary">
               Load in Studio
-            </button>
+            </a>
           </div>
         </div>
 
-        <!-- Preset 3: Corporate Executive -->
-        <div class="sahinur-card showcase-card">
-          <div class="showcase-card-top">
-            <div class="showcase-header-row">
-              <h3 class="showcase-title">Corporate Executive</h3>
-              <span class="sahinur-status-badge">NAVY EXECUTIVE</span>
-            </div>
-            <p class="showcase-desc">Formal executive two-column layout with deep corporate navy accents, structured contact matrix, and crisp serif/sans.</p>
-            <div class="showcase-tags">
-              <span class="showcase-tag">Two Column</span>
-              <span class="showcase-tag">Navy &amp; Slate</span>
-              <span class="showcase-tag">Enterprise</span>
-            </div>
-          </div>
-          <div class="showcase-card-actions">
-            <button class="btn-secondary preset-load-btn" data-preset="corporateNavy">
-              Load in Studio
-            </button>
-          </div>
-        </div>
-
-        <!-- Preset 4: Academic Scholar -->
-        <div class="sahinur-card showcase-card">
-          <div class="showcase-card-top">
-            <div class="showcase-header-row">
-              <h3 class="showcase-title">Academic Scholar</h3>
-              <span class="sahinur-status-badge">SAPPHIRE SERIF</span>
-            </div>
-            <p class="showcase-desc">Classic editorial typography with Georgia serif, deep sapphire divider, circular avatar, and university affiliation badge.</p>
-            <div class="showcase-tags">
-              <span class="showcase-tag">Georgia Serif</span>
-              <span class="showcase-tag">University Tag</span>
-              <span class="showcase-tag">Editorial</span>
-            </div>
-          </div>
-          <div class="showcase-card-actions">
-            <button class="btn-secondary preset-load-btn" data-preset="academicScholar">
-              Load in Studio
-            </button>
-          </div>
-        </div>
-
-        <!-- Preset 5: Nordic Clean Slate -->
-        <div class="sahinur-card showcase-card">
+        <!-- Preset 8: Nordic Clean Slate -->
+        <div class="showcase-card sahinur-card">
           <div class="showcase-card-top">
             <div class="showcase-header-row">
               <h3 class="showcase-title">Nordic Clean Slate</h3>
@@ -979,30 +389,9 @@
             </div>
           </div>
           <div class="showcase-card-actions">
-            <button class="btn-secondary preset-load-btn" data-preset="nordicMinimal">
+            <a href="studio.html?preset=nordicClean" class="btn-secondary">
               Load in Studio
-            </button>
-          </div>
-        </div>
-
-        <!-- Preset 6: Cyberpunk Violet -->
-        <div class="sahinur-card showcase-card">
-          <div class="showcase-card-top">
-            <div class="showcase-header-row">
-              <h3 class="showcase-title">Cyberpunk Violet</h3>
-              <span class="sahinur-status-badge">ELECTRIC VIOLET</span>
-            </div>
-            <p class="showcase-desc">High-contrast modern card border with electric violet dashed separator, monospace typography, and developer protocol tag.</p>
-            <div class="showcase-tags">
-              <span class="showcase-tag">Modern Card</span>
-              <span class="showcase-tag">Electric Violet</span>
-              <span class="showcase-tag">Dashed Line</span>
-            </div>
-          </div>
-          <div class="showcase-card-actions">
-            <button class="btn-secondary preset-load-btn" data-preset="cyberpunkSlate">
-              Load in Studio
-            </button>
+            </a>
           </div>
         </div>
 
@@ -1010,11 +399,11 @@
     </section>
 
     <!-- ==========================================================================
-         6. Documentation & Guides Section (#docs)
+         5. Documentation & Guides Section (#docs)
          ========================================================================== -->
     <section class="section-wrapper" id="docs">
       <div class="section-header-box">
-        <div class="sahinur-eyebrow">// 05. CLIENT INSTALLATION DOCUMENTATION</div>
+        <div class="sahinur-eyebrow">// 04. CLIENT INSTALLATION DOCUMENTATION</div>
         <h2 class="section-main-title">Universal Email Client Setup</h2>
         <p class="section-subtext">Step-by-step instructions for pasting your high-definition signature into any major email client.</p>
       </div>
@@ -1045,11 +434,11 @@
           <div class="guide-steps-container">
             <div class="guide-step-item">
               <div class="guide-step-num">01</div>
-              <div class="guide-step-text">Click the <strong>"Copy Rich Signature"</strong> button in the MailCraft Studio above.</div>
+              <div class="guide-step-text">Open <a href="studio.html" style="color: var(--sahinur-accent); text-decoration: underline;">MailCraft Studio</a> and click <strong>"Copy Rich Signature"</strong>.</div>
             </div>
             <div class="guide-step-item">
               <div class="guide-step-num">02</div>
-              <div class="guide-step-text">Open Gmail in your web browser and click the <strong>Settings (gear icon) &gt; See all settings</strong>.</div>
+              <div class="guide-step-text">Open Gmail in your web browser and click <strong>Settings (gear icon) &gt; See all settings</strong>.</div>
             </div>
             <div class="guide-step-item">
               <div class="guide-step-num">03</div>
@@ -1070,11 +459,11 @@
         </div>
 
         <!-- Doc Panel: Apple Mail -->
-        <div class="docs-tab-content" id="doc-apple">
+        <div class="docs-tab-content" id="doc-apple" style="display: none;">
           <div class="guide-steps-container">
             <div class="guide-step-item">
               <div class="guide-step-num">01</div>
-              <div class="guide-step-text">Click <strong>"Copy Rich Signature"</strong> in the Studio.</div>
+              <div class="guide-step-text">Open <a href="studio.html" style="color: var(--sahinur-accent); text-decoration: underline;">MailCraft Studio</a> and click <strong>"Copy Rich Signature"</strong>.</div>
             </div>
             <div class="guide-step-item">
               <div class="guide-step-num">02</div>
@@ -1095,11 +484,11 @@
         </div>
 
         <!-- Doc Panel: Outlook -->
-        <div class="docs-tab-content" id="doc-outlook">
+        <div class="docs-tab-content" id="doc-outlook" style="display: none;">
           <div class="guide-steps-container">
             <div class="guide-step-item">
               <div class="guide-step-num">01</div>
-              <div class="guide-step-text">Click <strong>"Copy Rich Signature"</strong> in the Studio.</div>
+              <div class="guide-step-text">Open <a href="studio.html" style="color: var(--sahinur-accent); text-decoration: underline;">MailCraft Studio</a> and click <strong>"Copy Rich Signature"</strong>.</div>
             </div>
             <div class="guide-step-item">
               <div class="guide-step-num">02</div>
@@ -1116,11 +505,11 @@
         </div>
 
         <!-- Doc Panel: Thunderbird -->
-        <div class="docs-tab-content" id="doc-thunderbird">
+        <div class="docs-tab-content" id="doc-thunderbird" style="display: none;">
           <div class="guide-steps-container">
             <div class="guide-step-item">
               <div class="guide-step-num">01</div>
-              <div class="guide-step-text">Click <strong>"Copy HTML Source"</strong> in the Studio.</div>
+              <div class="guide-step-text">Open <a href="studio.html" style="color: var(--sahinur-accent); text-decoration: underline;">MailCraft Studio</a> and click <strong>"Copy HTML Source"</strong>.</div>
             </div>
             <div class="guide-step-item">
               <div class="guide-step-num">02</div>
@@ -1132,6 +521,43 @@
           </div>
         </div>
 
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         6. Technical Specifications (#specs)
+         ========================================================================== -->
+    <section class="section-wrapper" id="specs">
+      <div class="section-header-box">
+        <div class="sahinur-eyebrow">// 05. TECHNICAL SPECIFICATIONS</div>
+        <h2 class="section-main-title">Compiler Architecture Specs</h2>
+        <p class="section-subtext">Deep-dive into the rendering engine standards powering MailCraft.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="sahinur-card feature-box">
+          <div class="feature-index">// SPEC 01. CANVAS RASTERIZER</div>
+          <h3 class="feature-title">Retina Multiplier Algorithm</h3>
+          <p class="feature-desc">Source images are resampled via offscreen <code>HTMLCanvasElement</code> with bicubic filtering and pixel ratio compensation (up to 4x), generating base64 PNG data without server artifacts.</p>
+        </div>
+
+        <div class="sahinur-card feature-box">
+          <div class="feature-index">// SPEC 02. INLINE STYLING</div>
+          <h3 class="feature-title">Zero Class-Dependence</h3>
+          <p class="feature-desc">All styles are inlined at compile time into <code>style=""</code> attributes on nested tables to ensure 100% compliance across stripping webmail clients like Gmail web and Yahoo.</p>
+        </div>
+
+        <div class="sahinur-card feature-box">
+          <div class="feature-index">// SPEC 03. SECURITY &amp; PRIVACY</div>
+          <h3 class="feature-title">Zero Egress Policy</h3>
+          <p class="feature-desc">Operates entirely in-browser. No API tokens, analytics trackers, or contact records are ever transmitted over external networks.</p>
+        </div>
+
+        <div class="sahinur-card feature-box">
+          <div class="feature-index">// SPEC 04. MSO COMPATIBILITY</div>
+          <h3 class="feature-title">Outlook Conditional Tags</h3>
+          <p class="feature-desc">Embedded <code>&lt;!--[if mso]&gt;</code> tags enforce rigid cell widths and prevent Microsoft Word rendering engine glitches.</p>
+        </div>
       </div>
     </section>
 
@@ -1148,6 +574,7 @@
         </div>
 
         <div class="footer-links">
+          <a href="studio.html" class="footer-link">[Open Studio &rarr;]</a>
           <a href="https://github.com/dhrubojyoti" target="_blank" rel="noopener" class="footer-link">[GitHub]</a>
           <a href="https://linkedin.com/in/dhrubojyoti" target="_blank" rel="noopener" class="footer-link">[LinkedIn]</a>
           <a href="https://www.dhrubojyoti.dev" target="_blank" rel="noopener" class="footer-link">[Portfolio]</a>
@@ -1158,48 +585,35 @@
 
   </div>
 
-  <!-- Toast Notification Container -->
-  <div class="toast-container" id="toastContainer"></div>
-
-  <!-- Installation Guide Modal (Popup) -->
-  <div class="modal-overlay" id="guideModalOverlay">
-    <div id="guideModalContainer"></div>
-  </div>
-
-  <!-- Raw HTML Viewer Modal -->
-  <div class="modal-overlay" id="codeModalOverlay">
-    <div class="guide-modal-content sahinur-terminal" style="max-width: 740px;">
-      <div class="sahinur-terminal-header guide-modal-header">
-        <div class="sahinur-traffic-dots">
-          <span class="sahinur-traffic-dot red"></span>
-          <span class="sahinur-traffic-dot yellow"></span>
-          <span class="sahinur-traffic-dot green"></span>
-        </div>
-        <div class="guide-modal-title">
-          <span class="sahinur-prompt-prefix">$</span>
-          <span>cat dist/email-signature.html</span>
-        </div>
-        <button class="modal-close-btn" id="closeCodeModalBtn" title="Close"></button>
-      </div>
-      <div class="guide-modal-body">
-        <textarea id="rawCodeViewer" class="form-textarea" style="height: 340px; font-family: var(--font-mono); font-size: 11px; background-color: var(--sahinur-bg); border-color: var(--sahinur-border-strong); color: var(--sahinur-accent);" readonly></textarea>
-        <div style="display: flex; justify-content: flex-end; gap: 8px;">
-          <button class="btn-primary" id="copyCodeModalBtn">Copy Code to Clipboard</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- JavaScript Modules -->
+  <!-- Assets & Scripts -->
   <script src="assets/default-avatar.js"></script>
-  <script src="js/icons.js"></script>
-  <script src="js/presets.js"></script>
-  <script src="js/image-processor.js"></script>
-  <script src="js/signature-engine.js"></script>
-  <script src="js/email-template-engine.js"></script>
-  <script src="js/clipboard.js"></script>
-  <script src="js/guides.js"></script>
+  <!-- Interactive Dot Matrix Background Script -->
   <script src="js/dot-matrix.js"></script>
-  <script src="js/app.js"></script>
+
+  <script>
+    // Tab switching for documentation on landing page
+    document.querySelectorAll('.docs-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.docs-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.docs-tab-content').forEach(c => {
+          c.classList.remove('active');
+          c.style.display = 'none';
+        });
+
+        btn.classList.add('active');
+        const target = document.getElementById(`doc-${btn.dataset.doc}`);
+        if (target) {
+          target.classList.add('active');
+          target.style.display = 'block';
+        }
+      });
+    });
+
+    // Check avatar preview on hero
+    if (typeof DEFAULT_AVATAR_BASE64 !== 'undefined' && DEFAULT_AVATAR_BASE64) {
+      const heroAvatar = document.getElementById('heroPreviewAvatar');
+      if (heroAvatar) heroAvatar.src = DEFAULT_AVATAR_BASE64;
+    }
+  </script>
 </body>
 </html>

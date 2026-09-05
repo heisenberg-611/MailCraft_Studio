@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MailCraft Studio - High-Definition Email Signature & Architecture Engine</title>
+  
+  <!-- Google Fonts: JetBrains Mono & Geist & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/studio.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/email-preview.css">
+</head>
+<body class="studio-view">
+
+  <!-- Interactive Dot Matrix Hover Canvas -->
+  <canvas id="matrixDotCanvas" class="matrix-dot-canvas"></canvas>
+
+  <!-- Top Studio Header Navigation -->
+  <header class="studio-top-nav">
+    <!-- Left Identity & Back Link -->
+    <div class="studio-nav-left">
+      <a href="index.html" class="studio-back-link" title="Return to Overview Hub">
+        <span class="sahinur-prompt-prefix">&larr;</span> Back to Overview
+      </a>
+      <div class="brand-logo-badge" style="width: 28px; height: 28px; font-size: 11px;">MC</div>
+      <div class="brand-title" style="font-size: 13.5px; margin-left: -4px;">MailCraft Studio</div>
+      <span class="sahinur-status-badge" style="padding: 3px 10px; font-size: 10.5px;">
+        <span class="sahinur-status-dot"></span>
+        <span id="hdBadge">ONLINE // RETINA 2X</span>
+      </span>
+    </div>
+
+    <!-- Center 3-Way Mode Switcher -->
+    <div class="mode-switcher">
+      <button class="mode-tab-btn active" id="modeSignatureBtn" title="Design individual email signatures">
+        <span class="btn-icon" id="modeSigIcon"></span>
+        [01] Individual
+      </button>
+      <button class="mode-tab-btn" id="modeTeamBtn" title="Batch generate signatures for teams from CSV">
+        <span class="btn-icon" id="modeTeamIcon"></span>
+        [02] Team Batch
+      </button>
+      <button class="mode-tab-btn" id="modeTemplateBtn" title="Create full HTML responsive email broadcasts">
+        <span class="btn-icon" id="modeTplIcon"></span>
+        [03] Email Builder
+      </button>
+    </div>
+
+    <!-- Right Preset Selector & Actions -->
+    <div class="header-actions">
+      <!-- Preset Dropdown Selector -->
+      <select class="form-select" id="presetSelect" style="width: auto; padding: 5px 10px; font-family: var(--font-mono); font-size: 11px;">
+        <optgroup label="Default Templates" id="defaultPresetsGroup">
+          <option value="developerTerminal">Preset: Developer Terminal</option>
+          <option value="academicScholar">Preset: Academic Scholar</option>
+          <option value="corporateExecutive">Preset: Corporate Executive</option>
+          <option value="creativeAgency">Preset: Creative Agency</option>
+          <option value="minimalistOneLiner">Preset: Minimalist One-Liner</option>
+          <option value="marketingPromo">Preset: Marketing Promo</option>
+          <option value="siliconValley">Preset: Silicon Valley</option>
+          <option value="nordicClean">Preset: Nordic Clean</option>
+          <option value="dhrubojyoti">Preset: Dhrubojyoti (Modern Blue)</option>
+        </optgroup>
+        <optgroup label="Your Custom Presets" id="userPresetsGroup">
+          <!-- Populated dynamically from localStorage -->
+        </optgroup>
+      </select>
+
+      <!-- Preset Management Buttons -->
+      <button class="btn-secondary" id="savePresetBtn" title="Save current configuration to local presets">
+        <span class="btn-icon" id="savePresetIcon"></span>
+        Save Preset
+      </button>
+
+      <button class="btn-secondary" id="managePresetsBtn" title="Manage, import, or export custom presets">
+        <span class="btn-icon" id="managePresetsIcon"></span>
+        Presets Hub
+      </button>
+
+      <button class="btn-secondary" id="openGuideBtn">
+        <span class="btn-icon" id="guideIcon"></span>
+        Guide
+      </button>
+
+      <button class="btn-primary" id="copyPrimaryBtn">
+        <span class="btn-icon" id="copyPrimaryIcon"></span>
+        Copy Signature
+      </button>
+    </div>
+  </header>
+
+  <!-- Full Height Split Studio Main -->
+  <main class="studio-workspace-container">
+    
+    <!-- Left Sidebar Controls -->
+    <aside class="studio-sidebar">
+      <div class="sahinur-terminal-header">
+        <div class="sahinur-traffic-dots">
+          <span class="sahinur-traffic-dot red"></span>
+          <span class="sahinur-traffic-dot yellow"></span>
+          <span class="sahinur-traffic-dot green"></span>
+        </div>
+        <div class="sahinur-terminal-title">
+          <span class="dir">~/studio/</span><span id="terminalConfigFile">config.json</span>
+        </div>
+        <div style="font-family: var(--font-mono); font-size: 10px; color: var(--sahinur-accent);">v2.4.0</div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <nav class="sidebar-tab-nav" id="sidebarTabNav">
+        <button class="sidebar-nav-btn active" data-tab="tab-identity">[01] Identity</button>
+        <button class="sidebar-nav-btn" data-tab="tab-avatar">[02] Dual Media</button>
+        <button class="sidebar-nav-btn" data-tab="tab-style">[03] Design</button>
+        <button class="sidebar-nav-btn" data-tab="tab-socials">[04] Socials</button>
+        <button class="sidebar-nav-btn" data-tab="tab-custom">[05] Custom</button>
+        <button class="sidebar-nav-btn" data-tab="tab-addons">[06] Add-ons</button>
+        <button class="sidebar-nav-btn" data-tab="tab-team" id="tabTeamNavBtn" style="display: none;">[07] Team Roster</button>
+        <button class="sidebar-nav-btn" data-tab="tab-email" id="tabEmailNavBtn" style="display: none;">[08] Email Body</button>
+      </nav>
+
+      <div class="sidebar-content">
+        
+        <!-- Tab 1: Identity & Contact Info -->
+        <div class="sidebar-panel active" id="tab-identity">
+          <div class="control-section">
+            <div class="section-title">
+              <span class="sahinur-eyebrow">// 01. PERSONAL PROFILE</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="fullName">Full Name</label>
+              <input type="text" id="fullName" class="form-input" value="Dhrubojyoti" placeholder="e.g. John Doe">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="jobTitle">Job Title / Role</label>
+              <input type="text" id="jobTitle" class="form-input" value="Undergraduate Student" placeholder="e.g. Software Engineer">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="company">Organization / Brand</label>
+                <input type="text" id="company" class="form-input" value="BRAC University" placeholder="e.g. Tech Corp">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="department">Department</label>
+                <input type="text" id="department" class="form-input" value="Dept. of CSE" placeholder="e.g. Engineering">
+              </div>
+            </div>
+          </div>
+
+          <div class="control-section">
+            <div class="section-title">
+              <span class="sahinur-eyebrow">// 02. DIRECT CHANNELS</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="phone">Phone / Mobile</label>
+              <input type="text" id="phone" class="form-input" value="+880 1607-608232" placeholder="+1 (555) 000-0000">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="email">Email Address</label>
+              <input type="email" id="email" class="form-input" value="dhrubojyoti.saha@g.bracu.ac.bd" placeholder="name@domain.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="website">Website / Portfolio</label>
+              <input type="text" id="website" class="form-input" value="www.dhrubojyoti.dev" placeholder="www.yourdomain.com">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="address">Street / Location</label>
+                <input type="text" id="address" class="form-input" value="38/1, Block-B, Aftabnagar, Dhaka-1212" placeholder="Street address">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="country">Country</label>
+                <input type="text" id="country" class="form-input" value="Bangladesh" placeholder="Country">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Dual Media (Avatar & Company Logo) -->
+        <div class="sidebar-panel" id="tab-avatar">
+          <!-- Section 1: Personal Avatar / Headshot -->
+          <div class="control-section">
+            <div class="section-title">
+              <span class="sahinur-eyebrow">// 01. PERSONAL HEADSHOT</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Upload High-Res Headshot</label>
+              <input type="file" id="avatarFileInput" accept="image/*" class="form-input" style="padding: 6px;">
+              <span class="form-label-desc">Supports PNG, JPEG, WEBP, and SVG formats.</span>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">
+                High-DPI Scaling Factor
+                <span class="form-label-desc" id="dpiLabel">[2x RETINA]</span>
+              </label>
+              <div class="dpi-chips-container">
+                <button class="dpi-chip" data-dpi="1">1x STD</button>
+                <button class="dpi-chip active" data-dpi="2">2x RETINA</button>
+                <button class="dpi-chip" data-dpi="3">3x SUPER</button>
+                <button class="dpi-chip" data-dpi="4">4x ULTRA</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Avatar Shape Profile</label>
+              <div class="shape-picker-grid">
+                <button class="shape-btn" data-shape="circle">
+                  <div class="shape-preview-icon circle"></div>
+                  Circle
+                </button>
+                <button class="shape-btn active" data-shape="squircle">
+                  <div class="shape-preview-icon squircle"></div>
+                  Squircle
+                </button>
+                <button class="shape-btn" data-shape="rounded">
+                  <div class="shape-preview-icon rounded"></div>
+                  Rounded
+                </button>
+                <button class="shape-btn" data-shape="square">
+                  <div class="shape-preview-icon square"></div>
+                  Square
+                </button>
+              </div>
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Avatar Display Size</span>
+                <span class="slider-val-badge" id="avatarSizeVal">85px</span>
+              </div>
+              <input type="range" id="avatarSize" class="custom-range" min="30" max="150" value="85">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Photo Zoom / Crop</span>
+                <span class="slider-val-badge" id="avatarZoomVal">1.0x</span>
+              </div>
+              <input type="range" id="avatarZoom" class="custom-range" min="1.0" max="2.5" step="0.05" value="1.0">
+            </div>
+
+            <div class="form-row">
+              <div class="slider-group">
+                <div class="slider-header">
+                  <span>Border Width</span>
+                  <span class="slider-val-badge" id="avatarBorderVal">2px</span>
+                </div>
+                <input type="range" id="avatarBorderWidth" class="custom-range" min="0" max="8" value="2">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="avatarBorderColor">Border Color</label>
+                <div class="color-picker-row">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="avatarBorderColor" class="color-input" value="#00DC82">
+                  </div>
+                  <input type="text" id="avatarBorderColorHex" class="form-input color-hex-input" value="#00DC82">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Company / Brand Logo -->
+          <div class="control-section">
+            <label class="toggle-row" for="showLogo">
+              <div class="toggle-label-group">
+                <span class="toggle-label">Company / Brand Logo</span>
+                <span class="toggle-desc">Enable secondary logo next to or below headshot</span>
+              </div>
+              <input type="checkbox" id="showLogo" class="switch-input">
+              <div class="switch-track"><div class="switch-thumb"></div></div>
+            </label>
+
+            <div id="logoControlsGroup" style="display: none; padding-top: 10px; display: flex; flex-direction: column; gap: 12px;">
+              <div class="form-group">
+                <label class="form-label">Upload Company Logo</label>
+                <input type="file" id="logoFileInput" accept="image/*" class="form-input" style="padding: 6px;">
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-header">
+                  <span>Logo Display Width</span>
+                  <span class="slider-val-badge" id="logoSizeVal">70px</span>
+                </div>
+                <input type="range" id="logoSize" class="custom-range" min="30" max="180" value="70">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Logo Shape</label>
+                <select id="logoShape" class="form-select">
+                  <option value="square">Original / Square</option>
+                  <option value="rounded">Rounded Corners</option>
+                  <option value="circle">Circular</option>
+                  <option value="squircle">Squircle</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Image Tone & Lighting -->
+          <div class="control-section">
+            <div class="section-title">
+              <span class="sahinur-eyebrow">// 03. SHARPNESS &amp; TONE</span>
+            </div>
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Brightness</span>
+                <span class="slider-val-badge" id="brightnessVal">100%</span>
+              </div>
+              <input type="range" id="imgBrightness" class="custom-range" min="60" max="140" value="100">
+            </div>
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Contrast</span>
+                <span class="slider-val-badge" id="contrastVal">100%</span>
+              </div>
+              <input type="range" id="imgContrast" class="custom-range" min="60" max="140" value="100">
+            </div>
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Saturation</span>
+                <span class="slider-val-badge" id="saturationVal">100%</span>
+              </div>
+              <input type="range" id="imgSaturation" class="custom-range" min="0" max="160" value="100">
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Design, Typography & Colors -->
+        <div class="sidebar-panel" id="tab-style">
+          <div class="control-section">
+            <div class="section-title">
+              <span class="sahinur-eyebrow">// 01. LAYOUT ARCHITECTURE</span>
+            </div>
+            <div class="template-cards-grid">
+              <div class="template-card active" data-template="vertical-divider">
+                <div class="template-card-preview">
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <div style="width: 20px; height: 20px; border-radius: 4px; background: #00DC82;"></div>
+                    <div style="width: 2px; height: 28px; background: #00DC82;"></div>
+                    <div style="display: flex; flex-direction: column; gap: 3px;">
+                      <div style="width: 44px; height: 4px; background: #FFFFFF; border-radius: 2px;"></div>
+                      <div style="width: 32px; height: 3px; background: #00DC82; border-radius: 2px;"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="template-card-title">Vertical Divider</div>
+              </div>
+
+              <div class="template-card" data-template="horizontal-bar">
+                <div class="template-card-preview">
+                  <div style="display: flex; flex-direction: column; gap: 4px; width: 80%;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <div style="width: 14px; height: 14px; border-radius: 4px; background: #00DC82;"></div>
+                      <div style="width: 40px; height: 4px; background: #FFFFFF;"></div>
+                    </div>
+                    <div style="width: 100%; height: 2px; background: #00DC82;"></div>
+                  </div>
+                </div>
+                <div class="template-card-title">Horizontal Bar</div>
+              </div>
+
+              <div class="template-card" data-template="two-column">
+                <div class="template-card-preview">
+                  <div style="display: flex; gap: 6px; width: 80%;">
+                    <div style="flex: 1; height: 24px; background: #1c1c1c; border-radius: 3px; border: 1px solid #00DC82;"></div>
+                    <div style="flex: 1; height: 24px; background: #1c1c1c; border-radius: 3px;"></div>
+                  </div>
+                </div>
+                <div class="template-card-title">Two Column Grid</div>
+              </div>
+
+              <div class="template-card" data-template="modern-card">
+                <div class="template-card-preview">
+                  <div style="width: 80%; height: 26px; border: 1px solid #00DC82; border-left: 3px solid #00DC82; border-radius: 4px;"></div>
+                </div>
+                <div class="template-card-title">Modern Card</div>
+              </div>
+
+              <div class="template-card" data-template="compact-inline">
+                <div class="template-card-preview">
+                  <div style="display: flex; align-items: center; gap: 4px; width: 85%;">
+                    <div style="width: 10px; height: 10px; border-radius: 2px; background: #00DC82;"></div>
+                    <div style="flex: 1; height: 4px; background: #FFFFFF; border-radius: 1px;"></div>
+                  </div>
+                </div>
+                <div class="template-card-title">Compact One-Liner</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="control-section">
+            <div class="section-title">
+              <span class="sahinur-eyebrow">// 02. COLOR MATRIX</span>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="accentColor">Accent Color (Dividers, Highlights, Icons)</label>
+              <div class="color-picker-row">
+                <div class="color-input-wrapper">
+                  <input type="color" id="accentColor" class="color-input" value="#00DC82">
+                </div>
+                <input type="text" id="accentColorHex" class="form-input color-hex-input" value="#00DC82">
+              </div>
+              <div class="quick-swatches">
+                <div class="color-swatch" style="background: #00DC82; color: #00DC82;" data-color="#00DC82" title="Emerald Matrix"></div>
+                <div class="color-swatch" style="background: #2563EB; color: #2563EB;" data-color="#2563EB" title="Electric Blue"></div>
+                <div class="color-swatch" style="background: #10B981; color: #10B981;" data-color="#10B981" title="Emerald Green"></div>
+                <div class="color-swatch" style="background: #8B5CF6; color: #8B5CF6;" data-color="#8B5CF6" title="Cyber Violet"></div>
+                <div class="color-swatch" style="background: #EF4444; color: #EF4444;" data-color="#EF4444" title="Neon Crimson"></div>
+                <div class="color-swatch" style="background: #F59E0B; color: #F59E0B;" data-color="#F59E0B" title="Amber Gold"></div>
+                <div class="color-swatch" style="background: #0A0A0A; color: #0A0A0A;" data-color="#0A0A0A" title="Obsidian Black"></div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="nameColor">Name Heading Color</label>
+                <div class="color-picker-row">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="nameColor" class="color-input" value="#0A0A0A">
+                  </div>
+                  <input type="text" id="nameColorHex" class="form-input color-hex-input" value="#0A0A0A">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="titleColor">Title &amp; Role Color</label>
+                <div class="color-picker-row">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="titleColor" class="color-input" value="#00DC82">
+                  </div>
+                  <input type="text" id="titleColorHex" class="form-input color-hex-input" value="#00DC82">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="bodyColor">Body Text Color</label>
+                <div class="color-picker-row">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="bodyColor" class="color-input" value="#242424">
+                  </div>
+                  <input type="text" id="bodyColorHex" class="form-input color-hex-input" value="#242424">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="labelColor">Prefix Labels Color</label>
+                <div class="color-picker-row">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="labelColor" class="color-input" value="#00DC82">
+                  </div>
+                  <input type="text" id="labelColorHex" class="form-input color-hex-input" value="#00DC82">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="linkColor">Links &amp; URLs Color</label>
+                <div class="color-picker-row">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="linkColor" class="color-input" value="#00DC82">
+                  </div>
+                  <input type="text" id="linkColorHex" class="form-input color-hex-input" value="#00DC82">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="dividerColor">Divider Line Color</label>
+                <div class="color-picker-row">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="dividerColor" class="color-input" value="#00DC82">
+                  </div>
+                  <input type="text" id="dividerColorHex" class="form-input color-hex-input" value="#00DC82">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="quoteColor">Quote Text Color</label>
+                <div class="color-picker-row">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="quoteColor" class="color-input" value="#475569">
+                  </div>
+                  <input type="text" id="quoteColorHex" class="form-input color-hex-input" value="#475569">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="disclaimerColor">Disclaimer Color</label>
+                <div class="color-picker-row">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="disclaimerColor" class="color-input" value="#94A3B8">
+                  </div>
+                  <input type="text" id="disclaimerColorHex" class="form-input color-hex-input" value="#94A3B8">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="control-section">
+            <div class="section-title">
+              <span class="sahinur-eyebrow">// 03. TYPOGRAPHY &amp; SIZING</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="fontFamily">Email-Safe Font Family</label>
+              <select id="fontFamily" class="form-select">
+                <option value="'Courier New', Courier, monospace">Courier New / JetBrains Mono (Terminal Monospace)</option>
+                <option value="'Segoe UI', Roboto, Helvetica, Arial, sans-serif">Segoe UI / Roboto (Modern Clean)</option>
+                <option value="Arial, Helvetica, sans-serif">Arial / Helvetica (Universal Standard)</option>
+                <option value="Georgia, 'Times New Roman', serif">Georgia (Academic &amp; Editorial)</option>
+                <option value="'Trebuchet MS', 'Lucida Grande', sans-serif">Trebuchet MS (Friendly Geometric)</option>
+                <option value="Verdana, Geneva, sans-serif">Verdana (High Legibility)</option>
+              </select>
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Name Font Size</span>
+                <span class="slider-val-badge" id="nameFontSizeVal">17px</span>
+              </div>
+              <input type="range" id="nameFontSize" class="custom-range" min="13" max="24" value="17">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Details Font Size</span>
+                <span class="slider-val-badge" id="bodyFontSizeVal">12.5px</span>
+              </div>
+              <input type="range" id="bodyFontSize" class="custom-range" min="10" max="16" step="0.5" value="12.5">
+            </div>
+
+            <div class="form-row">
+              <div class="slider-group">
+                <div class="slider-header">
+                  <span>Divider Thickness</span>
+                  <span class="slider-val-badge" id="dividerThicknessVal">2px</span>
+                </div>
+                <input type="range" id="dividerThickness" class="custom-range" min="1" max="6" value="2">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="dividerStyle">Divider Style</label>
+                <select id="dividerStyle" class="form-select">
+                  <option value="solid">Solid</option>
+                  <option value="dashed">Dashed</option>
+                  <option value="dotted">Dotted</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: Social Media Icons -->
+        <div class="sidebar-panel" id="tab-socials">
+          <div class="control-section">
+            <div class="section-title">
+              <span class="sahinur-eyebrow">// 01. ICON SCHEME</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="iconStyle">Visual Style</label>
+              <select id="iconStyle" class="form-select">
+                <option value="accent">Unified Accent Color</option>
+                <option value="brand">Official Brand Colors</option>
+                <option value="monochrome">Monochrome Neutral</option>
+                <option value="pill">Rounded Pill Badge</option>
+                <option value="circle">Circular Solid Badge</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <div class="slider-group">
+                <div class="slider-header">
+                  <span>Icon Size</span>
+                  <span class="slider-val-badge" id="iconSizeVal">18px</span>
+                </div>
+                <input type="range" id="iconSize" class="custom-range" min="14" max="28" value="18">
+              </div>
+              <div class="slider-group">
+                <div class="slider-header">
+                  <span>Spacing</span>
+                  <span class="slider-val-badge" id="iconSpacingVal">8px</span>
+                </div>
+                <input type="range" id="iconSpacing" class="custom-range" min="3" max="16" value="8">
+              </div>
+            </div>
+          </div>
+
+          <div class="control-section">
+            <div class="section-title">
+              <span class="sahinur-eyebrow">// 02. ACTIVE NETWORKS &amp; URLS</span>
+            </div>
+            <div class="socials-list" id="socialsListContainer">
+              <!-- Dynamically populated social rows including ORCID, Google Scholar, ResearchGate -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 5: Dynamic Custom Fields & Promo Banner -->
+        <div class="sidebar-panel" id="tab-custom">
+          <!-- Section 1: Dynamic Custom Fields -->
+          <div class="control-section">
+            <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="sahinur-eyebrow">// 01. CUSTOM KEY-VALUE FIELDS</span>
+              <button class="btn-secondary" id="addCustomFieldBtn" style="padding: 3px 8px; font-size: 11px;">
+                <span class="sahinur-prompt-prefix">+</span> Add Row
+              </button>
+            </div>
+            <p class="form-label-desc" style="margin-bottom: 8px;">Add custom metadata rows like Pronouns, Office Hours, Calendly links, or PGP Fingerprints.</p>
+            
+            <div id="customFieldsContainer" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Custom fields dynamically rendered here -->
+            </div>
+          </div>
+
+          <!-- Section 2: Promotional Campaign Banner -->
+          <div class="control-section">
+            <label class="toggle-row" for="showPromoBanner">
+              <div class="toggle-label-group">
+                <span class="toggle-label">Campaign Promo Banner</span>
+                <span class="toggle-desc">Full-width promotional banner with clickable link</span>
+              </div>
+              <input type="checkbox" id="showPromoBanner" class="switch-input">
+              <div class="switch-track"><div class="switch-thumb"></div></div>
+            </label>
+
+            <div id="promoBannerGroup" style="display: none; padding-top: 10px; display: flex; flex-direction: column; gap: 10px;">
+              <div class="form-group">
+                <label class="form-label">Upload Banner Image</label>
+                <input type="file" id="promoBannerFileInput" accept="image/*" class="form-input" style="padding: 6px;">
+                <span class="form-label-desc">Recommended size: 800x120px to 800x200px.</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="promoTargetUrl">Banner Click Destination URL</label>
+                <input type="text" id="promoTargetUrl" class="form-input" value="https://www.dhrubojyoti.dev" placeholder="https://example.com/campaign">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="promoAltText">Banner Description / Alt Text</label>
+                <input type="text" id="promoAltText" class="form-input" value="Special Announcement" placeholder="e.g. Join our Annual Conference">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 6: Badges & Add-ons -->
+        <div class="sidebar-panel" id="tab-addons">
+          <div class="control-section">
+            <label class="toggle-row" for="showBadge">
+              <div class="toggle-label-group">
+                <span class="toggle-label">Status Badge Chip</span>
+                <span class="toggle-desc">Displays a verified role or institution tag</span>
+              </div>
+              <input type="checkbox" id="showBadge" class="switch-input" checked>
+              <div class="switch-track"><div class="switch-thumb"></div></div>
+            </label>
+            <div class="form-group" id="badgeInputGroup" style="padding-top: 8px;">
+              <label class="form-label" for="badgeText">Badge Label Text</label>
+              <input type="text" id="badgeText" class="form-input" value="Dev Architect">
+            </div>
+          </div>
+
+          <div class="control-section">
+            <label class="toggle-row" for="showCta">
+              <div class="toggle-label-group">
+                <span class="toggle-label">Call To Action (CTA) Button</span>
+                <span class="toggle-desc">Adds a direct link button below your signature</span>
+              </div>
+              <input type="checkbox" id="showCta" class="switch-input">
+              <div class="switch-track"><div class="switch-thumb"></div></div>
+            </label>
+            <div id="ctaInputGroup" style="display: none; display: flex; flex-direction: column; gap: 10px; padding-top: 8px;">
+              <div class="form-group">
+                <label class="form-label" for="ctaText">Button Text</label>
+                <input type="text" id="ctaText" class="form-input" value="Schedule a 1:1 Sync">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="ctaUrl">Target URL</label>
+                <input type="text" id="ctaUrl" class="form-input" value="https://calendly.com">
+              </div>
+            </div>
+          </div>
+
+          <div class="control-section">
+            <label class="toggle-row" for="showGreenNote">
+              <div class="toggle-label-group">
+                <span class="toggle-label">Environmental Note</span>
+                <span class="toggle-desc">Eco-friendly printing reminder</span>
+              </div>
+              <input type="checkbox" id="showGreenNote" class="switch-input">
+              <div class="switch-track"><div class="switch-thumb"></div></div>
+            </label>
+            <div class="form-group" id="greenNoteInputGroup" style="display: none; padding-top: 8px;">
+              <label class="form-label" for="greenNoteText">Eco Message</label>
+              <input type="text" id="greenNoteText" class="form-input" value="Please consider the environment before printing this email.">
+            </div>
+          </div>
+
+          <div class="control-section">
+            <label class="toggle-row" for="showQuote">
+              <div class="toggle-label-group">
+                <span class="toggle-label">Philosophical / Inspirational Quote</span>
+                <span class="toggle-desc">Adds a curated classic quote to the footer</span>
+              </div>
+              <input type="checkbox" id="showQuote" class="switch-input">
+              <div class="switch-track"><div class="switch-thumb"></div></div>
+            </label>
+            <div id="quoteInputGroup" style="display: none; padding-top: 8px;">
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <label class="form-label" for="quoteText" style="margin-bottom: 0;">Quote Content</label>
+                  <button type="button" class="btn-secondary" id="rollQuoteBtn" style="padding: 3px 8px; font-size: 11px;">
+                    🎲 Roll Random Quote
+                  </button>
+                </div>
+                <textarea id="quoteText" class="form-textarea" rows="3" placeholder="Select or type an inspirational quote..."></textarea>
+              </div>
+              <label class="toggle-row" for="autoShuffleQuote" style="padding-top: 6px; border-top: 1px solid var(--border);">
+                <div class="toggle-label-group">
+                  <span class="toggle-label" style="font-size: 12px;">Auto-Shuffle with Every Copy</span>
+                  <span class="toggle-desc" style="font-size: 10.5px;">Picks a fresh random quote each time you copy the signature</span>
+                </div>
+                <input type="checkbox" id="autoShuffleQuote" class="switch-input" checked>
+                <div class="switch-track"><div class="switch-thumb"></div></div>
+              </label>
+            </div>
+          </div>
+
+          <div class="control-section">
+            <label class="toggle-row" for="showDisclaimer">
+              <div class="toggle-label-group">
+                <span class="toggle-label">Legal Disclaimer</span>
+                <span class="toggle-desc">Formal confidentiality notice at bottom</span>
+              </div>
+              <input type="checkbox" id="showDisclaimer" class="switch-input">
+              <div class="switch-track"><div class="switch-thumb"></div></div>
+            </label>
+            <div class="form-group" id="disclaimerInputGroup" style="display: none; padding-top: 8px;">
+              <label class="form-label" for="disclaimerText">Disclaimer Text</label>
+              <textarea id="disclaimerText" class="form-textarea">CONFIDENTIALITY NOTICE: This transmission may contain confidential information intended only for the use of the individual named.</textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 7: Team Roster & CSV Batch Generator -->
+        <div class="sidebar-panel" id="tab-team">
+          <div class="control-section">
+            <div class="section-title">
+              <span class="sahinur-eyebrow">// 01. CSV BATCH IMPORT</span>
+            </div>
+            
+            <div class="csv-dropzone" id="csvDropzone">
+              <div style="font-size: 24px; margin-bottom: 6px;">📄</div>
+              <div style="font-weight: 600; font-size: 13px;">Drag &amp; Drop Team CSV Here</div>
+              <div class="form-label-desc" style="margin-top: 4px;">or click to select file</div>
+              <input type="file" id="csvFileInput" accept=".csv,text/csv" style="display: none;">
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 10px;">
+              <button class="btn-secondary" id="downloadSampleCsvBtn" style="flex: 1; font-size: 11px;">
+                Download Sample CSV
+              </button>
+              <button class="btn-secondary" id="addTeamMemberBtn" style="font-size: 11px;">
+                <span class="sahinur-prompt-prefix">+</span> Member
+              </button>
+            </div>
+          </div>
+
+          <div class="control-section">
+            <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="sahinur-eyebrow">// 02. TEAM ROSTER (<span id="teamMemberCount">4</span>)</span>
+              <button class="btn-secondary" id="openTeamDirectoryBtn" style="padding: 2px 8px; font-size: 10.5px;">
+                Directory Hub
+              </button>
+            </div>
+
+            <div class="team-roster-list" id="teamRosterContainer">
+              <!-- Dynamically populated team member list -->
+            </div>
+          </div>
+
+          <div class="control-section">
+            <div class="section-title">
+              <span class="sahinur-eyebrow">// 03. 1-CLICK BATCH EXPORT</span>
+            </div>
+            <button class="btn-primary" id="exportTeamZipBtn" style="width: 100%; justify-content: center; padding: 10px;">
+              <span class="btn-icon" id="teamZipIcon"></span>
+              Download Team Signatures (.zip)
+            </button>
+            <span class="form-label-desc" style="text-align: center; display: block; margin-top: 6px;">
+              Generates individual HTML signatures + index directory in a clean ZIP bundle.
+            </span>
+          </div>
+        </div>
+
+        <!-- Tab 8: Full Email Template Builder Blocks -->
+        <div class="sidebar-panel" id="tab-email">
+          <div class="control-section">
+            <div class="section-title">
+              <span class="sahinur-eyebrow">// 01. TEMPLATE BLUEPRINT</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="emailBlueprintSelect">Select Email Blueprint</label>
+              <select id="emailBlueprintSelect" class="form-select">
+                <option value="professional-outreach">Professional Outreach / Intro</option>
+                <option value="portfolio-showcase">Portfolio &amp; Project Showcase</option>
+                <option value="meeting-followup">Meeting Follow-up &amp; Action Items</option>
+                <option value="academic-thesis">Academic Research &amp; Thesis Update</option>
+                <option value="formal-inquiry">Formal Inquiry / Application</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="control-section">
+            <div class="section-title">
+              <span class="sahinur-eyebrow">// 02. HEADER &amp; SUBJECT</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tplSubject">Subject Line</label>
+              <input type="text" id="tplSubject" class="form-input" value="Introduction &amp; Project Collaboration">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tplPreheader">Preheader Preview Text</label>
+              <input type="text" id="tplPreheader" class="form-input" value="Brief overview and technical roadmap specifications.">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tplHeaderLogoText">Header Brand Banner</label>
+              <input type="text" id="tplHeaderLogoText" class="form-input" value="DHRUBOJYOTI SAHA &bull; PORTFOLIO">
+            </div>
+          </div>
+
+          <div class="control-section">
+            <div class="section-title">
+              <span class="sahinur-eyebrow">// 03. BODY CONTENT</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tplGreeting">Salutation</label>
+              <input type="text" id="tplGreeting" class="form-input" value="Dear Colleague,">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tplParagraph1">Paragraph 1</label>
+              <textarea id="tplParagraph1" class="form-textarea">I hope this message finds you well. I am reaching out regarding our recent developments in automated workflow systems and software architecture.</textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tplParagraph2">Paragraph 2 / Bullet Points</label>
+              <textarea id="tplParagraph2" class="form-textarea">- High-Definition Retina graphics (2x, 3x, 4x DPI)
+- 100% in-browser generation with zero backend
+- Direct 1-click clipboard paste into Gmail and Outlook</textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tplClosing">Closing Salutation</label>
+              <input type="text" id="tplClosing" class="form-input" value="Best regards,">
+            </div>
+          </div>
+
+          <div class="control-section">
+            <label class="toggle-row" for="tplShowHighlight">
+              <div class="toggle-label-group">
+                <span class="toggle-label">Key Highlights Callout Box</span>
+                <span class="toggle-desc">Adds a highlighted summary card with bullet points</span>
+              </div>
+              <input type="checkbox" id="tplShowHighlight" class="switch-input">
+              <div class="switch-track"><div class="switch-thumb"></div></div>
+            </label>
+            <div id="tplHighlightInputGroup" style="display: none; flex-direction: column; gap: 10px; padding-top: 8px;">
+              <div class="form-group">
+                <label class="form-label" for="tplHighlightTitle">Callout Box Title</label>
+                <input type="text" id="tplHighlightTitle" class="form-input" value="Key Highlights" placeholder="e.g. Key Highlights, Action Items, Summary">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="tplHighlightContent">Callout Bullet Points (1 per line)</label>
+                <textarea id="tplHighlightContent" class="form-textarea" style="min-height: 85px;" placeholder="- Item 1&#10;- Item 2&#10;- Item 3">- High-Definition Retina graphics (2x, 3x, 4x DPI)
+- 100% in-browser generation with zero backend dependencies
+- Seamless 1-click clipboard paste into Gmail and Outlook</textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="control-section">
+            <div class="section-title">
+              <span class="sahinur-eyebrow">// 04. CALL TO ACTION</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tplCtaText">Button Label</label>
+              <input type="text" id="tplCtaText" class="form-input" value="Explore Project Showcase">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tplCtaUrl">Button URL</label>
+              <input type="text" id="tplCtaUrl" class="form-input" value="https://www.dhrubojyoti.dev">
+            </div>
+          </div>
+
+          <div class="control-section">
+            <div class="section-title">
+              <span class="sahinur-eyebrow">// 05. EMAIL TEXT &amp; THEME COLORS</span>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="tplHeaderColor">Header Brand Text</label>
+                <div class="color-picker-row">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="tplHeaderColor" class="color-input" value="#FFFFFF">
+                  </div>
+                  <input type="text" id="tplHeaderColorHex" class="form-input color-hex-input" value="#FFFFFF">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="tplHeaderBgColor">Header Banner Bg</label>
+                <div class="color-picker-row">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="tplHeaderBgColor" class="color-input" value="#0F172A">
+                  </div>
+                  <input type="text" id="tplHeaderBgColorHex" class="form-input color-hex-input" value="#0F172A">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="tplGreetingColor">Salutation Text</label>
+                <div class="color-picker-row">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="tplGreetingColor" class="color-input" value="#0F172A">
+                  </div>
+                  <input type="text" id="tplGreetingColorHex" class="form-input color-hex-input" value="#0F172A">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="tplBodyColor">Paragraph Body Text</label>
+                <div class="color-picker-row">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="tplBodyColor" class="color-input" value="#334155">
+                  </div>
+                  <input type="text" id="tplBodyColorHex" class="form-input color-hex-input" value="#334155">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="tplHighlightTitleColor">Callout Title Color</label>
+                <div class="color-picker-row">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="tplHighlightTitleColor" class="color-input" value="#00DC82">
+                  </div>
+                  <input type="text" id="tplHighlightTitleColorHex" class="form-input color-hex-input" value="#00DC82">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="tplHighlightTextColor">Callout Text Color</label>
+                <div class="color-picker-row">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="tplHighlightTextColor" class="color-input" value="#334155">
+                  </div>
+                  <input type="text" id="tplHighlightTextColorHex" class="form-input color-hex-input" value="#334155">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="tplCtaTextColor">CTA Button Text</label>
+                <div class="color-picker-row">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="tplCtaTextColor" class="color-input" value="#0F172A">
+                  </div>
+                  <input type="text" id="tplCtaTextColorHex" class="form-input color-hex-input" value="#0F172A">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="tplCtaBgColor">CTA Button Bg</label>
+                <div class="color-picker-row">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="tplCtaBgColor" class="color-input" value="#00DC82">
+                  </div>
+                  <input type="text" id="tplCtaBgColorHex" class="form-input color-hex-input" value="#00DC82">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="tplClosingColor">Closing Salutation</label>
+                <div class="color-picker-row">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="tplClosingColor" class="color-input" value="#64748B">
+                  </div>
+                  <input type="text" id="tplClosingColorHex" class="form-input color-hex-input" value="#64748B">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="tplFooterColor">Footer Note Text</label>
+                <div class="color-picker-row">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="tplFooterColor" class="color-input" value="#64748B">
+                  </div>
+                  <input type="text" id="tplFooterColorHex" class="form-input color-hex-input" value="#64748B">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- Center Live Preview Canvas -->
+    <section class="studio-canvas">
+      
+      <!-- Canvas Simulator Toolbar -->
+      <div class="canvas-toolbar">
+        <div class="toolbar-group">
+          <button class="toolbar-btn active" id="clientGmailBtn">[GMAIL]</button>
+          <button class="toolbar-btn" id="clientAppleBtn">[APPLE MAIL]</button>
+          <button class="toolbar-btn" id="clientOutlookBtn">[OUTLOOK]</button>
+        </div>
+
+        <div class="toolbar-group">
+          <button class="toolbar-btn active" id="themeLightBtn">Light Inbox</button>
+          <button class="toolbar-btn" id="themeDarkBtn">Dark Inbox</button>
+
+          <div class="zoom-controls">
+            <button class="zoom-btn" id="zoomOutBtn" title="Zoom Out" aria-label="Zoom Out">−</button>
+            <span class="zoom-val" id="zoomVal" title="Reset Zoom (100%)">100%</span>
+            <button class="zoom-btn" id="zoomInBtn" title="Zoom In" aria-label="Zoom In">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scrollable Preview Area -->
+      <div class="preview-scroll-area preview-theme-light" id="previewArea">
+        <div class="preview-wrapper" id="previewWrapper">
+          
+          <div class="client-window light-inbox" id="clientWindow">
+            
+            <div class="gmail-header" id="simulatorHeader">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="sahinur-traffic-dots">
+                  <span class="sahinur-traffic-dot red"></span>
+                  <span class="sahinur-traffic-dot yellow"></span>
+                  <span class="sahinur-traffic-dot green"></span>
+                </div>
+                <div class="gmail-title" id="simulatorTitle">~/inbox/compose.eml</div>
+              </div>
+              <div class="gmail-window-controls">&ndash; &Square; &times;</div>
+            </div>
+
+            <div class="gmail-compose-fields" id="simulatorFields">
+              <div class="gmail-field-row">
+                <span class="gmail-field-label">To:</span>
+                <span class="gmail-field-value" style="font-family: var(--font-mono);">recipient@domain.com</span>
+              </div>
+              <div class="gmail-field-row">
+                <span class="gmail-field-label">Subject:</span>
+                <span class="gmail-field-value" id="previewSubjectLine">Introduction &amp; Project Update</span>
+              </div>
+            </div>
+
+            <div class="gmail-compose-body" id="simulatorBody">
+              <div class="gmail-sample-text" id="signatureModeIntroText">
+                Hello,<br><br>
+                Thank you for your message. Please find my contact details and professional profile below.<br><br>
+                Best regards,
+              </div>
+
+              <div class="gmail-signature-area" id="liveRenderCanvas">
+                <!-- Live generated HTML rendered here -->
+              </div>
+            </div>
+
+            <div class="gmail-footer-toolbar" id="simulatorFooter">
+              <button class="gmail-send-btn">Send</button>
+              <div class="gmail-tools-icons" style="font-family: var(--font-mono); font-size: 11px;">
+                <span>[A]</span>
+                <span>[&bull;]</span>
+                <span>[&infin;]</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Bottom Export Action Bar -->
+      <footer class="export-bar">
+        <div class="export-info">
+          <span class="btn-icon" id="shieldIcon"></span>
+          <span>100% Client-Side Engine &bull; Zero Server Data Transmission</span>
+        </div>
+
+        <div class="export-btn-group">
+          <button class="btn-secondary" id="copyRawHtmlBtn">
+            <span class="btn-icon" id="codeIcon"></span>
+            Copy HTML Source
+          </button>
+          <button class="btn-secondary" id="downloadHtmlBtn">
+            <span class="btn-icon" id="downloadIcon"></span>
+            Download .html
+          </button>
+          <button class="btn-secondary" id="exportPngBtn">
+            <span class="btn-icon" id="imageIcon"></span>
+            Export 3x HD PNG
+          </button>
+          <button class="btn-primary" id="copyRichBtn">
+            <span class="btn-icon" id="copyBtnIcon"></span>
+            Copy Rich Signature
+          </button>
+        </div>
+      </footer>
+
+    </section>
+
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Installation Guide Modal (Popup) -->
+  <div class="modal-overlay" id="guideModalOverlay">
+    <div id="guideModalContainer"></div>
+  </div>
+
+  <!-- Save Preset Modal -->
+  <div class="modal-overlay" id="savePresetModalOverlay">
+    <div class="guide-modal-content sahinur-terminal" style="max-width: 520px;">
+      <div class="sahinur-terminal-header guide-modal-header">
+        <div class="sahinur-traffic-dots">
+          <span class="sahinur-traffic-dot red"></span>
+          <span class="sahinur-traffic-dot yellow"></span>
+          <span class="sahinur-traffic-dot green"></span>
+        </div>
+        <div class="guide-modal-title">
+          <span class="sahinur-prompt-prefix">$</span>
+          <span>preset --save</span>
+        </div>
+        <button class="modal-close-btn" id="closeSavePresetModalBtn" title="Close"></button>
+      </div>
+      <div class="guide-modal-body">
+        <div class="form-group">
+          <label class="form-label" for="savePresetName">Preset Name</label>
+          <input type="text" id="savePresetName" class="form-input" placeholder="e.g. My Executive Style">
+        </div>
+        <div class="form-group" style="margin-top: 10px;">
+          <label class="form-label" for="savePresetDesc">Short Description (Optional)</label>
+          <input type="text" id="savePresetDesc" class="form-input" placeholder="e.g. Sapphire accent with ORCID and rounded badge">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+          <button class="btn-secondary" id="cancelSavePresetBtn">Cancel</button>
+          <button class="btn-primary" id="confirmSavePresetBtn">Save to Browser Presets</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preset Manager Modal -->
+  <div class="modal-overlay" id="presetManagerModalOverlay">
+    <div class="guide-modal-content sahinur-terminal" style="max-width: 680px;">
+      <div class="sahinur-terminal-header guide-modal-header">
+        <div class="sahinur-traffic-dots">
+          <span class="sahinur-traffic-dot red"></span>
+          <span class="sahinur-traffic-dot yellow"></span>
+          <span class="sahinur-traffic-dot green"></span>
+        </div>
+        <div class="guide-modal-title">
+          <span class="sahinur-prompt-prefix">$</span>
+          <span>presets --manage</span>
+        </div>
+        <button class="modal-close-btn" id="closePresetManagerModalBtn" title="Close"></button>
+      </div>
+      <div class="guide-modal-body">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <span class="sahinur-eyebrow">// SAVED CUSTOM PRESETS</span>
+          <div style="display: flex; gap: 6px;">
+            <button class="btn-secondary" id="exportAllPresetsJsonBtn" style="padding: 4px 10px; font-size: 11px;">
+              Backup All JSON
+            </button>
+            <label class="btn-secondary" style="padding: 4px 10px; font-size: 11px; cursor: pointer; margin-bottom: 0;">
+              Import JSON
+              <input type="file" id="importPresetJsonFileInput" accept=".json,application/json" style="display: none;">
+            </label>
+          </div>
+        </div>
+
+        <div id="customPresetsListModal" style="display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; padding-right: 4px;">
+          <!-- Populated dynamically with cards for each custom preset -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Team Directory Copy Hub Modal -->
+  <div class="modal-overlay" id="teamDirectoryModalOverlay">
+    <div class="guide-modal-content sahinur-terminal" style="max-width: 780px;">
+      <div class="sahinur-terminal-header guide-modal-header">
+        <div class="sahinur-traffic-dots">
+          <span class="sahinur-traffic-dot red"></span>
+          <span class="sahinur-traffic-dot yellow"></span>
+          <span class="sahinur-traffic-dot green"></span>
+        </div>
+        <div class="guide-modal-title">
+          <span class="sahinur-prompt-prefix">$</span>
+          <span>team --directory-hub</span>
+        </div>
+        <button class="modal-close-btn" id="closeTeamDirectoryModalBtn" title="Close"></button>
+      </div>
+      <div class="guide-modal-body">
+        <div style="margin-bottom: 12px;">
+          <input type="text" id="teamSearchInput" class="form-input" placeholder="Search team members by name, title, department, or email...">
+        </div>
+
+        <div id="teamDirectoryListModal" style="display: flex; flex-direction: column; gap: 8px; max-height: 360px; overflow-y: auto;">
+          <!-- Populated dynamically with team member cards -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Raw HTML Viewer Modal -->
+  <div class="modal-overlay" id="codeModalOverlay">
+    <div class="guide-modal-content sahinur-terminal" style="max-width: 740px;">
+      <div class="sahinur-terminal-header guide-modal-header">
+        <div class="sahinur-traffic-dots">
+          <span class="sahinur-traffic-dot red"></span>
+          <span class="sahinur-traffic-dot yellow"></span>
+          <span class="sahinur-traffic-dot green"></span>
+        </div>
+        <div class="guide-modal-title">
+          <span class="sahinur-prompt-prefix">$</span>
+          <span>cat dist/email-signature.html</span>
+        </div>
+        <button class="modal-close-btn" id="closeCodeModalBtn" title="Close"></button>
+      </div>
+      <div class="guide-modal-body">
+        <textarea id="rawCodeViewer" class="form-textarea" style="height: 340px; font-family: var(--font-mono); font-size: 11px; background-color: var(--sahinur-bg); border-color: var(--sahinur-border-strong); color: var(--sahinur-accent);" readonly></textarea>
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button class="btn-primary" id="copyCodeModalBtn">Copy Code to Clipboard</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Modules -->
+  <script src="assets/default-avatar.js"></script>
+  <script src="js/zip-builder.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/quotes.js"></script>
+  <script src="js/presets.js"></script>
+  <script src="js/preset-manager.js"></script>
+  <script src="js/team-engine.js"></script>
+  <script src="js/image-processor.js"></script>
+  <script src="js/signature-engine.js"></script>
+  <script src="js/email-template-engine.js"></script>
+  <script src="js/clipboard.js"></script>
+  <script src="js/guides.js"></script>
+  <script src="js/dot-matrix.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 /**
  * Email-Safe HTML Signature Generation Engine
  * Produces rock-solid nested <table> HTML with inline CSS
- * Automatic Dark Mode Adaptation & High-DPI Retina image support
+ * Automatic Dark Mode Adaptation, High-DPI Retina dual-image support, custom fields & promo banners
  * Zero emojis
  */
 
@@ -95,72 +95,6 @@ const SignatureEngine = {
   },
 
   /**
-   * Helper: Calculate WCAG contrast ratio between two colors (1 to 21)
-   */
-  getContrastRatio(hex1, hex2) {
-    const l1 = this.getLuminance(hex1);
-    const l2 = this.getLuminance(hex2);
-    const lighter = Math.max(l1, l2);
-    const darker = Math.min(l1, l2);
-    return (lighter + 0.05) / (darker + 0.05);
-  },
-
-  /**
-   * Intelligently transform any color for Dark Mode
-   * Preserves brand hue if saturated, or maps to crisp neutral slate if gray/black
-   */
-  adjustColorForDark(color, role = 'body') {
-    if (!color) return '#CBD5E1';
-    const lum = this.getLuminance(color);
-    const { r, g, b } = this.hexToRgb(color);
-    const { h, s, l } = this.rgbToHsl(r, g, b);
-
-    // If color is already very bright (luminance > 0.65), keep it
-    if (lum >= 0.65 && role !== 'name') return color;
-
-    // Check if color is neutral (grayscale / black / dark charcoal / dark slate)
-    const isNeutral = s < 0.25 || l < 0.15 || (Math.max(r, g, b) - Math.min(r, g, b) < 32);
-
-    switch (role) {
-      case 'name':
-        // Primary title/name needs maximum contrast
-        if (isNeutral) return '#F8FAFC';
-        // Saturated hue: boost lightness to 0.78-0.85
-        return this.hslToHex(h, Math.max(s, 0.75), 0.82);
-
-      case 'title':
-        // Secondary title / role
-        if (isNeutral || s < 0.35) return '#94A3B8';
-        return this.hslToHex(h, Math.max(s, 0.65), 0.72);
-
-      case 'body':
-        // General text
-        if (isNeutral || s < 0.35) return '#CBD5E1';
-        return this.hslToHex(h, Math.min(s, 0.5), 0.78);
-
-      case 'label':
-        // Contact prefixes (Mobile:, E-mail:, Tel:)
-        if (isNeutral) return '#93C5FD';
-        return this.hslToHex(h, Math.max(s, 0.7), 0.75);
-
-      case 'link':
-      case 'accent':
-      case 'divider':
-        // Luminous accent color (vivid on dark background #0F172A)
-        if (isNeutral) return '#60A5FA';
-        // Boost lightness to 0.60-0.68 and saturation to 0.85-0.95
-        return this.hslToHex(h, Math.max(s, 0.85), Math.max(0.62, Math.min(0.72, l + 0.25)));
-
-      case 'cardBorder':
-        return '#334155';
-
-      default:
-        if (isNeutral) return '#E2E8F0';
-        return this.hslToHex(h, s, 0.75);
-    }
-  },
-
-  /**
    * Helper: Convert HSL values directly to Hex string
    */
   hslToHex(h, s, l) {
@@ -169,31 +103,64 @@ const SignatureEngine = {
   },
 
   /**
+   * Intelligently transform any color for Dark Mode
+   */
+  adjustColorForDark(color, role = 'body') {
+    if (!color) return '#CBD5E1';
+    const lum = this.getLuminance(color);
+    const { r, g, b } = this.hexToRgb(color);
+    const { h, s, l } = this.rgbToHsl(r, g, b);
+
+    if (lum >= 0.65 && role !== 'name') return color;
+    const isNeutral = s < 0.25 || l < 0.15 || (Math.max(r, g, b) - Math.min(r, g, b) < 32);
+
+    switch (role) {
+      case 'name':
+        if (isNeutral) return '#F8FAFC';
+        return this.hslToHex(h, Math.max(s, 0.75), 0.82);
+      case 'title':
+        if (isNeutral || s < 0.35) return '#94A3B8';
+        return this.hslToHex(h, Math.max(s, 0.65), 0.72);
+      case 'body':
+        if (isNeutral || s < 0.35) return '#CBD5E1';
+        return this.hslToHex(h, Math.min(s, 0.5), 0.78);
+      case 'label':
+        if (isNeutral) return '#93C5FD';
+        return this.hslToHex(h, Math.max(s, 0.7), 0.75);
+      case 'link':
+      case 'accent':
+      case 'divider':
+        if (isNeutral) return '#60A5FA';
+        return this.hslToHex(h, Math.max(s, 0.85), Math.max(0.62, Math.min(0.72, l + 0.25)));
+      case 'cardBorder':
+        return '#334155';
+      default:
+        if (isNeutral) return '#E2E8F0';
+        return this.hslToHex(h, s, 0.75);
+    }
+  },
+
+  /**
    * Main render function that returns email-safe HTML string
-   * with automatic dark mode contrast adjustments
-   * @param {Object} data - Profile data
-   * @param {Object} settings - Design settings
-   * @param {boolean} isDark - Explicit dark rendering (for Dark Inbox simulator)
-   * @param {boolean} isExport - Whether rendering for clipboard / export (includes @media CSS)
    */
   generateHtml(data, settings, isDark = false, isExport = true) {
-    const rawSettings = Object.assign({}, Presets.styles.dhrubojyoti.settings, settings);
+    const rawSettings = Object.assign({}, Presets.styles.dhrubojyoti ? Presets.styles.dhrubojyoti.settings : {}, settings);
     const d = Object.assign({}, Presets.defaultData, data);
     const s = Object.assign({}, rawSettings);
 
-    // Compute dynamic dark mode colors for this specific signature
     const darkColors = {
       name: this.adjustColorForDark(s.nameColor, 'name'),
-      title: this.adjustColorForDark(s.titleColor, 'title'),
+      title: this.adjustColorForDark(s.titleColor || s.accentColor, 'title'),
       body: this.adjustColorForDark(s.bodyColor, 'body'),
-      label: this.adjustColorForDark(s.labelColor, 'label'),
+      label: this.adjustColorForDark(s.labelColor || s.bodyColor, 'label'),
       link: this.adjustColorForDark(s.linkColor || s.accentColor, 'link'),
       accent: this.adjustColorForDark(s.accentColor, 'accent'),
       divider: this.adjustColorForDark(s.dividerColor || s.accentColor, 'divider'),
+      quote: this.adjustColorForDark(s.quoteColor || '#D4D4D8', 'body'),
+      disclaimer: this.adjustColorForDark(s.disclaimerColor || '#94A3B8', 'body'),
       avatarBorder: this.adjustColorForDark(s.avatarBorderColor || s.accentColor, 'accent')
     };
 
-    // Auto-adjust active inline colors if explicitly rendering in Dark Mode view
     if (isDark) {
       s.nameColor = darkColors.name;
       s.titleColor = darkColors.title;
@@ -202,6 +169,8 @@ const SignatureEngine = {
       s.linkColor = darkColors.link;
       s.accentColor = darkColors.accent;
       s.dividerColor = darkColors.divider;
+      s.quoteColor = darkColors.quote;
+      s.disclaimerColor = darkColors.disclaimer;
       s.avatarBorderColor = darkColors.avatarBorder;
       s.isDarkModeActive = true;
     }
@@ -231,8 +200,6 @@ const SignatureEngine = {
         break;
     }
 
-    // When rendering for export, embed responsive device-theme stylesheet
-    // In live simulator preview (isExport = false), omit to prevent OS dark mode bleed into Day preview
     if (!isExport) {
       return renderedHtml;
     }
@@ -251,6 +218,8 @@ const SignatureEngine = {
     .sig-dark-body { color: ${darkColors.body} !important; }
     .sig-dark-label { color: ${darkColors.label} !important; }
     .sig-dark-link { color: ${darkColors.link} !important; }
+    .sig-dark-quote { color: ${darkColors.quote} !important; }
+    .sig-dark-disclaimer { color: ${darkColors.disclaimer} !important; }
     .sig-dark-divider { border-color: ${darkColors.divider} !important; }
     .sig-dark-card { background-color: #0F172A !important; border-color: #334155 !important; border-left-color: ${darkColors.accent} !important; }
     .sig-dark-border { border-color: #334155 !important; }
@@ -264,6 +233,8 @@ const SignatureEngine = {
   [data-ogsc] .sig-dark-body { color: ${darkColors.body} !important; }
   [data-ogsc] .sig-dark-label { color: ${darkColors.label} !important; }
   [data-ogsc] .sig-dark-link { color: ${darkColors.link} !important; }
+  [data-ogsc] .sig-dark-quote { color: ${darkColors.quote} !important; }
+  [data-ogsc] .sig-dark-disclaimer { color: ${darkColors.disclaimer} !important; }
   [data-ogsc] .sig-dark-divider { border-color: ${darkColors.divider} !important; }
   [data-ogsc] .sig-dark-card { background-color: #0F172A !important; border-color: #334155 !important; }
   [data-ogsc] .sig-dark-badge { background-color: ${darkColors.accent}25 !important; color: ${darkColors.accent} !important; }
@@ -276,14 +247,17 @@ const SignatureEngine = {
   },
 
   /**
-   * Template 1: Vertical Divider (Reference Design)
+   * Template 1: Vertical Divider (Classic / Reference)
    */
   renderVerticalDivider(d, s) {
     const avatarHtml = this.renderAvatarHtml(d, s);
+    const logoHtml = this.renderLogoHtml(d, s);
     const textDetailsHtml = this.renderDetailsBlock(d, s);
     const socialIconsHtml = this.renderSocialsRow(d, s);
     const ctaHtml = this.renderCtaButton(d, s);
     const badgeHtml = this.renderBadge(d, s);
+    const promoBannerHtml = this.renderPromoBanner(d, s);
+    const quoteHtml = this.renderQuote(d, s);
     const disclaimerHtml = this.renderDisclaimers(d, s);
 
     const dividerBorder = `${s.dividerThickness || 2}px ${s.dividerStyle || 'solid'} ${s.dividerColor || s.accentColor || '#2563EB'}`;
@@ -299,8 +273,13 @@ const SignatureEngine = {
           <!-- Avatar Column -->
           <td valign="middle" align="center" style="padding-right: 14px; vertical-align: middle; width: ${s.avatarSize || 85}px; text-align: center;">
             ${avatarHtml}
+            ${logoHtml ? `<div style="padding-top: 8px;">${logoHtml}</div>` : ''}
           </td>
-          ` : ''}
+          ` : (logoHtml ? `
+          <td valign="middle" align="center" style="padding-right: 14px; vertical-align: middle; width: ${d.logoSize || 70}px; text-align: center;">
+            ${logoHtml}
+          </td>
+          ` : '')}
 
           <!-- Vertical Divider Bar -->
           <td valign="middle" class="sig-divider" style="width: 1px; border-left: ${dividerBorder}; padding: 0; font-size: 1px; line-height: 1px; vertical-align: middle;">
@@ -358,6 +337,24 @@ const SignatureEngine = {
     </td>
   </tr>
 
+  <!-- Promo Banner -->
+  ${promoBannerHtml ? `
+  <tr>
+    <td valign="top" style="padding-top: 10px; vertical-align: top;">
+      ${promoBannerHtml}
+    </td>
+  </tr>
+  ` : ''}
+
+  <!-- Quote Block -->
+  ${quoteHtml ? `
+  <tr>
+    <td valign="top" style="padding-top: 8px; vertical-align: top;">
+      ${quoteHtml}
+    </td>
+  </tr>
+  ` : ''}
+
   <!-- Disclaimers & Notes -->
   ${disclaimerHtml ? `
   <tr>
@@ -376,17 +373,20 @@ const SignatureEngine = {
    */
   renderHorizontalBar(d, s) {
     const avatarHtml = this.renderAvatarHtml(d, s);
+    const logoHtml = this.renderLogoHtml(d, s);
     const textDetailsHtml = this.renderDetailsBlock(d, s);
     const socialIconsHtml = this.renderSocialsRow(d, s);
     const ctaHtml = this.renderCtaButton(d, s);
     const badgeHtml = this.renderBadge(d, s);
+    const promoBannerHtml = this.renderPromoBanner(d, s);
+    const quoteHtml = this.renderQuote(d, s);
     const disclaimerHtml = this.renderDisclaimers(d, s);
 
     const dividerBorder = `${s.dividerThickness || 2}px ${s.dividerStyle || 'solid'} ${s.dividerColor || s.accentColor || '#2563EB'}`;
 
     return `
 <!-- Email Signature Start -->
-<table cellpadding="0" cellspacing="0" border="0" class="sig-table" style="margin: 0; padding: 0; font-family: ${s.fontFamily}; font-size: ${s.bodyFontSize}px; line-height: 1.35; color: ${s.bodyColor}; background-color: transparent; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; max-width: 480px;">
+<table cellpadding="0" cellspacing="0" border="0" class="sig-table" style="margin: 0; padding: 0; font-family: ${s.fontFamily}; font-size: ${s.bodyFontSize}px; line-height: 1.35; color: ${s.bodyColor}; background-color: transparent; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; max-width: 500px;">
   <tr>
     <td valign="top" style="padding: 0; vertical-align: top;">
       <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
@@ -405,6 +405,11 @@ const SignatureEngine = {
             </div>
             ${badgeHtml ? `<div style="padding-top: 3px;">${badgeHtml}</div>` : ''}
           </td>
+          ${logoHtml ? `
+          <td valign="top" align="right" style="padding-left: 14px; vertical-align: top; text-align: right;">
+            ${logoHtml}
+          </td>
+          ` : ''}
         </tr>
       </table>
     </td>
@@ -426,6 +431,22 @@ const SignatureEngine = {
     </td>
   </tr>
 
+  ${promoBannerHtml ? `
+  <tr>
+    <td valign="top" style="padding-top: 10px; vertical-align: top;">
+      ${promoBannerHtml}
+    </td>
+  </tr>
+  ` : ''}
+
+  ${quoteHtml ? `
+  <tr>
+    <td valign="top" style="padding-top: 8px; vertical-align: top;">
+      ${quoteHtml}
+    </td>
+  </tr>
+  ` : ''}
+
   ${disclaimerHtml ? `
   <tr>
     <td valign="top" style="padding-top: 8px; vertical-align: top;">
@@ -443,10 +464,13 @@ const SignatureEngine = {
    */
   renderTwoColumn(d, s) {
     const avatarHtml = this.renderAvatarHtml(d, s);
+    const logoHtml = this.renderLogoHtml(d, s);
     const textDetailsHtml = this.renderDetailsBlock(d, s);
     const socialIconsHtml = this.renderSocialsRow(d, s);
     const ctaHtml = this.renderCtaButton(d, s);
     const badgeHtml = this.renderBadge(d, s);
+    const promoBannerHtml = this.renderPromoBanner(d, s);
+    const quoteHtml = this.renderQuote(d, s);
     const disclaimerHtml = this.renderDisclaimers(d, s);
     const innerBorder = s.isDarkModeActive ? '1px solid #334155' : '1px solid #E2E8F0';
 
@@ -468,6 +492,7 @@ const SignatureEngine = {
             </div>
             ${d.company ? `<div class="sig-dark-title" style="font-size: ${s.titleFontSize - 1}px; color: ${s.titleColor};">${d.company}</div>` : ''}
             ${badgeHtml ? `<div style="padding-top: 3px;">${badgeHtml}</div>` : ''}
+            ${logoHtml ? `<div style="padding-top: 6px;">${logoHtml}</div>` : ''}
             ${socialIconsHtml ? `<div style="padding-top: 8px;">${socialIconsHtml}</div>` : ''}
           </td>
 
@@ -480,6 +505,20 @@ const SignatureEngine = {
       </table>
     </td>
   </tr>
+  ${promoBannerHtml ? `
+  <tr>
+    <td valign="top" style="padding-top: 10px; vertical-align: top;">
+      ${promoBannerHtml}
+    </td>
+  </tr>
+  ` : ''}
+  ${quoteHtml ? `
+  <tr>
+    <td valign="top" style="padding-top: 8px; vertical-align: top;">
+      ${quoteHtml}
+    </td>
+  </tr>
+  ` : ''}
   ${disclaimerHtml ? `
   <tr>
     <td valign="top" style="padding-top: 8px; vertical-align: top;">
@@ -497,10 +536,13 @@ const SignatureEngine = {
    */
   renderModernCard(d, s) {
     const avatarHtml = this.renderAvatarHtml(d, s);
+    const logoHtml = this.renderLogoHtml(d, s);
     const textDetailsHtml = this.renderDetailsBlock(d, s);
     const socialIconsHtml = this.renderSocialsRow(d, s);
     const ctaHtml = this.renderCtaButton(d, s);
     const badgeHtml = this.renderBadge(d, s);
+    const promoBannerHtml = this.renderPromoBanner(d, s);
+    const quoteHtml = this.renderQuote(d, s);
     const disclaimerHtml = this.renderDisclaimers(d, s);
 
     const cardBg = s.isDarkModeActive ? '#0F172A' : '#FFFFFF';
@@ -508,7 +550,7 @@ const SignatureEngine = {
 
     return `
 <!-- Email Signature Start -->
-<table cellpadding="0" cellspacing="0" border="0" class="sig-table" style="margin: 0; padding: 0; font-family: ${s.fontFamily}; font-size: ${s.bodyFontSize}px; line-height: 1.35; color: ${s.bodyColor}; background-color: transparent; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; max-width: 480px;">
+<table cellpadding="0" cellspacing="0" border="0" class="sig-table" style="margin: 0; padding: 0; font-family: ${s.fontFamily}; font-size: ${s.bodyFontSize}px; line-height: 1.35; color: ${s.bodyColor}; background-color: transparent; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; max-width: 500px;">
   <tr>
     <td class="sig-dark-card" style="border: ${cardBorder}; border-left: 3.5px solid ${s.accentColor || '#2563EB'}; border-radius: 6px; padding: 12px 14px; background-color: ${cardBg};">
       <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; width: 100%;">
@@ -516,8 +558,13 @@ const SignatureEngine = {
           ${avatarHtml ? `
           <td valign="top" style="padding-right: 14px; width: ${s.avatarSize || 85}px; vertical-align: top;">
             ${avatarHtml}
+            ${logoHtml ? `<div style="padding-top: 6px;">${logoHtml}</div>` : ''}
           </td>
-          ` : ''}
+          ` : (logoHtml ? `
+          <td valign="top" style="padding-right: 14px; width: ${d.logoSize || 70}px; vertical-align: top;">
+            ${logoHtml}
+          </td>
+          ` : '')}
           <td valign="top" style="vertical-align: top;">
             <div class="sig-dark-name" style="font-size: ${s.nameFontSize || 17}px; font-weight: ${s.nameFontWeight || 'bold'}; color: ${s.nameColor}; line-height: 1.25;">
               ${d.fullName}
@@ -536,6 +583,20 @@ const SignatureEngine = {
       </table>
     </td>
   </tr>
+  ${promoBannerHtml ? `
+  <tr>
+    <td valign="top" style="padding-top: 10px; vertical-align: top;">
+      ${promoBannerHtml}
+    </td>
+  </tr>
+  ` : ''}
+  ${quoteHtml ? `
+  <tr>
+    <td valign="top" style="padding-top: 8px; vertical-align: top;">
+      ${quoteHtml}
+    </td>
+  </tr>
+  ` : ''}
   ${disclaimerHtml ? `
   <tr>
     <td valign="top" style="padding-top: 8px; vertical-align: top;">
@@ -553,9 +614,12 @@ const SignatureEngine = {
    */
   renderMinimalLeft(d, s) {
     const avatarHtml = this.renderAvatarHtml(d, s);
+    const logoHtml = this.renderLogoHtml(d, s);
     const textDetailsHtml = this.renderDetailsBlock(d, s);
     const socialIconsHtml = this.renderSocialsRow(d, s);
     const ctaHtml = this.renderCtaButton(d, s);
+    const promoBannerHtml = this.renderPromoBanner(d, s);
+    const quoteHtml = this.renderQuote(d, s);
     const disclaimerHtml = this.renderDisclaimers(d, s);
 
     return `
@@ -571,8 +635,11 @@ const SignatureEngine = {
         ${d.jobTitle}${d.company ? ` &bull; ${d.company}` : ''}
       </div>
       ${textDetailsHtml}
+      ${logoHtml ? `<div style="padding-top: 6px;">${logoHtml}</div>` : ''}
       ${socialIconsHtml ? `<div style="padding-top: 6px;">${socialIconsHtml}</div>` : ''}
       ${ctaHtml ? `<div style="padding-top: 6px;">${ctaHtml}</div>` : ''}
+      ${promoBannerHtml ? `<div style="padding-top: 10px;">${promoBannerHtml}</div>` : ''}
+      ${quoteHtml ? `<div style="padding-top: 8px;">${quoteHtml}</div>` : ''}
       ${disclaimerHtml ? `<div style="padding-top: 8px;">${disclaimerHtml}</div>` : ''}
     </td>
   </tr>
@@ -587,6 +654,7 @@ const SignatureEngine = {
   renderCompactInline(d, s) {
     const avatarHtml = this.renderAvatarHtml(d, s);
     const socialIconsHtml = this.renderSocialsRow(d, s);
+    const quoteHtml = this.renderQuote(d, s);
 
     return `
 <!-- Email Signature Start -->
@@ -605,6 +673,13 @@ const SignatureEngine = {
       ${socialIconsHtml ? `<div style="padding-top: 4px;">${socialIconsHtml}</div>` : ''}
     </td>
   </tr>
+  ${quoteHtml ? `
+  <tr>
+    <td colspan="2" valign="top" style="padding-top: 6px; vertical-align: top;">
+      ${quoteHtml}
+    </td>
+  </tr>
+  ` : ''}
 </table>
 <!-- Email Signature End -->
 `.trim();
@@ -633,7 +708,24 @@ const SignatureEngine = {
   },
 
   /**
-   * Render Text Details Block (Phone, Email, Web, Address)
+   * Render Company / Brand Logo (Independent sizing & shape)
+   */
+  renderLogoHtml(d, s) {
+    if (!d.showLogo || !d.logoUrl) return '';
+
+    const size = Number(d.logoSize) || 70;
+    let borderRadius = '0px';
+    if (d.logoShape === 'circle') borderRadius = '50%';
+    else if (d.logoShape === 'rounded') borderRadius = '8px';
+    else if (d.logoShape === 'squircle') borderRadius = '18%';
+
+    return `
+<img src="${d.logoUrl}" alt="${d.company || 'Company Logo'}" width="${size}" border="0" style="display: block; width: ${size}px; max-width: ${size}px; height: auto; border-radius: ${borderRadius}; border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; image-rendering: -webkit-optimize-contrast;" />
+`.trim();
+  },
+
+  /**
+   * Render Text Details Block with Dynamic Custom Key-Value Rows
    */
   renderDetailsBlock(d, s) {
     const rows = [];
@@ -652,7 +744,7 @@ const SignatureEngine = {
       rows.push(`<div style="line-height: 1.35; padding-bottom: 2px;">${label}<a href="mailto:${d.email}" class="sig-dark-link" style="${linkStyle}">${d.email}</a></div>`);
     }
 
-    // Website (Own dedicated row under E-mail)
+    // Website
     if (d.website) {
       const cleanWeb = d.website.replace(/^https?:\/\//, '');
       const label = s.showLabels !== false ? `<span class="sig-dark-label" style="${labelStyle}">${s.labelWebsite || 'Website:'}</span> ` : '';
@@ -662,7 +754,18 @@ const SignatureEngine = {
     // Address & Country
     if (d.address) {
       const fullAddress = d.country ? `${d.address} <span style="color: #94A3B8; margin: 0 4px;">|</span> ${d.country}` : d.address;
-      rows.push(`<div class="sig-dark-body" style="color: ${s.bodyColor}; font-size: ${s.bodyFontSize - 0.5}px; line-height: 1.35;">${fullAddress}</div>`);
+      rows.push(`<div class="sig-dark-body" style="color: ${s.bodyColor}; font-size: ${s.bodyFontSize - 0.5}px; line-height: 1.35; padding-bottom: 2px;">${fullAddress}</div>`);
+    }
+
+    // Dynamic Custom Key-Value Fields (e.g. Pronouns, Working Hours, Calendly)
+    if (Array.isArray(d.customFields) && d.customFields.length > 0) {
+      d.customFields.forEach(field => {
+        if (!field || !field.label || !field.value) return;
+        const valContent = field.url
+          ? `<a href="${field.url}" class="sig-dark-link" target="_blank" style="${linkStyle}">${field.value}</a>`
+          : field.value;
+        rows.push(`<div style="line-height: 1.35; padding-bottom: 2px;"><span class="sig-dark-label" style="${labelStyle}">${field.label}:</span> <span class="sig-dark-body" style="color: ${s.bodyColor};">${valContent}</span></div>`);
+      });
     }
 
     return rows.join('');
@@ -683,6 +786,14 @@ const SignatureEngine = {
       return url;
     }
     switch (id) {
+      case 'orcid':
+        return url.startsWith('http') ? url : `https://orcid.org/${url.replace(/^https?:\/\/orcid\.org\//, '')}`;
+      case 'googleScholar':
+        return url.startsWith('http') ? url : `https://scholar.google.com/citations?user=${url}`;
+      case 'researchGate':
+        return url.startsWith('http') ? url : `https://www.researchgate.net/profile/${url}`;
+      case 'calendly':
+        return url.startsWith('http') ? url : `https://calendly.com/${url.replace(/^https?:\/\/calendly\.com\//, '')}`;
       case 'phone':
         return `tel:${url.replace(/[^0-9+]/g, '')}`;
       case 'email':
@@ -756,7 +867,6 @@ const SignatureEngine = {
         }
       }
 
-      // High-DPI PNG Data URI with Canvas fallback
       const dataUri = Icons.getIconDataUri(item.id, fillColor, iconSize);
       const paddingRight = index === activeSocials.length - 1 ? '0' : `${spacing}px`;
       const imgClass = (styleType === 'brand' && this.getLuminance(meta.color) < 0.35) ? 'sig-dark-invert' : '';
@@ -814,24 +924,61 @@ const SignatureEngine = {
   },
 
   /**
+   * Render Promotional Campaign Banner
+   */
+  renderPromoBanner(d, s) {
+    if (!d.promoBanner || !d.promoBanner.enabled || !d.promoBanner.imageUrl) return '';
+    const banner = d.promoBanner;
+    const bannerImg = `<img src="${banner.imageUrl}" alt="${banner.alt || 'Promotional Banner'}" width="420" border="0" style="display: block; width: 100%; max-width: 420px; height: auto; border-radius: 6px; border: 0; outline: none; text-decoration: none;" />`;
+
+    if (banner.targetUrl) {
+      return `<a href="${banner.targetUrl}" target="_blank" style="display: block; text-decoration: none; border: 0;">${bannerImg}</a>`;
+    }
+    return bannerImg;
+  },
+
+  /**
    * Render Environmental & Legal Disclaimers
    */
   renderDisclaimers(d, s) {
     const blocks = [];
     if (d.showGreenNote && d.greenNoteText) {
+      const ecoColor = s.greenNoteColor || (s.isDarkModeActive ? '#4ADE80' : '#15803D');
       blocks.push(`
-<div style="font-size: 11px; color: ${s.isDarkModeActive ? '#4ADE80' : '#15803D'}; line-height: 1.3; padding-bottom: 4px;">
+<div style="font-size: 11px; color: ${ecoColor}; line-height: 1.3; padding-bottom: 4px;">
   [Eco Note] ${d.greenNoteText}
 </div>
       `.trim());
     }
     if (d.showDisclaimer && d.disclaimerText) {
+      const discColor = s.disclaimerColor || (s.isDarkModeActive ? '#94A3B8' : '#94A3B8');
       blocks.push(`
-<div class="sig-dark-body" style="font-size: 10.5px; color: #94A3B8; line-height: 1.3; font-style: italic;">
+<div class="sig-dark-disclaimer" style="font-size: 10.5px; color: ${discColor}; line-height: 1.3; font-style: italic;">
   ${d.disclaimerText}
 </div>
       `.trim());
     }
     return blocks.join('');
+  },
+
+  /**
+   * Render Inspirational Quote Block
+   */
+  renderQuote(d, s) {
+    if (!d.showQuote || !d.quoteText || !d.quoteText.trim()) return '';
+    const quoteBorderColor = s.dividerColor || s.accentColor || '#00DC82';
+    const quoteTextColor = s.quoteColor || (s.isDarkModeActive ? '#D4D4D8' : '#475569');
+    if (typeof Quotes !== 'undefined' && Quotes.renderQuoteHtml) {
+      return Quotes.renderQuoteHtml(d.quoteText, quoteBorderColor, s.isDarkModeActive, s.fontFamily, quoteTextColor);
+    }
+    return `
+<table cellpadding="0" cellspacing="0" border="0" class="sig-quote-table" style="border-collapse: collapse; margin-top: 8px; max-width: 480px; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+  <tr>
+    <td class="sig-dark-quote" style="border-left: 2px solid ${quoteBorderColor}; padding-left: 10px; font-family: ${s.fontFamily || 'sans-serif'}; font-size: 11px; font-style: italic; color: ${quoteTextColor}; line-height: 1.4; vertical-align: top;">
+      &ldquo;${d.quoteText}&rdquo;
+    </td>
+  </tr>
+</table>
+    `.trim();
   }
 };

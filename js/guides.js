@@ -74,10 +74,15 @@ const InstallationGuides = {
    * Render guide modal HTML
    */
   renderGuideModal(clientKey = 'gmail') {
-    const guide = this.clients[clientKey] || this.clients.gmail;
+    const keyMap = {
+      'apple': 'appleMail',
+      'outlook': 'outlookWeb'
+    };
+    const resolvedKey = keyMap[clientKey] || clientKey;
+    const guide = this.clients[resolvedKey] || this.clients.gmail;
     
     const navItems = Object.keys(this.clients).map(key => {
-      const active = key === clientKey ? 'active' : '';
+      const active = key === resolvedKey ? 'active' : '';
       return `<button class="guide-nav-btn ${active}" data-client="${key}">${this.clients[key].name}</button>`;
     }).join('');
 
@@ -102,8 +107,8 @@ const InstallationGuides = {
             <span class="sahinur-prompt-prefix">$</span>
             <span>docs/setup-guide.md &bull; ${guide.name}</span>
           </div>
-          <button class="modal-close-btn" id="closeGuideBtn" title="Close">
-            ${Icons.ui.close}
+          <button class="modal-close-btn" id="closeGuideModalInnerBtn" title="Close">
+            ${(typeof Icons !== 'undefined' && Icons.ui) ? Icons.ui.close : '&times;'}
           </button>
         </div>
         <div class="guide-modal-body">
@@ -111,7 +116,7 @@ const InstallationGuides = {
             ${navItems}
           </div>
           <div class="guide-detail-card">
-            <h3 class="guide-client-title"><span class="sahinur-prompt-prefix">&gt;</span>${guide.name}</h3>
+            <h3 class="guide-client-title"><span class="sahinur-prompt-prefix">&gt;</span> ${guide.name}</h3>
             <div class="guide-steps-container">
               ${stepsList}
             </div>
@@ -122,5 +127,52 @@ const InstallationGuides = {
         </div>
       </div>
     `;
+  },
+
+  /**
+   * Open the installation guide modal and bind tab clicks
+   */
+  openGuideModal(clientKey = 'gmail') {
+    const modalContainer = document.getElementById('guideModalContainer');
+    const modalOverlay = document.getElementById('guideModalOverlay');
+    if (!modalContainer || !modalOverlay) return;
+
+    modalContainer.innerHTML = this.renderGuideModal(clientKey);
+    modalOverlay.classList.add('active');
+
+    // Bind tab navigation buttons
+    modalContainer.querySelectorAll('.guide-nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.openGuideModal(btn.dataset.client);
+      });
+    });
+
+    // Bind close button
+    const closeBtn = document.getElementById('closeGuideModalInnerBtn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        modalOverlay.classList.remove('active');
+      });
+    }
+
+    // Bind overlay backdrop click to close
+    modalOverlay.onclick = (e) => {
+      if (e.target === modalOverlay) {
+        modalOverlay.classList.remove('active');
+      }
+    };
   }
 };
+
+// Universal environment exports
+if (typeof window !== 'undefined') {
+  window.InstallationGuides = InstallationGuides;
+  window.Guides = InstallationGuides;
+}
+if (typeof globalThis !== 'undefined') {
+  globalThis.InstallationGuides = InstallationGuides;
+  globalThis.Guides = InstallationGuides;
+}
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = InstallationGuides;
+}
