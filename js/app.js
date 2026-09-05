@@ -1801,15 +1801,7 @@ const App = {
         btn.classList.add('active');
         const shape = btn.dataset.shape;
         this.state.settings.avatarShape = shape;
-        if (typeof ImageProcessor !== 'undefined') {
-          ImageProcessor.config.shape = shape;
-          ImageProcessor.process((dataUrl) => {
-            this.state.data.avatarUrl = dataUrl;
-            this.updateLivePreview();
-          });
-        } else {
-          this.updateLivePreview();
-        }
+        this.updateLivePreview();
       });
     });
 
@@ -1858,15 +1850,7 @@ const App = {
         this.state.settings.avatarBorderWidth = val;
         const valBadge = document.getElementById('avatarBorderVal');
         if (valBadge) valBadge.textContent = `${val}px`;
-        if (typeof ImageProcessor !== 'undefined') {
-          ImageProcessor.config.borderWidth = val;
-          ImageProcessor.process((dataUrl) => {
-            this.state.data.avatarUrl = dataUrl;
-            this.updateLivePreview();
-          });
-        } else {
-          this.updateLivePreview();
-        }
+        this.updateLivePreview();
       });
     }
 
@@ -1876,27 +1860,13 @@ const App = {
       avatarBorderColor.addEventListener('input', (e) => {
         avatarBorderColorHex.value = e.target.value;
         this.state.settings.avatarBorderColor = e.target.value;
-        if (typeof ImageProcessor !== 'undefined') {
-          ImageProcessor.config.borderColor = e.target.value;
-          ImageProcessor.process((dataUrl) => {
-            this.state.data.avatarUrl = dataUrl;
-            this.updateLivePreview();
-          });
-        } else {
-          this.updateLivePreview();
-        }
+        this.updateLivePreview();
       });
       avatarBorderColorHex.addEventListener('input', (e) => {
         if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
           avatarBorderColor.value = e.target.value;
           this.state.settings.avatarBorderColor = e.target.value;
-          if (typeof ImageProcessor !== 'undefined') {
-            ImageProcessor.config.borderColor = e.target.value;
-            ImageProcessor.process((dataUrl) => {
-              this.state.data.avatarUrl = dataUrl;
-              this.updateLivePreview();
-            });
-          }
+          this.updateLivePreview();
         }
       });
     }

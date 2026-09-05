@@ -81,7 +81,7 @@ const ImageProcessor = {
   },
 
   /**
-   * Process raw image onto High-DPI canvas with shapes, borders, and filters
+   * Process raw image onto High-DPI canvas with high quality scaling, zoom, and filters
    */
   process(callback) {
     if (!this.rawImage) {
@@ -90,7 +90,7 @@ const ImageProcessor = {
     }
 
     const dpi = Number(this.config.dpi) || 2;
-    const displaySize = Number(this.config.size) || 100;
+    const displaySize = Number(this.config.size) || 85;
     const physicalSize = Math.round(displaySize * dpi);
 
     const canvas = document.createElement('canvas');
@@ -110,21 +110,17 @@ const ImageProcessor = {
 
     // Calculate crop and position
     const img = this.rawImage;
-    const zoom = Number(this.config.zoom) || 1.0;
+    const zoom = Math.max(1.0, Number(this.config.zoom) || 1.0);
     const minDim = Math.min(img.width, img.height);
     const srcSize = minDim / zoom;
-    const srcX = (img.width - srcSize) / 2 + (this.config.offsetX || 0);
-    const srcY = (img.height - srcSize) / 2 + (this.config.offsetY || 0);
+    const srcX = Math.max(0, Math.min(img.width - srcSize, (img.width - srcSize) / 2 + (this.config.offsetX || 0)));
+    const srcY = Math.max(0, Math.min(img.height - srcSize, (img.height - srcSize) / 2 + (this.config.offsetY || 0)));
 
-    // Shape Clipping Path
-    ctx.save();
-    this.applyShapeClip(ctx, physicalSize, this.config.shape);
-    
-    // Draw cropped image
+    // Draw full-bleed cropped image edge-to-edge
     ctx.drawImage(
       img,
-      Math.max(0, Math.min(img.width - srcSize, srcX)),
-      Math.max(0, Math.min(img.height - srcSize, srcY)),
+      srcX,
+      srcY,
       srcSize,
       srcSize,
       0,
@@ -132,20 +128,9 @@ const ImageProcessor = {
       physicalSize,
       physicalSize
     );
-    ctx.restore();
 
-    // Reset filter for border
+    // Reset filter
     ctx.filter = 'none';
-
-    // Draw border if requested
-    const borderWidth = (Number(this.config.borderWidth) || 0) * dpi;
-    if (borderWidth > 0) {
-      ctx.save();
-      ctx.lineWidth = borderWidth;
-      ctx.strokeStyle = this.config.borderColor || '#2563EB';
-      this.drawShapeBorder(ctx, physicalSize, borderWidth, this.config.shape);
-      ctx.restore();
-    }
 
     this.processedDataUrl = canvas.toDataURL('image/png', 0.95);
     if (callback) callback(this.processedDataUrl);
