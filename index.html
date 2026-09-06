@@ -1203,6 +1203,13 @@
         });
       }
     });
+
+    // Register Progressive Web App (PWA) Offline Service Worker
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+      navigator.serviceWorker.register('./sw.js')
+        .then((reg) => console.log('MailCraft PWA Service Worker Registered:', reg.scope))
+        .catch((err) => console.warn('PWA Service Worker Registration Failed:', err));
+    }
   </script>
 </body>
 </html>
