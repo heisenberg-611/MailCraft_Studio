@@ -93,13 +93,13 @@
     gradients: GRADIENTS,
 
     /**
-     * Render banner to HTML Canvas at 2x DPI
+     * Render banner to HTML Canvas at 2x DPI with compact email-proportioned layout
      */
     renderToCanvas(canvas, config = {}) {
       if (!canvas) return;
 
-      const width = config.width || 640;
-      const height = config.height || 144;
+      const width = config.width || 440;
+      const height = config.height || 80;
       const dpi = config.dpi || 2;
 
       canvas.width = width * dpi;
@@ -128,7 +128,7 @@
       grad.addColorStop(1, bg2);
 
       // Rounded rectangle banner container
-      const radius = config.borderRadius !== undefined ? config.borderRadius : 8;
+      const radius = config.borderRadius !== undefined ? config.borderRadius : 6;
       ctx.beginPath();
       if (typeof ctx.roundRect === 'function') {
         ctx.roundRect(0, 0, width, height, radius);
@@ -140,13 +140,13 @@
 
       // Border outline
       ctx.lineWidth = 1;
-      ctx.strokeStyle = config.borderColor || 'rgba(255, 255, 255, 0.14)';
+      ctx.strokeStyle = config.borderColor || 'rgba(255, 255, 255, 0.12)';
       ctx.stroke();
 
       // Subtle cyber grid / accent lines
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.035)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
       ctx.lineWidth = 1;
-      for (let x = 32; x < width; x += 32) {
+      for (let x = 24; x < width; x += 24) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
         ctx.lineTo(x, height);
@@ -156,36 +156,27 @@
       // Decorative accent indicator bar on top
       const accent = config.accentColor || '#00DC82';
       ctx.fillStyle = accent;
-      ctx.fillRect(20, 0, 75, 3.5);
+      ctx.fillRect(16, 0, 48, 2.5);
 
-      const paddingLeft = 24;
-      let curY = 30;
-
-      // 2. Eyebrow Tag Chip
-      if (config.tag) {
-        ctx.font = '700 10.5px "JetBrains Mono", "Courier New", Consolas, monospace';
-        const tagText = `// ${config.tag.toUpperCase()}`;
-        ctx.fillStyle = accent;
-        ctx.fillText(tagText, paddingLeft, curY);
-        curY += 24;
-      }
+      const paddingLeft = 16;
+      let curY = 17;
 
       // Calculate CTA button dimensions first to know available text width
-      let maxTextWidth = width - paddingLeft - 24;
+      let maxTextWidth = width - paddingLeft - 16;
       let ctaBtnInfo = null;
 
       if (config.ctaText) {
         const ctaText = config.ctaText;
-        ctx.font = '600 12.5px "Geist", "Segoe UI", -apple-system, sans-serif';
+        ctx.font = '600 11px "Geist", "Segoe UI", -apple-system, sans-serif';
         const metrics = ctx.measureText(ctaText);
-        const btnPaddingX = 16;
-        const btnWidth = Math.max(metrics.width + (btnPaddingX * 2), 110);
-        const btnHeight = 34;
-        const btnX = width - btnWidth - 24;
+        const btnPaddingX = 12;
+        const btnWidth = Math.max(metrics.width + (btnPaddingX * 2), 92);
+        const btnHeight = 26;
+        const btnX = width - btnWidth - 14;
         const btnY = (height - btnHeight) / 2;
 
         ctaBtnInfo = { text: ctaText, x: btnX, y: btnY, w: btnWidth, h: btnHeight };
-        maxTextWidth = btnX - paddingLeft - 20;
+        maxTextWidth = btnX - paddingLeft - 14;
       }
 
       // Helper to truncate text to fit width
@@ -199,18 +190,29 @@
         return truncated + '...';
       };
 
-      // 3. Headline Text
+      // 2. Eyebrow Tag Chip
+      if (config.tag) {
+        ctx.font = '700 9px "JetBrains Mono", "Courier New", Consolas, monospace';
+        const tagText = `// ${config.tag.toUpperCase()}`;
+        ctx.fillStyle = accent;
+        ctx.fillText(tagText, paddingLeft, curY);
+        curY += 15;
+      } else {
+        curY = 24;
+      }
+
+      // 3. Headline Title Text
       const rawTitle = config.title || 'Special Announcement';
-      ctx.font = '700 18px "Geist", "Segoe UI", -apple-system, sans-serif';
+      ctx.font = '700 13px "Geist", "Segoe UI", -apple-system, sans-serif';
       ctx.fillStyle = config.textColor || '#FFFFFF';
       const fittedTitle = fitText(rawTitle, maxTextWidth);
       ctx.fillText(fittedTitle, paddingLeft, curY);
-      curY += 23;
+      curY += 15;
 
       // 4. Subtitle Text
       const rawSubtitle = config.subtitle || '';
       if (rawSubtitle) {
-        ctx.font = '400 12px "Geist", "Segoe UI", -apple-system, sans-serif';
+        ctx.font = '400 10px "Geist", "Segoe UI", -apple-system, sans-serif';
         ctx.fillStyle = config.subtextColor || '#94A3B8';
         const fittedSub = fitText(rawSubtitle, maxTextWidth);
         ctx.fillText(fittedSub, paddingLeft, curY);
@@ -218,10 +220,10 @@
 
       // 5. Call to Action Button Pill
       if (ctaBtnInfo) {
-        // Button background with subtle shadow
+        // Button background
         ctx.beginPath();
         if (typeof ctx.roundRect === 'function') {
-          ctx.roundRect(ctaBtnInfo.x, ctaBtnInfo.y, ctaBtnInfo.w, ctaBtnInfo.h, 6);
+          ctx.roundRect(ctaBtnInfo.x, ctaBtnInfo.y, ctaBtnInfo.w, ctaBtnInfo.h, 4);
         } else {
           ctx.rect(ctaBtnInfo.x, ctaBtnInfo.y, ctaBtnInfo.w, ctaBtnInfo.h);
         }
@@ -229,11 +231,11 @@
         ctx.fill();
 
         // Button text
-        ctx.font = '600 12.5px "Geist", "Segoe UI", -apple-system, sans-serif';
+        ctx.font = '600 11px "Geist", "Segoe UI", -apple-system, sans-serif';
         ctx.fillStyle = config.ctaTextColor || (this.isLightColor(accent) ? '#090D16' : '#FFFFFF');
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(ctaBtnInfo.text, ctaBtnInfo.x + (ctaBtnInfo.w / 2), ctaBtnInfo.y + (ctaBtnInfo.h / 2) + 1);
+        ctx.fillText(ctaBtnInfo.text, ctaBtnInfo.x + (ctaBtnInfo.w / 2), ctaBtnInfo.y + (ctaBtnInfo.h / 2) + 0.5);
 
         // Reset text alignment
         ctx.textAlign = 'left';
@@ -252,20 +254,43 @@
     },
 
     /**
-     * Generate PNG Data URL from banner configuration
+     * Smart High-DPI Compression for Email Delivery:
+     * Converts canvas to lightweight JPEG (~8-15KB instead of 300KB+ PNG)
+     * Keeps total signature HTML well under Gmail's 102KB limit
      */
-    generateBannerDataUrl(config = {}) {
-      if (typeof document === 'undefined') return '';
-      const canvas = document.createElement('canvas');
-      this.renderToCanvas(canvas, config);
-      return canvas.toDataURL('image/png');
+    compressCanvas(canvas, options = {}) {
+      if (!canvas) return '';
+      const quality = options.quality || 0.86;
+      let dataUrl = canvas.toDataURL('image/jpeg', quality);
+
+      // If payload still exceeds 20KB, calibrate quality down
+      if (dataUrl.length > 27000) {
+        dataUrl = canvas.toDataURL('image/jpeg', 0.80);
+      }
+      if (dataUrl.length > 35000) {
+        dataUrl = canvas.toDataURL('image/jpeg', 0.74);
+      }
+      return dataUrl;
     },
 
     /**
-     * Trigger PNG Download of generated banner
+     * Generate lightweight Data URL from banner configuration
+     */
+    generateBannerDataUrl(config = {}, options = {}) {
+      if (typeof document === 'undefined') return '';
+      const canvas = document.createElement('canvas');
+      this.renderToCanvas(canvas, config);
+      return this.compressCanvas(canvas, options);
+    },
+
+    /**
+     * Trigger PNG Download of generated banner (hires for external graphic use)
      */
     downloadBannerPng(config = {}, filename = 'promo-banner') {
-      const dataUrl = this.generateBannerDataUrl(config);
+      if (typeof document === 'undefined') return '';
+      const canvas = document.createElement('canvas');
+      this.renderToCanvas(canvas, config);
+      const dataUrl = canvas.toDataURL('image/png');
       if (!dataUrl) return;
       const link = document.createElement('a');
       link.href = dataUrl;

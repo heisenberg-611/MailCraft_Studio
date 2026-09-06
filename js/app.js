@@ -1272,19 +1272,19 @@ const App = {
       });
     }
 
-    // Promo Banner Image Upload
+    // Promo Banner Image Upload (Auto-optimized for Gmail <102KB limit)
     const promoBannerFileInput = document.getElementById('promoBannerFileInput');
     if (promoBannerFileInput) {
       promoBannerFileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file && typeof ImageProcessor !== 'undefined') {
-          ImageProcessor.processGenericImage(file, { maxWidth: 840 }, (dataUrl) => {
+          ImageProcessor.processBannerImage(file, { maxWidth: 800, maxHeight: 180 }, (dataUrl) => {
             if (!this.state.data.promoBanner) {
               this.state.data.promoBanner = { enabled: true, imageUrl: '', targetUrl: '', alt: '' };
             }
             this.state.data.promoBanner.imageUrl = dataUrl;
             this.updateLivePreview();
-            this.showToast('Uploaded promo banner image!', 'success');
+            this.showToast('Uploaded & optimized promo banner for Gmail!', 'success');
           });
         }
       });
@@ -1983,7 +1983,10 @@ const App = {
       applyBtn.addEventListener('click', () => {
         const canvas = document.getElementById('bannerCanvas');
         if (canvas) {
-          const dataUrl = canvas.toDataURL('image/png');
+          const dataUrl = (typeof BannerBuilder !== 'undefined' && typeof BannerBuilder.compressCanvas === 'function')
+            ? BannerBuilder.compressCanvas(canvas)
+            : canvas.toDataURL('image/jpeg', 0.86);
+
           if (!this.state.data.promoBanner) {
             this.state.data.promoBanner = { enabled: true, imageUrl: '', targetUrl: '', alt: '' };
           }
@@ -1997,7 +2000,7 @@ const App = {
 
           this.updateLivePreview();
           if (modal) modal.classList.remove('active');
-          this.showToast('Inserted custom promotional banner into signature!', 'success');
+          this.showToast('Inserted lightweight promo banner into signature!', 'success');
         }
       });
     }

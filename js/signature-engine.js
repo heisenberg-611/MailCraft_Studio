@@ -1462,7 +1462,7 @@ const SignatureEngine = {
   renderPromoBanner(d, s) {
     if (!d.promoBanner || !d.promoBanner.enabled || !d.promoBanner.imageUrl) return '';
     const banner = d.promoBanner;
-    const bannerImg = `<img src="${banner.imageUrl}" alt="${banner.alt || 'Promotional Banner'}" width="420" border="0" style="display: block; width: 100%; max-width: 420px; height: auto; border-radius: 6px; border: 0; outline: none; text-decoration: none;" />`;
+    const bannerImg = `<img src="${banner.imageUrl}" alt="${banner.alt || 'Promotional Banner'}" width="380" border="0" style="display: block; width: 100%; max-width: 380px; height: auto; border-radius: 5px; border: 0; outline: none; text-decoration: none;" />`;
 
     if (banner.targetUrl) {
       return `<a href="${banner.targetUrl}" target="_blank" style="display: block; text-decoration: none; border: 0;">${bannerImg}</a>`;

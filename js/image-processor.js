@@ -274,7 +274,7 @@ const ImageProcessor = {
   },
 
   /**
-   * Process generic image (Logo or Promo Banner) with optional shape and scaling
+   * Process generic image (Logo or Graphic) with optional shape and scaling
    */
   processGenericImage(file, options = {}, callback) {
     if (!file) return;
@@ -305,11 +305,67 @@ const ImageProcessor = {
         const hasAlpha = ImageProcessor.detectTransparency(canvas, ctx);
         let dataUrl;
         if (!hasAlpha) {
-          dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+          dataUrl = canvas.toDataURL('image/jpeg', 0.86);
         } else {
-          const webp = canvas.toDataURL('image/webp', 0.88);
+          const webp = canvas.toDataURL('image/webp', 0.86);
           const png = canvas.toDataURL('image/png');
           dataUrl = (webp && webp.startsWith('data:image/webp') && webp.length < png.length) ? webp : png;
+        }
+
+        if (callback) callback(dataUrl);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  },
+
+  /**
+   * Process Promotional Campaign Banner images specifically for Gmail 102KB safety
+   * Limits dimensions to max 800x180px and applies calibrated high-DPI compression (<18KB payload)
+   */
+  processBannerImage(file, options = {}, callback) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const maxWidth = options.maxWidth || 800;
+        const maxHeight = options.maxHeight || 180;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth || height > maxHeight) {
+          const ratio = Math.min(maxWidth / width, maxHeight / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const hasAlpha = ImageProcessor.detectTransparency(canvas, ctx);
+        let dataUrl;
+        if (!hasAlpha) {
+          let quality = 0.85;
+          dataUrl = canvas.toDataURL('image/jpeg', quality);
+          if (dataUrl.length > 25000) {
+            dataUrl = canvas.toDataURL('image/jpeg', 0.80);
+          }
+          if (dataUrl.length > 32000) {
+            dataUrl = canvas.toDataURL('image/jpeg', 0.74);
+          }
+        } else {
+          const webp = canvas.toDataURL('image/webp', 0.84);
+          const png = canvas.toDataURL('image/png');
+          dataUrl = (webp && webp.startsWith('data:image/webp') && webp.length < png.length) ? webp : png;
+          if (dataUrl.length > 35000) {
+            dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+          }
         }
 
         if (callback) callback(dataUrl);
