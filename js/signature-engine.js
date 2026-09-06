@@ -679,29 +679,59 @@ const SignatureEngine = {
   renderCompactInline(d, s) {
     const avatarHtml = this.renderAvatarHtml(d, s);
     const socialIconsHtml = this.renderSocialsRow(d, s);
+    const statusBadgeHtml = this.renderStatusBadgeHtml(d, s);
+    const bookingBadgeHtml = this.renderBookingBadgeHtml(d, s);
+    const qrHtml = this.renderQrCodeHtml(d, s);
+    const promoBannerHtml = this.renderPromoBanner(d, s);
     const quoteHtml = this.renderQuote(d, s);
+    const disclaimerHtml = this.renderDisclaimers(d, s);
 
     return `
 <!-- Email Signature Start -->
 <table cellpadding="0" cellspacing="0" border="0" class="sig-table" style="margin: 0; padding: 0; font-family: ${s.fontFamily}; font-size: ${s.bodyFontSize}px; line-height: 1.35; color: ${s.bodyColor}; background-color: transparent; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
   <tr>
-    ${avatarHtml ? `<td valign="middle" style="padding-right: 10px;">${avatarHtml}</td>` : ''}
-    <td valign="middle">
-      <span class="sig-dark-name" style="font-size: ${s.nameFontSize || 17}px; font-weight: ${s.nameFontWeight || 'bold'}; color: ${s.nameColor};">${d.fullName}</span>
+    ${avatarHtml ? `<td valign="middle" style="padding-right: 10px; vertical-align: middle;">${avatarHtml}</td>` : ''}
+    <td valign="middle" style="vertical-align: middle;">
+      ${this.renderNameHtml(d, s)}
       <span style="color: #94A3B8; margin: 0 4px;">|</span>
-      <span class="sig-dark-title" style="color: ${s.titleColor}; font-size: ${s.titleFontSize || 13}px;">${d.jobTitle}${d.company ? `, ${d.company}` : ''}</span>
+      ${this.renderTitleHtml(d, s)}
+      ${statusBadgeHtml ? `<div style="padding-top: 3px;">${statusBadgeHtml}</div>` : ''}
       <div class="sig-dark-body" style="font-size: ${s.bodyFontSize - 1}px; color: ${s.bodyColor}; padding-top: 2px;">
         ${d.phone ? `<span>${s.showLabels !== false ? `${s.labelPhone || 'Mobile:'} ` : ''}<a href="tel:${d.phone.replace(/[^0-9+]/g, '')}" class="sig-dark-link" style="color: ${s.linkColor}; text-decoration: none;">${d.phone}</a></span>` : ''}
         ${d.email ? `<span style="color: #CBD5E1; margin: 0 4px;">&bull;</span><span>${s.showLabels !== false ? `${s.labelEmail || 'E-mail:'} ` : ''}<a href="mailto:${d.email}" class="sig-dark-link" style="color: ${s.linkColor}; text-decoration: none;">${d.email}</a></span>` : ''}
         ${d.website ? `<span style="color: #CBD5E1; margin: 0 4px;">&bull;</span><span>${s.showLabels !== false ? `${s.labelWebsite || 'Website:'} ` : ''}<a href="https://${d.website.replace(/^https?:\/\//, '')}" class="sig-dark-link" style="color: ${s.linkColor}; text-decoration: none;">${d.website.replace(/^https?:\/\//, '')}</a></span>` : ''}
       </div>
-      ${socialIconsHtml ? `<div style="padding-top: 4px;">${socialIconsHtml}</div>` : ''}
+      ${(socialIconsHtml || bookingBadgeHtml) ? `
+      <div style="padding-top: 4px;">
+        ${socialIconsHtml}
+        ${bookingBadgeHtml ? `<div style="padding-top: 4px;">${bookingBadgeHtml}</div>` : ''}
+      </div>
+      ` : ''}
+    </td>
+    ${qrHtml ? `
+    <td valign="middle" align="right" style="padding-left: 12px; vertical-align: middle;">
+      ${qrHtml}
+    </td>
+    ` : ''}
+  </tr>
+  ${promoBannerHtml ? `
+  <tr>
+    <td colspan="3" valign="top" style="padding-top: 8px; vertical-align: top;">
+      ${promoBannerHtml}
     </td>
   </tr>
+  ` : ''}
   ${quoteHtml ? `
   <tr>
-    <td colspan="2" valign="top" style="padding-top: 6px; vertical-align: top;">
+    <td colspan="3" valign="top" style="padding-top: 6px; vertical-align: top;">
       ${quoteHtml}
+    </td>
+  </tr>
+  ` : ''}
+  ${disclaimerHtml ? `
+  <tr>
+    <td colspan="3" valign="top" style="padding-top: 6px; vertical-align: top;">
+      ${disclaimerHtml}
     </td>
   </tr>
   ` : ''}
@@ -889,6 +919,9 @@ const SignatureEngine = {
    */
   renderMicroThread(d, s) {
     const socialIconsHtml = this.renderSocialsRow(d, s);
+    const statusBadgeHtml = this.renderStatusBadgeHtml(d, s);
+    const bookingBadgeHtml = this.renderBookingBadgeHtml(d, s);
+    const qrHtml = this.renderQrCodeHtml(d, s);
     const linkStyle = `color: ${s.linkColor || s.accentColor || '#0284C7'}; text-decoration: none;`;
 
     return `
@@ -903,13 +936,16 @@ const SignatureEngine = {
       ${d.phone ? `<span style="color: #CBD5E1; margin: 0 4px;">&bull;</span><span><a href="tel:${d.phone.replace(/[^0-9+]/g, '')}" class="sig-dark-link" style="${linkStyle}">${d.phone}</a></span>` : ''}
       ${d.email ? `<span style="color: #CBD5E1; margin: 0 4px;">&bull;</span><span><a href="mailto:${d.email}" class="sig-dark-link" style="${linkStyle}">${d.email}</a></span>` : ''}
       ${d.website ? `<span style="color: #CBD5E1; margin: 0 4px;">&bull;</span><span><a href="https://${d.website.replace(/^https?:\/\//, '')}" class="sig-dark-link" style="${linkStyle}">${d.website.replace(/^https?:\/\//, '')}</a></span>` : ''}
+      ${statusBadgeHtml ? `<div style="padding-top: 3px;">${statusBadgeHtml}</div>` : ''}
     </td>
   </tr>
-  ${socialIconsHtml ? `
+  ${(socialIconsHtml || bookingBadgeHtml || qrHtml) ? `
   <tr>
     <td style="padding-right: 6px;"></td>
     <td style="padding-top: 3px;">
       ${socialIconsHtml}
+      ${bookingBadgeHtml ? `<div style="padding-top: 4px;">${bookingBadgeHtml}</div>` : ''}
+      ${qrHtml ? `<div style="padding-top: 6px;">${qrHtml}</div>` : ''}
     </td>
   </tr>
   ` : ''}
@@ -924,6 +960,7 @@ const SignatureEngine = {
   renderAsciiTerminal(d, s) {
     const avatarHtml = this.renderAvatarHtml(d, s);
     const socialIconsHtml = this.renderSocialsRow(d, s);
+    const statusBadgeHtml = this.renderStatusBadgeHtml(d, s);
     const bookingBadgeHtml = this.renderBookingBadgeHtml(d, s);
     const ctaHtml = this.renderCtaButton(d, s);
     const qrHtml = this.renderQrCodeHtml(d, s);
@@ -954,7 +991,11 @@ const SignatureEngine = {
             ${avatarHtml}
             ${qrHtml ? `<div style="padding-top: 6px;">${qrHtml}</div>` : ''}
           </td>
-          ` : ''}
+          ` : (qrHtml ? `
+          <td valign="top" style="padding-right: 12px; vertical-align: top;">
+            ${qrHtml}
+          </td>
+          ` : '')}
           <td valign="top" style="vertical-align: top; font-size: 11.5px; line-height: 1.4;">
             <div>
               <span style="color: ${termAccent}; font-weight: bold;">$ user:</span> 
@@ -964,6 +1005,7 @@ const SignatureEngine = {
               <span style="color: ${termAccent}; font-weight: bold;">$ role:</span> 
               <span class="sig-dark-title" style="color: #94A3B8;">${d.jobTitle}${d.company ? ` @ ${d.company}` : ''}</span>
             </div>
+            ${statusBadgeHtml ? `<div style="padding: 2px 0;">${statusBadgeHtml}</div>` : ''}
             ${d.phone ? `<div><span style="color: ${termAccent};">$ tel:</span> <a href="tel:${d.phone.replace(/[^0-9+]/g, '')}" class="sig-dark-link" style="color: ${s.linkColor || termAccent}; text-decoration: none;">${d.phone}</a></div>` : ''}
             ${d.email ? `<div><span style="color: ${termAccent};">$ mail:</span> <a href="mailto:${d.email}" class="sig-dark-link" style="color: ${s.linkColor || termAccent}; text-decoration: none;">${d.email}</a></div>` : ''}
             ${d.website ? `<div><span style="color: ${termAccent};">$ web:</span> <a href="https://${d.website.replace(/^https?:\/\//, '')}" class="sig-dark-link" style="color: ${s.linkColor || termAccent}; text-decoration: none;">${d.website.replace(/^https?:\/\//, '')}</a></div>` : ''}

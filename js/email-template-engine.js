@@ -33,11 +33,12 @@ const EmailTemplateEngine = {
       ctaUrl: 'https://www.dhrubojyoti.dev',
       showCta: true,
       closing: 'Best regards,',
-      footerNote: 'Sent from Dhrubojyoti Saha Portfolio Systems | Dhaka, Bangladesh'
+      footerNote: ''
     }, templateData);
 
-    const s = Object.assign({}, Presets.styles.dhrubojyoti.settings, signatureSettings);
-    const signatureHtml = SignatureEngine.generateHtml(signatureData, signatureSettings, isDark, isExport);
+    const defaultSettings = (typeof Presets !== 'undefined' && Presets.styles && Presets.styles.dhrubojyoti) ? Presets.styles.dhrubojyoti.settings : {};
+    const s = Object.assign({}, defaultSettings, signatureSettings);
+    const signatureHtml = typeof SignatureEngine !== 'undefined' ? SignatureEngine.generateHtml(signatureData, signatureSettings, isDark, isExport) : '';
 
     const baseAccentColor = s.accentColor || '#2563EB';
     const accentColor = isDark ? SignatureEngine.adjustColorForDark(baseAccentColor, 'accent') : baseAccentColor;
@@ -226,13 +227,15 @@ const EmailTemplateEngine = {
           </tr>
 
           <!-- Footer Bar -->
+          ${(t.footerNote && t.footerNote.trim()) ? `
           <tr>
             <td class="email-footer-bg" style="background-color: ${footerBg}; padding: 16px 28px; border-top: ${cardBorder}; text-align: center;">
               <div style="font-size: 11px; color: ${emailFooterColor}; line-height: 1.5;">
-                ${t.footerNote || 'Sent with High-Definition Email Studio'}
+                ${t.footerNote}
               </div>
             </td>
           </tr>
+          ` : ''}
 
         </table>
       </td>

@@ -43,7 +43,7 @@ const App = {
       showCta: true,
       closing: 'Best regards,',
       closingColor: '#64748B',
-      footerNote: 'Sent from Dhrubojyoti Saha Portfolio Systems | Dhaka, Bangladesh',
+      footerNote: '',
       footerTextColor: '#64748B'
     }
   },
@@ -97,6 +97,14 @@ const App = {
           this.applyUserPresetObject(found);
         }
       }
+    }
+
+    const requestedTemplate = urlParams.get('template') || urlParams.get('layout');
+    if (requestedTemplate) {
+      this.state.settings.template = requestedTemplate;
+      document.querySelectorAll('.template-card').forEach(card => {
+        card.classList.toggle('active', card.dataset.template === requestedTemplate);
+      });
     }
 
     // Initialize High-DPI canvas avatar with state settings synchronized
@@ -2056,6 +2064,15 @@ const App = {
       showStatus.addEventListener('change', (e) => {
         if (!this.state.data.statusBadge) this.state.data.statusBadge = {};
         this.state.data.statusBadge.enabled = e.target.checked;
+        this.state.data.showStatusBadge = e.target.checked;
+        const txtEl = document.getElementById('statusBadgeText');
+        if (txtEl && (!this.state.data.statusBadge.text || !this.state.data.statusBadge.text.trim())) {
+          this.state.data.statusBadge.text = txtEl.value || 'Available for Projects';
+        }
+        const colorEl = document.getElementById('statusBadgeColor');
+        if (colorEl && !this.state.data.statusBadge.color) {
+          this.state.data.statusBadge.color = colorEl.value || '#10B981';
+        }
         const grp = document.getElementById('statusBadgeGroup');
         if (grp) grp.style.display = e.target.checked ? 'flex' : 'none';
         this.updateLivePreview();
@@ -2109,6 +2126,19 @@ const App = {
       showBooking.addEventListener('change', (e) => {
         if (!this.state.data.bookingBadge) this.state.data.bookingBadge = {};
         this.state.data.bookingBadge.enabled = e.target.checked;
+        this.state.data.showBookingBadge = e.target.checked;
+        const txtEl = document.getElementById('bookingBadgeText');
+        if (txtEl && (!this.state.data.bookingBadge.text || !this.state.data.bookingBadge.text.trim())) {
+          this.state.data.bookingBadge.text = txtEl.value || 'Schedule 1:1 Call';
+        }
+        const urlEl = document.getElementById('bookingBadgeUrl');
+        if (urlEl && (!this.state.data.bookingBadge.url || !this.state.data.bookingBadge.url.trim())) {
+          this.state.data.bookingBadge.url = urlEl.value || 'https://calendly.com';
+        }
+        const provEl = document.getElementById('bookingProviderSelect');
+        if (provEl && !this.state.data.bookingBadge.provider) {
+          this.state.data.bookingBadge.provider = provEl.value || 'calendly';
+        }
         const grp = document.getElementById('bookingBadgeGroup');
         if (grp) grp.style.display = e.target.checked ? 'flex' : 'none';
         this.updateLivePreview();
@@ -2148,6 +2178,9 @@ const App = {
       showQr.addEventListener('change', (e) => {
         if (!this.state.data.qrCode) this.state.data.qrCode = {};
         this.state.data.qrCode.enabled = e.target.checked;
+        this.state.data.showQrCode = e.target.checked;
+        if (!this.state.data.qrCode.size) this.state.data.qrCode.size = 64;
+        if (!this.state.data.qrCode.targetMode) this.state.data.qrCode.targetMode = 'vcard';
         const grp = document.getElementById('qrCodeGroup');
         if (grp) grp.style.display = e.target.checked ? 'flex' : 'none';
         this.updateLivePreview();
@@ -3216,8 +3249,15 @@ const App = {
             this.state.data.avatarUrl = trueDefaultAvatar;
           }
         }
-        if (parsed.settings) this.state.settings = Object.assign({}, Presets.styles.developerTerminal.settings, parsed.settings);
-        if (parsed.templateData) this.state.templateData = Object.assign({}, this.state.templateData, parsed.templateData);
+        if (parsed.settings) {
+          this.state.settings = Object.assign({}, Presets.styles.developerTerminal.settings, parsed.settings);
+        }
+        if (parsed.templateData) {
+          this.state.templateData = Object.assign({}, this.state.templateData, parsed.templateData);
+          if (this.state.templateData.footerNote === 'Sent from Dhrubojyoti Saha Portfolio Systems | Dhaka, Bangladesh') {
+            this.state.templateData.footerNote = '';
+          }
+        }
       } else {
         this.state.data.avatarUrl = trueDefaultAvatar;
       }
