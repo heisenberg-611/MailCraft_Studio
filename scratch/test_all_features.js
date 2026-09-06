@@ -502,7 +502,8 @@ const previewTools = [
   'zoomResetBtn',
   'clientGmailBtn',
   'clientAppleBtn',
-  'clientOutlookBtn'
+  'clientOutlookBtn',
+  'clientYahooBtn'
 ];
 
 previewTools.forEach(btnId => {

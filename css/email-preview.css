@@ -888,6 +888,358 @@
 }
 
 /* ==========================================================================
+   4. YAHOO MAIL CLIENT SIMULATION (.client-yahoo)
+   ========================================================================== */
+
+/* Yahoo Header */
+.client-yahoo .yahoo-chrome-header {
+  background-color: #5F01D1;
+  padding: 11px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #FFFFFF;
+  user-select: none;
+}
+
+.client-yahoo.dark-inbox .yahoo-chrome-header {
+  background-color: #2D0B59;
+  border-bottom: 1px solid #43167D;
+}
+
+.client-yahoo .yahoo-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.client-yahoo .yahoo-logo-pill {
+  font-family: 'Geist', 'Inter', -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  color: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+}
+
+.client-yahoo .yahoo-logo-pill b {
+  color: #FF0033;
+}
+
+.client-yahoo .yahoo-header-divider {
+  width: 1px;
+  height: 14px;
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.client-yahoo .yahoo-title {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: -0.01em;
+}
+
+.client-yahoo .yahoo-window-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.client-yahoo .yahoo-window-controls .ctrl-btn {
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.client-yahoo .yahoo-window-controls .ctrl-btn:hover {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #FFFFFF;
+}
+
+/* Yahoo Fields */
+.client-yahoo .yahoo-compose-fields {
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.client-yahoo.dark-inbox .yahoo-compose-fields {
+  background-color: #111317;
+  border-bottom-color: #242830;
+}
+
+.client-yahoo .yahoo-field-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 6px 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13.5px;
+  border-bottom: 1px solid #F3F4F6;
+  box-sizing: border-box;
+}
+
+.client-yahoo.dark-inbox .yahoo-field-row {
+  border-bottom-color: #1E2024;
+}
+
+.client-yahoo .yahoo-field-row:last-child {
+  border-bottom: none;
+}
+
+.client-yahoo .yahoo-field-label {
+  color: #6B7280;
+  font-size: 13px;
+  font-weight: 500;
+  width: 32px;
+  flex-shrink: 0;
+}
+
+.client-yahoo.dark-inbox .yahoo-field-label {
+  color: #9CA3AF;
+}
+
+.client-yahoo .yahoo-recipient-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #F3E8FF;
+  border: 1px solid #E9D5FF;
+  border-radius: 16px;
+  padding: 3px 10px 3px 5px;
+  font-size: 12.5px;
+  color: #5F01D1;
+  font-weight: 500;
+}
+
+.client-yahoo.dark-inbox .yahoo-recipient-pill {
+  background-color: #3B0764;
+  border-color: #581C87;
+  color: #E9D5FF;
+}
+
+.client-yahoo .yahoo-pill-avatar {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: #5F01D1;
+  color: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.client-yahoo.dark-inbox .yahoo-pill-avatar {
+  background-color: #9333EA;
+}
+
+.client-yahoo .yahoo-pill-name {
+  line-height: 1.2;
+}
+
+.client-yahoo .yahoo-pill-remove {
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  opacity: 0.6;
+  margin-left: 2px;
+  transition: opacity 0.15s ease;
+}
+
+.client-yahoo .yahoo-pill-remove:hover {
+  opacity: 1;
+}
+
+.client-yahoo .yahoo-field-actions {
+  margin-left: auto;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #5F01D1;
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+}
+
+.client-yahoo.dark-inbox .yahoo-field-actions {
+  color: #C084FC;
+}
+
+.client-yahoo .yahoo-field-actions .yahoo-action:hover {
+  text-decoration: underline;
+}
+
+.client-yahoo .yahoo-subject-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1F2937;
+  padding: 6px 0;
+  box-sizing: border-box;
+}
+
+.client-yahoo.dark-inbox .yahoo-subject-input {
+  color: #E8EAED;
+}
+
+/* Yahoo Compose Body */
+.client-yahoo .gmail-compose-body {
+  padding: 24px 20px 32px 20px;
+  min-height: 230px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  background-color: #FFFFFF;
+}
+
+.client-yahoo.dark-inbox .gmail-compose-body {
+  background-color: #111317;
+  color: #E8EAED;
+}
+
+.client-yahoo .gmail-sample-text {
+  font-size: 14px;
+  line-height: 1.65;
+  margin-bottom: 24px;
+  color: #2D3748;
+}
+
+.client-yahoo.dark-inbox .gmail-sample-text {
+  color: #CBD5E1;
+}
+
+/* Yahoo Footer Toolbar */
+.client-yahoo .yahoo-footer-toolbar {
+  padding: 10px 20px;
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #FFFFFF;
+  border-top: 1px solid #E5E7EB;
+  box-sizing: border-box;
+}
+
+.client-yahoo.dark-inbox .yahoo-footer-toolbar {
+  background-color: #111317;
+  border-top-color: #242830;
+}
+
+.client-yahoo .yahoo-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.client-yahoo .yahoo-send-btn {
+  background-color: #5F01D1;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 22px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(95, 1, 209, 0.25);
+  transition: all 0.15s ease;
+}
+
+.client-yahoo .yahoo-send-btn:hover {
+  background-color: #4D00B4;
+  box-shadow: 0 2px 6px rgba(95, 1, 209, 0.35);
+}
+
+.client-yahoo .yahoo-formatting-tools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #5F6368;
+}
+
+.client-yahoo.dark-inbox .yahoo-formatting-tools {
+  color: #9CA3AF;
+}
+
+.client-yahoo .yahoo-formatting-tools .tool-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.15s ease;
+}
+
+.client-yahoo .yahoo-formatting-tools .tool-btn:hover {
+  background-color: #F3F4F6;
+  color: #5F01D1;
+}
+
+.client-yahoo.dark-inbox .yahoo-formatting-tools .tool-btn:hover {
+  background-color: #242830;
+  color: #C084FC;
+}
+
+.client-yahoo .yahoo-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.client-yahoo .yahoo-status-text {
+  font-size: 12.5px;
+  color: #8F95A5;
+}
+
+.client-yahoo .yahoo-footer-right .trash-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #6B7280;
+  transition: all 0.15s ease;
+}
+
+.client-yahoo .yahoo-footer-right .trash-btn:hover {
+  background-color: #FEE2E2;
+  color: #DC2626;
+}
+
+.client-yahoo.dark-inbox .yahoo-footer-right .trash-btn:hover {
+  background-color: #3B1219;
+  color: #F87171;
+}
+
+/* ==========================================================================
    Shared Canvas & Dark Mode Helpers
    ========================================================================== */
 .gmail-signature-area {

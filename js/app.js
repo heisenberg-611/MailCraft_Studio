@@ -894,7 +894,7 @@ const App = {
     const footerEl = document.getElementById('simulatorFooter');
     
     if (clientWindow) {
-      clientWindow.classList.remove('client-gmail', 'client-apple', 'client-outlook');
+      clientWindow.classList.remove('client-gmail', 'client-apple', 'client-outlook', 'client-yahoo');
       clientWindow.classList.add(`client-${clientName}`);
     }
 
@@ -1022,6 +1022,64 @@ const App = {
         footerEl.innerHTML = `
           <span class="apple-status-dot"></span>
           <span class="apple-status-text">Draft saved to iCloud &bull; macOS Mail</span>
+        `;
+      }
+    } else if (clientName === 'yahoo') {
+      if (headerEl) {
+        headerEl.className = 'yahoo-header-wrapper';
+        headerEl.innerHTML = `
+          <div class="yahoo-chrome-header">
+            <div class="yahoo-header-left">
+              <span class="yahoo-logo-pill">yahoo<b>!</b></span>
+              <span class="yahoo-header-divider"></span>
+              <span class="yahoo-title">New Message</span>
+            </div>
+            <div class="yahoo-window-controls">
+              <span class="ctrl-btn" title="Minimize">&minus;</span>
+              <span class="ctrl-btn" title="Pop out">&#x2922;</span>
+              <span class="ctrl-btn close-btn" title="Close">&times;</span>
+            </div>
+          </div>
+        `;
+      }
+      if (fieldsEl) {
+        fieldsEl.className = 'yahoo-compose-fields';
+        fieldsEl.innerHTML = `
+          <div class="yahoo-field-row">
+            <span class="yahoo-field-label">To</span>
+            <div class="yahoo-recipient-pill">
+              <span class="yahoo-pill-avatar">R</span>
+              <span class="yahoo-pill-name">recipient@domain.com</span>
+              <span class="yahoo-pill-remove" title="Remove">&times;</span>
+            </div>
+            <div class="yahoo-field-actions">
+              <span class="yahoo-action">Cc/Bcc</span>
+            </div>
+          </div>
+          <div class="yahoo-field-row yahoo-subject-row">
+            <input type="text" class="yahoo-subject-input" id="previewSubjectLine" readonly value="${subjectVal}" placeholder="Subject">
+          </div>
+        `;
+      }
+      if (footerEl) {
+        footerEl.className = 'yahoo-footer-toolbar';
+        footerEl.innerHTML = `
+          <div class="yahoo-footer-left">
+            <button class="yahoo-send-btn">
+              <span>Send</span>
+            </button>
+            <div class="yahoo-formatting-tools">
+              <span class="tool-btn" title="Format Text"><b>A</b></span>
+              <span class="tool-btn" title="Attach Files">&#x1F4CE;</span>
+              <span class="tool-btn" title="Add GIF / Emoji">&#x1F60A;</span>
+              <span class="tool-btn" title="Insert Stationery">&#x1F3A8;</span>
+              <span class="tool-btn" title="Insert Link">&#x1F517;</span>
+            </div>
+          </div>
+          <div class="yahoo-footer-right">
+            <span class="yahoo-status-text">Draft saved</span>
+            <span class="tool-btn trash-btn" title="Delete draft">&#x1F5D1;</span>
+          </div>
         `;
       }
     } else { // outlook
@@ -1570,7 +1628,8 @@ const App = {
     const gmailBtn = document.getElementById('clientGmailBtn');
     const appleBtn = document.getElementById('clientAppleBtn');
     const outlookBtn = document.getElementById('clientOutlookBtn');
-    const clientBtns = [gmailBtn, appleBtn, outlookBtn];
+    const yahooBtn = document.getElementById('clientYahooBtn');
+    const clientBtns = [gmailBtn, appleBtn, outlookBtn, yahooBtn];
 
     const setClient = (clientName, activeBtn) => {
       this.clientView = clientName;
@@ -1584,6 +1643,7 @@ const App = {
     if (gmailBtn) gmailBtn.addEventListener('click', () => setClient('gmail', gmailBtn));
     if (appleBtn) appleBtn.addEventListener('click', () => setClient('apple', appleBtn));
     if (outlookBtn) outlookBtn.addEventListener('click', () => setClient('outlook', outlookBtn));
+    if (yahooBtn) yahooBtn.addEventListener('click', () => setClient('yahoo', yahooBtn));
 
     // Inbox Day/Night Switchers
     const themeLightBtn = document.getElementById('themeLightBtn');

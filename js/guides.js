@@ -72,13 +72,28 @@ const InstallationGuides = {
         'Click away to auto-save.'
       ],
       tip: 'Thunderbird directly parses the standards-compliant HTML table structure.'
+    },
+    yahooMail: {
+      name: 'Yahoo Mail',
+      fullName: 'Yahoo! Mail (Web & Mobile)',
+      steps: [
+        'Click the "Copy Rich Signature" button in this studio.',
+        'Open Yahoo Mail in your web browser and click the "Settings" (gear) icon in the top right.',
+        'Click "More Settings" at the bottom of the right-hand settings panel.',
+        'Select "Writing email" from the left navigation menu.',
+        'Under the "Signature" section, toggle the switch to ON for your email account.',
+        'Click into the signature composition box, delete any default text, and press Cmd + V (Mac) or Ctrl + V (Windows) to paste.',
+        'Yahoo Mail automatically saves your changes; compose a new message to test your signature.'
+      ],
+      tip: 'Yahoo Mail supports responsive HTML tables and renders high-DPI Retina images and custom link styling smoothly.'
     }
   },
 
   resolveClientKey(clientKey) {
     const keyMap = {
       'apple': 'appleMail',
-      'outlook': 'outlookWeb'
+      'outlook': 'outlookWeb',
+      'yahoo': 'yahooMail'
     };
     return keyMap[clientKey] || clientKey || 'gmail';
   },
