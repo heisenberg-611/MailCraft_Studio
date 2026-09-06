@@ -3,7 +3,7 @@
  * Implements Cache-First / Stale-While-Revalidate caching for seamless offline usage
  */
 
-const CACHE_NAME = 'mailcraft-v2.0.0';
+const CACHE_NAME = 'mailcraft-v1.1.0';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

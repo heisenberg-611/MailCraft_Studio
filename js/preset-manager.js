@@ -121,7 +121,7 @@ const PresetManager = {
     const presets = this.getUserPresets();
     const payload = {
       app: 'MailCraft Studio',
-      version: '1.0.0',
+      version: '1.1.0',
       exportedAt: new Date().toISOString(),
       presets
     };
