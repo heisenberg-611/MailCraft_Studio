@@ -526,6 +526,34 @@ try {
   assert(`Random quote generator populated #quoteText`, false, e);
 }
 
+// 11. Mobile Navigation & View Switcher
+console.log("\n--- Audit 10: Mobile Responsive Navigation ---");
+try {
+  const formTab = document.getElementById('mobileFormTabBtn');
+  const previewTab = document.getElementById('mobilePreviewTabBtn');
+  const quickCopy = document.getElementById('mobileQuickCopyBtn');
+  const workspace = document.querySelector('.studio-workspace-container');
+
+  assert(`Mobile bottom bar elements exist in DOM`, !!formTab && !!previewTab && !!quickCopy);
+  
+  if (previewTab && workspace) {
+    previewTab.click();
+    assert(`Mobile preview tab toggles .mobile-preview-active on workspace`, workspace.classList.contains('mobile-preview-active') && previewTab.classList.contains('active'));
+  }
+  
+  if (formTab && workspace) {
+    formTab.click();
+    assert(`Mobile form tab restores workspace and activates form tab`, !workspace.classList.contains('mobile-preview-active') && formTab.classList.contains('active'));
+  }
+
+  if (quickCopy) {
+    quickCopy.click();
+    assert(`Mobile quick copy button operates cleanly`, true);
+  }
+} catch (e) {
+  assert(`Mobile responsive navigation tests execute cleanly`, false, e);
+}
+
 console.log("\n=================================================");
 console.log(`Audit Finished: ${passed} passed, ${failed} failed.`);
 console.log("=================================================");

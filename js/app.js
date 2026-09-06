@@ -1090,6 +1090,8 @@ const App = {
    * Bind event listeners across forms, buttons, tabs, drag & drop, and modals
    */
   bindEvents() {
+    this.bindMobileNavigation();
+
     // Mode Switcher (Individual / Team Batch / Email Builder)
     const modeSigBtn = document.getElementById('modeSignatureBtn');
     const modeTeamBtn = document.getElementById('modeTeamBtn');
@@ -2448,6 +2450,45 @@ const App = {
         });
       });
     });
+  },
+
+  /**
+   * Bind mobile bottom bar view switcher & quick copy
+   */
+  bindMobileNavigation() {
+    const workspace = document.querySelector('.studio-workspace-container');
+    const formBtn = document.getElementById('mobileFormTabBtn');
+    const previewBtn = document.getElementById('mobilePreviewTabBtn');
+    const copyBtn = document.getElementById('mobileQuickCopyBtn');
+
+    if (formBtn && previewBtn && workspace) {
+      formBtn.addEventListener('click', () => {
+        workspace.classList.remove('mobile-preview-active');
+        formBtn.classList.add('active');
+        previewBtn.classList.remove('active');
+      });
+
+      previewBtn.addEventListener('click', () => {
+        workspace.classList.add('mobile-preview-active');
+        previewBtn.classList.add('active');
+        formBtn.classList.remove('active');
+        this.updateLivePreview();
+      });
+    }
+
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        const copyRichBtn = document.getElementById('copyRichTextBtn') || document.getElementById('headerCopyBtn');
+        if (copyRichBtn) {
+          copyRichBtn.click();
+        } else {
+          const html = SignatureEngine.generateHtml(this.state.data, this.state.settings, false, true);
+          ClipboardExporter.copyRichHtml(html, this.generatePlainText(), (success, msg) => {
+            this.showToast(msg, success ? 'success' : 'error');
+          });
+        }
+      });
+    }
   },
 
   /**
