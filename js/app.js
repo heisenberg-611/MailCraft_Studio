@@ -109,12 +109,14 @@ const App = {
       ImageProcessor.init((dataUrl) => {
         this.state.data.avatarUrl = dataUrl;
         this.updateLivePreview();
+        this.updateAvatarTelemetry();
       });
     }
 
     this.bindEvents();
     this.bindWebsiteInteractions();
     this.syncFormWithState();
+    this.renderCustomFieldsInputs();
     this.syncEmailTemplateFromDom();
     this.renderClientChrome(this.clientView || 'gmail');
 
@@ -124,6 +126,13 @@ const App = {
     } else if (requestedMode === 'email' || requestedMode === 'template') {
       const tplBtn = document.getElementById('modeTemplateBtn');
       if (tplBtn) tplBtn.click();
+    }
+
+    // Register Progressive Web App (PWA) Offline Service Worker
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+      navigator.serviceWorker.register('./sw.js')
+        .then((reg) => console.log('MailCraft PWA Service Worker Registered:', reg.scope))
+        .catch((err) => console.warn('PWA Service Worker Registration Failed:', err));
     }
 
     this.updateLivePreview();
@@ -143,6 +152,8 @@ const App = {
     setIcon('modeTplIcon', Icons.ui.template);
     setIcon('savePresetIcon', Icons.ui.save);
     setIcon('managePresetsIcon', Icons.ui.folder);
+    setIcon('desktopIcon', Icons.ui.desktop);
+    setIcon('adminIcon', Icons.ui.admin);
     setIcon('guideIcon', Icons.ui.help);
     setIcon('copyPrimaryIcon', Icons.ui.copy);
     setIcon('shieldIcon', Icons.ui.shield);
@@ -152,6 +163,8 @@ const App = {
     setIcon('copyBtnIcon', Icons.ui.copy);
     setIcon('closeCodeModalBtn', Icons.ui.close);
     setIcon('teamZipIcon', Icons.ui.download);
+    setIcon('desktopIcon', Icons.ui.folder || Icons.ui.code);
+    setIcon('adminIcon', Icons.ui.shield || Icons.ui.code);
   },
 
   /**
@@ -503,6 +516,9 @@ const App = {
     const setChecked = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
 
     setVal('fullName', d.fullName);
+    setVal('nameTag', s.nameTag || s.badgeText || '');
+    setVal('namePrefix', s.namePrefix || '');
+    setVal('nameSuffix', s.nameSuffix || '');
     setVal('jobTitle', d.jobTitle);
     setVal('company', d.company);
     setVal('department', d.department);
@@ -586,20 +602,47 @@ const App = {
     syncColorPair('tplFooterColor', td.footerTextColor || '#64748B');
     setVal('tplHeaderTag', td.headerTag || '');
 
-    // Typography
+    // Typography & Line-by-Line Customization
     setVal('fontFamily', s.fontFamily || "'Courier New', Courier, monospace");
     setVal('nameFontSize', s.nameFontSize || 17);
     const nameFontSizeVal = document.getElementById('nameFontSizeVal');
     if (nameFontSizeVal) nameFontSizeVal.textContent = `${s.nameFontSize || 17}px`;
 
+    setVal('nameFontWeight', s.nameFontWeight || '700');
+    setVal('nameTransform', s.nameTransform || 'none');
+
+    setVal('titleFontStyle', s.titleFontStyle || 'normal');
+    setVal('titleSeparator', s.titleSeparator || 'bullet');
+    setVal('titleFontSize', s.titleFontSize || 13);
+    const titleFontSizeVal = document.getElementById('titleFontSizeVal');
+    if (titleFontSizeVal) titleFontSizeVal.textContent = `${s.titleFontSize || 13}px`;
+
     setVal('bodyFontSize', s.bodyFontSize || 12.5);
     const bodyFontSizeVal = document.getElementById('bodyFontSizeVal');
     if (bodyFontSizeVal) bodyFontSizeVal.textContent = `${s.bodyFontSize || 12.5}px`;
+
+    setVal('labelScheme', s.labelScheme || 'terminal');
+    const customLabelGroup = document.getElementById('customLabelInputsGroup');
+    if (customLabelGroup) customLabelGroup.style.display = (s.labelScheme === 'custom') ? 'flex' : 'none';
+    setVal('labelPhone', s.labelPhone !== undefined ? s.labelPhone : '$ tel:');
+    setVal('labelEmail', s.labelEmail !== undefined ? s.labelEmail : '$ mail:');
+    setVal('labelWebsite', s.labelWebsite !== undefined ? s.labelWebsite : '$ web:');
+    setVal('labelAddress', s.labelAddress !== undefined ? s.labelAddress : '$ loc:');
 
     setVal('dividerThickness', s.dividerThickness || 2);
     const dividerThicknessVal = document.getElementById('dividerThicknessVal');
     if (dividerThicknessVal) dividerThicknessVal.textContent = `${s.dividerThickness || 2}px`;
     setVal('dividerStyle', s.dividerStyle || 'solid');
+
+    setVal('dividerSpacing', s.dividerSpacing || 14);
+    const dividerSpacingVal = document.getElementById('dividerSpacingVal');
+    if (dividerSpacingVal) dividerSpacingVal.textContent = `${s.dividerSpacing || 14}px`;
+
+    // Line Spacing Density Chips
+    const activeSpacing = s.lineSpacing || 'normal';
+    document.querySelectorAll('#lineSpacingChips .dpi-chip').forEach(chip => {
+      chip.classList.toggle('active', chip.dataset.spacing === activeSpacing);
+    });
 
     // Social Icon Scheme
     setVal('iconStyle', s.iconStyle || 'accent');
@@ -611,17 +654,49 @@ const App = {
     const iconSpacingVal = document.getElementById('iconSpacingVal');
     if (iconSpacingVal) iconSpacingVal.textContent = `${s.iconSpacing || 8}px`;
 
-    // Addons
+    // Live Status Badge
+    const statusObj = d.statusBadge || {};
+    setChecked('showStatusBadge', (d.showStatusBadge !== undefined) ? d.showStatusBadge : statusObj.enabled);
+    const statusGroup = document.getElementById('statusBadgeGroup');
+    if (statusGroup) statusGroup.style.display = ((d.showStatusBadge !== undefined) ? d.showStatusBadge : statusObj.enabled) ? 'flex' : 'none';
+    setVal('statusBadgeText', statusObj.text || d.statusText || 'Available for Projects');
+    setVal('statusBadgeColor', statusObj.color || '#10B981');
+    setVal('statusBadgeColorHex', statusObj.color || '#10B981');
+
+    // Calendar Booking Badge
+    const bookingObj = d.bookingBadge || {};
+    setChecked('showBookingBadge', (d.showBookingBadge !== undefined) ? d.showBookingBadge : bookingObj.enabled);
+    const bookingGroup = document.getElementById('bookingBadgeGroup');
+    if (bookingGroup) bookingGroup.style.display = ((d.showBookingBadge !== undefined) ? d.showBookingBadge : bookingObj.enabled) ? 'flex' : 'none';
+    setVal('bookingProviderSelect', bookingObj.provider || 'calendly');
+    setVal('bookingBadgeText', bookingObj.text || 'Schedule 1:1 Call');
+    setVal('bookingBadgeUrl', bookingObj.url || 'https://calendly.com');
+
+    // QR Code & vCard Hub
+    const qrObj = d.qrCode || {};
+    setChecked('showQrCode', (d.showQrCode !== undefined) ? d.showQrCode : qrObj.enabled);
+    const qrGroup = document.getElementById('qrCodeGroup');
+    if (qrGroup) qrGroup.style.display = ((d.showQrCode !== undefined) ? d.showQrCode : qrObj.enabled) ? 'flex' : 'none';
+    setVal('qrTargetMode', qrObj.targetMode || 'vcard');
+    setVal('qrCustomUrl', qrObj.customUrl || '');
+    const qrCustomGroup = document.getElementById('qrCustomUrlGroup');
+    if (qrCustomGroup) qrCustomGroup.style.display = (qrObj.targetMode === 'custom') ? 'block' : 'none';
+    setVal('qrSize', qrObj.size || 64);
+    const qrSizeVal = document.getElementById('qrSizeVal');
+    if (qrSizeVal) qrSizeVal.textContent = `${qrObj.size || 64}px`;
+
+    // Static Role Badge
     setChecked('showBadge', d.showBadge);
     const badgeInputGroup = document.getElementById('badgeInputGroup');
     if (badgeInputGroup) badgeInputGroup.style.display = d.showBadge ? 'block' : 'none';
     setVal('badgeText', d.badgeText || 'Dev Architect');
 
+    // Generic CTA
     setChecked('showCta', d.showCta);
     const ctaInputGroup = document.getElementById('ctaInputGroup');
     if (ctaInputGroup) ctaInputGroup.style.display = d.showCta ? 'flex' : 'none';
-    setVal('ctaText', d.ctaText || 'Schedule a Meeting');
-    setVal('ctaUrl', d.ctaUrl || 'https://calendly.com');
+    setVal('ctaText', d.ctaText || 'Explore Portfolio');
+    setVal('ctaUrl', d.ctaUrl || 'https://www.dhrubojyoti.dev');
 
     setChecked('showGreenNote', d.showGreenNote);
     const greenNoteGroup = document.getElementById('greenNoteInputGroup');
@@ -744,6 +819,7 @@ const App = {
       }
     }
 
+    let exportHtml = '';
     if (this.mode === 'template') {
       const introText = document.getElementById('signatureModeIntroText');
       if (introText) introText.style.display = 'none';
@@ -757,6 +833,13 @@ const App = {
           false
         );
         canvas.innerHTML = emailHtml;
+        exportHtml = EmailTemplateEngine.generateEmailHtml(
+          this.state.templateData,
+          this.state.data,
+          this.state.settings,
+          isDark,
+          true
+        );
       }
     } else {
       const introText = document.getElementById('signatureModeIntroText');
@@ -770,6 +853,23 @@ const App = {
           false
         );
         canvas.innerHTML = sigHtml;
+        exportHtml = SignatureEngine.generateHtml(
+          this.state.data,
+          this.state.settings,
+          isDark,
+          true
+        );
+      }
+    }
+
+    // Real-Time Email Compatibility & Size Linter Audit
+    if (typeof LinterEngine !== 'undefined' && exportHtml) {
+      this.lastLintReport = LinterEngine.audit(exportHtml);
+      const linterBtn = document.getElementById('linterStatusBtn');
+      const linterText = document.getElementById('linterText');
+      if (linterBtn && linterText && this.lastLintReport) {
+        linterText.textContent = `SIZE: ${this.lastLintReport.sizeFormatted} // ${this.lastLintReport.score}% OK`;
+        linterBtn.className = `linter-badge ${this.lastLintReport.badgeClass === 'badge-pass' ? 'linter-pass' : (this.lastLintReport.badgeClass === 'badge-warn' ? 'linter-warn' : 'linter-fail')}`;
       }
     }
 
@@ -1541,7 +1641,11 @@ const App = {
       document.getElementById('savePresetModalOverlay'),
       document.getElementById('presetManagerModalOverlay'),
       document.getElementById('teamDirectoryModalOverlay'),
-      document.getElementById('codeModalOverlay')
+      document.getElementById('codeModalOverlay'),
+      document.getElementById('compatibilityModalOverlay'),
+      document.getElementById('desktopExporterModalOverlay'),
+      document.getElementById('adminDeployerModalOverlay'),
+      document.getElementById('bannerDesignerModalOverlay')
     ];
     modalOverlays.forEach(overlay => {
       if (overlay) {
@@ -1551,6 +1655,594 @@ const App = {
           }
         });
       }
+    });
+
+    this.bindLinterEvents();
+    this.bindDesktopExportEvents();
+    this.bindAdminDeployerEvents();
+    this.bindBannerDesignerEvents();
+    this.bindAddonControls();
+    this.bindCustomFieldChips();
+  },
+
+  /**
+   * Bind Email Compatibility & Size Linter modal events
+   */
+  bindLinterEvents() {
+    const linterBtn = document.getElementById('linterStatusBtn');
+    const modal = document.getElementById('compatibilityModalOverlay');
+    const closeBtn1 = document.getElementById('closeCompatibilityModalBtn');
+    const closeBtn2 = document.getElementById('closeCompatibilityModalBtn2');
+    const copyAuditBtn = document.getElementById('copyAuditSummaryBtn');
+
+    if (linterBtn && modal) {
+      linterBtn.addEventListener('click', () => {
+        this.populateLinterModal();
+        modal.classList.add('active');
+      });
+    }
+
+    const closeModal = () => modal && modal.classList.remove('active');
+    if (closeBtn1) closeBtn1.addEventListener('click', closeModal);
+    if (closeBtn2) closeBtn2.addEventListener('click', closeModal);
+
+    if (copyAuditBtn) {
+      copyAuditBtn.addEventListener('click', () => {
+        if (!this.lastLintReport) {
+          this.populateLinterModal();
+        }
+        const rep = this.lastLintReport;
+        if (!rep) return;
+        const text = [
+          `=========================================`,
+          `MailCraft Email Architecture Audit Report`,
+          `=========================================`,
+          `HTML Payload Size: ${rep.sizeFormatted} (${rep.sizePercentOfLimit}% of Gmail 102KB limit)`,
+          `Overall Score:     ${rep.score}% [${rep.rating}]`,
+          `Gmail Safety:      ${rep.isSizeSafe ? 'PASSED (Zero Truncation)' : 'WARNING (May be clipped)'}`,
+          `-----------------------------------------`,
+          `Detailed Checks:`,
+          ...rep.checks.map(c => `[${c.status.toUpperCase()}] ${c.title}\n   ${c.message}`)
+        ].join('\n');
+
+        navigator.clipboard.writeText(text).then(() => {
+          this.showToast('Copied linter audit report to clipboard!', 'success');
+        });
+      });
+    }
+  },
+
+  /**
+   * Populate Linter Modal UI with live audit checks
+   */
+  populateLinterModal() {
+    const isDark = this.inboxTheme === 'dark';
+    const html = this.mode === 'template'
+      ? (typeof EmailTemplateEngine !== 'undefined' ? EmailTemplateEngine.generateEmailHtml(this.state.templateData, this.state.data, this.state.settings, isDark, true) : '')
+      : (typeof SignatureEngine !== 'undefined' ? SignatureEngine.generateHtml(this.state.data, this.state.settings, isDark, true) : '');
+
+    if (typeof LinterEngine === 'undefined' || !html) return;
+    const report = LinterEngine.audit(html);
+    this.lastLintReport = report;
+
+    const gaugeFill = document.getElementById('linterGaugeFill');
+    const sizeLabel = document.getElementById('linterSizeLabel');
+    const safetyText = document.getElementById('linterSafetyText');
+    const checklistContainer = document.getElementById('linterChecklistContainer');
+
+    if (gaugeFill) {
+      gaugeFill.style.width = `${report.sizePercentOfLimit}%`;
+      gaugeFill.style.backgroundColor = report.isSizeSafe ? (report.sizePercentOfLimit < 40 ? '#00DC82' : '#F59E0B') : '#EF4444';
+    }
+
+    if (sizeLabel) {
+      sizeLabel.textContent = `${report.sizeFormatted} / 102 KB (${report.sizePercentOfLimit}%)`;
+      sizeLabel.style.color = report.isSizeSafe ? '#00DC82' : '#EF4444';
+    }
+
+    if (safetyText) {
+      safetyText.textContent = report.isSizeSafe
+        ? 'Safe from message truncation across Gmail iOS, Android, and Web clients.'
+        : 'CRITICAL: Exceeds 102KB. Gmail will clip this signature with "[Message clipped]".';
+      safetyText.style.color = report.isSizeSafe ? 'var(--sahinur-text-dim)' : '#EF4444';
+    }
+
+    if (checklistContainer) {
+      checklistContainer.innerHTML = report.checks.map(chk => {
+        const badgeColor = chk.status === 'pass' ? 'var(--sahinur-accent)' : (chk.status === 'warn' ? '#F59E0B' : '#EF4444');
+        const badgeBg = chk.status === 'pass' ? 'rgba(0, 220, 130, 0.12)' : (chk.status === 'warn' ? 'rgba(245, 158, 11, 0.12)' : 'rgba(239, 68, 68, 0.12)');
+        const icon = chk.status === 'pass' ? '✓' : (chk.status === 'warn' ? '⚠' : '✕');
+
+        return `
+          <div style="background: var(--sahinur-surface-2); border: 1px solid var(--sahinur-border); border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="font-weight: 700; font-size: 12px; color: var(--sahinur-text-bright); display: flex; align-items: center; gap: 6px;">
+                <span style="color: ${badgeColor}; font-weight: 900;">${icon}</span>
+                <span>${chk.title}</span>
+              </div>
+              <span style="font-family: var(--font-mono); font-size: 10px; padding: 2px 6px; border-radius: 3px; background: ${badgeBg}; color: ${badgeColor}; font-weight: 700; text-transform: uppercase;">
+                ${chk.status}
+              </span>
+            </div>
+            <div style="font-size: 11px; color: var(--sahinur-text-dim); line-height: 1.4;">
+              ${chk.message}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  },
+
+  /**
+   * Bind Direct Desktop Signature Exporter Modal
+   */
+  bindDesktopExportEvents() {
+    const openBtn = document.getElementById('openDesktopExportBtn');
+    const modal = document.getElementById('desktopExporterModalOverlay');
+    const closeBtn = document.getElementById('closeDesktopExporterModalBtn');
+    const dlApple = document.getElementById('downloadAppleMailBtn');
+    const dlOutlook = document.getElementById('downloadOutlookHtmBtn');
+    const dlThunderbird = document.getElementById('downloadThunderbirdBtn');
+
+    if (openBtn && modal) {
+      openBtn.addEventListener('click', () => modal.classList.add('active'));
+    }
+
+    if (closeBtn && modal) {
+      closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+    }
+
+    const getHtml = () => {
+      const isDark = this.inboxTheme === 'dark';
+      return this.mode === 'template'
+        ? EmailTemplateEngine.generateEmailHtml(this.state.templateData, this.state.data, this.state.settings, isDark, true)
+        : SignatureEngine.generateHtml(this.state.data, this.state.settings, isDark, true);
+    };
+
+    const getBaseName = () => (this.state.data.fullName || 'signature').toLowerCase().replace(/\s+/g, '-');
+
+    if (dlApple && typeof AdminTools !== 'undefined') {
+      dlApple.addEventListener('click', () => {
+        AdminTools.downloadAppleMailSignature(getHtml(), getBaseName());
+        this.showToast('Downloaded Apple Mail .mailsignature!', 'success');
+      });
+    }
+
+    if (dlOutlook && typeof AdminTools !== 'undefined') {
+      dlOutlook.addEventListener('click', () => {
+        AdminTools.downloadOutlookHtm(getHtml(), getBaseName());
+        this.showToast('Downloaded Outlook .htm signature!', 'success');
+      });
+    }
+
+    if (dlThunderbird && typeof AdminTools !== 'undefined') {
+      dlThunderbird.addEventListener('click', () => {
+        AdminTools.downloadThunderbirdHtml(getHtml(), getBaseName());
+        this.showToast('Downloaded Thunderbird .html signature!', 'success');
+      });
+    }
+  },
+
+  /**
+   * Bind Enterprise Admin Script Deployer Modal
+   */
+  bindAdminDeployerEvents() {
+    const openBtn = document.getElementById('openAdminDeployBtn');
+    const modal = document.getElementById('adminDeployerModalOverlay');
+    const closeBtn = document.getElementById('closeAdminDeployerModalBtn');
+    const tabGoogle = document.getElementById('adminTabGoogleBtn');
+    const tabM365 = document.getElementById('adminTabM365Btn');
+    const emailInput = document.getElementById('adminTargetEmail');
+    const copyBtn = document.getElementById('copyAdminScriptBtn');
+    const dlBtn = document.getElementById('downloadAdminScriptFileBtn');
+
+    this.adminPlatform = 'google';
+
+    if (openBtn && modal) {
+      openBtn.addEventListener('click', () => {
+        this.updateAdminScriptViewer();
+        modal.classList.add('active');
+      });
+    }
+
+    if (closeBtn && modal) {
+      closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+    }
+
+    if (tabGoogle && tabM365) {
+      tabGoogle.addEventListener('click', () => {
+        this.adminPlatform = 'google';
+        tabGoogle.classList.add('active');
+        tabM365.classList.remove('active');
+        this.updateAdminScriptViewer();
+      });
+
+      tabM365.addEventListener('click', () => {
+        this.adminPlatform = 'm365';
+        tabM365.classList.add('active');
+        tabGoogle.classList.remove('active');
+        this.updateAdminScriptViewer();
+      });
+    }
+
+    if (emailInput) {
+      emailInput.addEventListener('input', () => this.updateAdminScriptViewer());
+    }
+
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        const viewer = document.getElementById('adminScriptViewer');
+        if (viewer) {
+          navigator.clipboard.writeText(viewer.value).then(() => {
+            this.showToast(`Copied ${this.adminPlatform === 'google' ? 'Google Apps Script' : 'PowerShell'} code!`, 'success');
+          });
+        }
+      });
+    }
+
+    if (dlBtn && typeof AdminTools !== 'undefined') {
+      dlBtn.addEventListener('click', () => {
+        const isDark = this.inboxTheme === 'dark';
+        const html = this.mode === 'template'
+          ? EmailTemplateEngine.generateEmailHtml(this.state.templateData, this.state.data, this.state.settings, isDark, true)
+          : SignatureEngine.generateHtml(this.state.data, this.state.settings, isDark, true);
+        const email = (emailInput && emailInput.value.trim()) || 'user@yourdomain.com';
+
+        if (this.adminPlatform === 'google') {
+          AdminTools.downloadGoogleAppsScript(html, email);
+          this.showToast('Downloaded Google Apps Script (.gs)!', 'success');
+        } else {
+          AdminTools.downloadExchangePowerShell(html, email);
+          this.showToast('Downloaded Exchange PowerShell (.ps1)!', 'success');
+        }
+      });
+    }
+  },
+
+  /**
+   * Update script content inside Admin Deployer textarea
+   */
+  updateAdminScriptViewer() {
+    const viewer = document.getElementById('adminScriptViewer');
+    const emailInput = document.getElementById('adminTargetEmail');
+    if (!viewer || typeof AdminTools === 'undefined') return;
+
+    const isDark = this.inboxTheme === 'dark';
+    const html = this.mode === 'template'
+      ? EmailTemplateEngine.generateEmailHtml(this.state.templateData, this.state.data, this.state.settings, isDark, true)
+      : SignatureEngine.generateHtml(this.state.data, this.state.settings, isDark, true);
+    const email = (emailInput && emailInput.value.trim()) || 'user@yourdomain.com';
+
+    if (this.adminPlatform === 'google') {
+      viewer.value = AdminTools.generateGoogleAppsScript(html, email);
+    } else {
+      viewer.value = AdminTools.generateExchangePowerShell(html, email);
+    }
+  },
+
+  /**
+   * Bind HTML5 Canvas Promo Banner Designer
+   */
+  bindBannerDesignerEvents() {
+    const openBtn = document.getElementById('openBannerDesignerBtn');
+    const modal = document.getElementById('bannerDesignerModalOverlay');
+    const closeBtn = document.getElementById('closeBannerDesignerModalBtn');
+    const presetSelect = document.getElementById('bannerPresetSelect');
+    const tagInput = document.getElementById('bannerTagInput');
+    const titleInput = document.getElementById('bannerTitleInput');
+    const subInput = document.getElementById('bannerSubtitleInput');
+    const ctaInput = document.getElementById('bannerCtaInput');
+    const gradSelect = document.getElementById('bannerGradientSelect');
+    const applyBtn = document.getElementById('applyBannerToSigBtn');
+    const dlBtn = document.getElementById('downloadBannerPngBtn');
+
+    if (openBtn && modal) {
+      openBtn.addEventListener('click', () => {
+        this.renderBannerDesignerPreview();
+        modal.classList.add('active');
+      });
+    }
+
+    if (closeBtn && modal) {
+      closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+    }
+
+    if (presetSelect && typeof BannerBuilder !== 'undefined') {
+      presetSelect.addEventListener('change', (e) => {
+        const p = BannerBuilder.presets[e.target.value];
+        if (p) {
+          if (tagInput) tagInput.value = p.tag;
+          if (titleInput) titleInput.value = p.title;
+          if (subInput) subInput.value = p.subtitle;
+          if (ctaInput) ctaInput.value = p.ctaText;
+          if (gradSelect) gradSelect.value = p.gradient;
+          this.renderBannerDesignerPreview();
+        }
+      });
+    }
+
+    const inputs = [tagInput, titleInput, subInput, ctaInput, gradSelect];
+    inputs.forEach(el => {
+      if (el) {
+        el.addEventListener('input', () => this.renderBannerDesignerPreview());
+        el.addEventListener('change', () => this.renderBannerDesignerPreview());
+      }
+    });
+
+    if (applyBtn) {
+      applyBtn.addEventListener('click', () => {
+        const canvas = document.getElementById('bannerCanvas');
+        if (canvas) {
+          const dataUrl = canvas.toDataURL('image/png');
+          if (!this.state.data.promoBanner) {
+            this.state.data.promoBanner = { enabled: true, imageUrl: '', targetUrl: '', alt: '' };
+          }
+          this.state.data.promoBanner.imageUrl = dataUrl;
+          this.state.data.promoBanner.enabled = true;
+
+          const cb = document.getElementById('showPromoBanner');
+          if (cb) cb.checked = true;
+          const grp = document.getElementById('promoBannerGroup');
+          if (grp) grp.style.display = 'flex';
+
+          this.updateLivePreview();
+          if (modal) modal.classList.remove('active');
+          this.showToast('Inserted custom promotional banner into signature!', 'success');
+        }
+      });
+    }
+
+    if (dlBtn && typeof BannerBuilder !== 'undefined') {
+      dlBtn.addEventListener('click', () => {
+        const cfg = this.getBannerCurrentConfig();
+        BannerBuilder.downloadBannerPng(cfg, 'mailcraft-promo-banner');
+        this.showToast('Downloaded banner PNG!', 'success');
+      });
+    }
+  },
+
+  /**
+   * Get current banner designer config from inputs
+   */
+  getBannerCurrentConfig() {
+    const tagInput = document.getElementById('bannerTagInput');
+    const titleInput = document.getElementById('bannerTitleInput');
+    const subInput = document.getElementById('bannerSubtitleInput');
+    const ctaInput = document.getElementById('bannerCtaInput');
+    const gradSelect = document.getElementById('bannerGradientSelect');
+
+    return {
+      tag: tagInput ? tagInput.value.trim() : 'ANNOUNCEMENT',
+      title: titleInput ? titleInput.value.trim() : 'Headline',
+      subtitle: subInput ? subInput.value.trim() : 'Subtitle description',
+      ctaText: ctaInput ? ctaInput.value.trim() : 'Learn More',
+      gradient: gradSelect ? gradSelect.value : 'emerald',
+      accentColor: this.state.settings.accentColor || '#00DC82'
+    };
+  },
+
+  /**
+   * Render Banner Designer Canvas
+   */
+  renderBannerDesignerPreview() {
+    const canvas = document.getElementById('bannerCanvas');
+    if (!canvas || typeof BannerBuilder === 'undefined') return;
+    const config = this.getBannerCurrentConfig();
+    BannerBuilder.renderToCanvas(canvas, config);
+  },
+
+  /**
+   * Update real-time DPI resolution & compressed payload telemetry pill
+   */
+  updateAvatarTelemetry() {
+    if (typeof ImageProcessor === 'undefined' || !ImageProcessor.getPayloadStats) return;
+    const stats = ImageProcessor.getPayloadStats();
+    const pixelEl = document.getElementById('avatarPixelDim');
+    const sizeEl = document.getElementById('avatarPayloadSize');
+    if (pixelEl) pixelEl.textContent = `${stats.pixels} (${stats.dpi}x DPI)`;
+    if (sizeEl) {
+      sizeEl.textContent = `~${stats.kb} KB (${stats.isOptimized ? '100% Crisp · Safe' : 'Uncompressed'})`;
+      sizeEl.style.color = stats.isOptimized ? 'var(--sahinur-accent)' : '#F59E0B';
+    }
+  },
+
+  /**
+   * Bind Add-ons (QR / vCard, Status Badge, Booking Badge)
+   */
+  bindAddonControls() {
+    // 1. Live Status Badge
+    const showStatus = document.getElementById('showStatusBadge');
+    if (showStatus) {
+      showStatus.addEventListener('change', (e) => {
+        if (!this.state.data.statusBadge) this.state.data.statusBadge = {};
+        this.state.data.statusBadge.enabled = e.target.checked;
+        const grp = document.getElementById('statusBadgeGroup');
+        if (grp) grp.style.display = e.target.checked ? 'flex' : 'none';
+        this.updateLivePreview();
+      });
+    }
+
+    const statusPresetSelect = document.getElementById('statusPresetSelect');
+    if (statusPresetSelect) {
+      statusPresetSelect.addEventListener('change', (e) => {
+        if (e.target.value !== 'custom') {
+          if (!this.state.data.statusBadge) this.state.data.statusBadge = {};
+          this.state.data.statusBadge.text = e.target.value;
+          const txt = document.getElementById('statusBadgeText');
+          if (txt) txt.value = e.target.value;
+          this.updateLivePreview();
+        }
+      });
+    }
+
+    const statusText = document.getElementById('statusBadgeText');
+    if (statusText) {
+      statusText.addEventListener('input', (e) => {
+        if (!this.state.data.statusBadge) this.state.data.statusBadge = {};
+        this.state.data.statusBadge.text = e.target.value;
+        this.updateLivePreview();
+      });
+    }
+
+    const statusColor = document.getElementById('statusBadgeColor');
+    const statusColorHex = document.getElementById('statusBadgeColorHex');
+    if (statusColor && statusColorHex) {
+      statusColor.addEventListener('input', (e) => {
+        statusColorHex.value = e.target.value;
+        if (!this.state.data.statusBadge) this.state.data.statusBadge = {};
+        this.state.data.statusBadge.color = e.target.value;
+        this.updateLivePreview();
+      });
+      statusColorHex.addEventListener('input', (e) => {
+        if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
+          statusColor.value = e.target.value;
+          if (!this.state.data.statusBadge) this.state.data.statusBadge = {};
+          this.state.data.statusBadge.color = e.target.value;
+          this.updateLivePreview();
+        }
+      });
+    }
+
+    // 2. Calendar Booking Badge
+    const showBooking = document.getElementById('showBookingBadge');
+    if (showBooking) {
+      showBooking.addEventListener('change', (e) => {
+        if (!this.state.data.bookingBadge) this.state.data.bookingBadge = {};
+        this.state.data.bookingBadge.enabled = e.target.checked;
+        const grp = document.getElementById('bookingBadgeGroup');
+        if (grp) grp.style.display = e.target.checked ? 'flex' : 'none';
+        this.updateLivePreview();
+      });
+    }
+
+    const bookingProvider = document.getElementById('bookingProviderSelect');
+    if (bookingProvider) {
+      bookingProvider.addEventListener('change', (e) => {
+        if (!this.state.data.bookingBadge) this.state.data.bookingBadge = {};
+        this.state.data.bookingBadge.provider = e.target.value;
+        this.updateLivePreview();
+      });
+    }
+
+    const bookingText = document.getElementById('bookingBadgeText');
+    if (bookingText) {
+      bookingText.addEventListener('input', (e) => {
+        if (!this.state.data.bookingBadge) this.state.data.bookingBadge = {};
+        this.state.data.bookingBadge.text = e.target.value;
+        this.updateLivePreview();
+      });
+    }
+
+    const bookingUrl = document.getElementById('bookingBadgeUrl');
+    if (bookingUrl) {
+      bookingUrl.addEventListener('input', (e) => {
+        if (!this.state.data.bookingBadge) this.state.data.bookingBadge = {};
+        this.state.data.bookingBadge.url = e.target.value;
+        this.updateLivePreview();
+      });
+    }
+
+    // 3. QR Code & vCard Hub
+    const showQr = document.getElementById('showQrCode');
+    if (showQr) {
+      showQr.addEventListener('change', (e) => {
+        if (!this.state.data.qrCode) this.state.data.qrCode = {};
+        this.state.data.qrCode.enabled = e.target.checked;
+        const grp = document.getElementById('qrCodeGroup');
+        if (grp) grp.style.display = e.target.checked ? 'flex' : 'none';
+        this.updateLivePreview();
+      });
+    }
+
+    const qrMode = document.getElementById('qrTargetMode');
+    if (qrMode) {
+      qrMode.addEventListener('change', (e) => {
+        if (!this.state.data.qrCode) this.state.data.qrCode = {};
+        this.state.data.qrCode.targetMode = e.target.value;
+        const customGrp = document.getElementById('qrCustomUrlGroup');
+        if (customGrp) customGrp.style.display = (e.target.value === 'custom') ? 'block' : 'none';
+        this.updateLivePreview();
+      });
+    }
+
+    const qrCustomUrl = document.getElementById('qrCustomUrl');
+    if (qrCustomUrl) {
+      qrCustomUrl.addEventListener('input', (e) => {
+        if (!this.state.data.qrCode) this.state.data.qrCode = {};
+        this.state.data.qrCode.customUrl = e.target.value;
+        this.updateLivePreview();
+      });
+    }
+
+    const qrSize = document.getElementById('qrSize');
+    if (qrSize) {
+      qrSize.addEventListener('input', (e) => {
+        const val = Number(e.target.value);
+        if (!this.state.data.qrCode) this.state.data.qrCode = {};
+        this.state.data.qrCode.size = val;
+        const valBadge = document.getElementById('qrSizeVal');
+        if (valBadge) valBadge.textContent = `${val}px`;
+        this.updateLivePreview();
+      });
+    }
+
+    const dlVcfBtn = document.getElementById('downloadVcfBtn');
+    if (dlVcfBtn && typeof VCardEngine !== 'undefined') {
+      dlVcfBtn.addEventListener('click', () => {
+        VCardEngine.downloadVCard(this.state.data);
+        this.showToast('Downloaded RFC 2426 .vcf contact card!', 'success');
+      });
+    }
+
+    const dlQrBtn = document.getElementById('downloadQrPngBtn');
+    if (dlQrBtn && typeof QrEngine !== 'undefined') {
+      dlQrBtn.addEventListener('click', () => {
+        const qrObj = this.state.data.qrCode || {};
+        let payload = '';
+        if (qrObj.targetMode === 'website') {
+          payload = this.state.data.website || 'https://www.dhrubojyoti.dev';
+        } else if (qrObj.targetMode === 'custom') {
+          payload = qrObj.customUrl || this.state.data.website || 'https://www.dhrubojyoti.dev';
+        } else {
+          payload = typeof VCardEngine !== 'undefined' ? VCardEngine.generateVCardString(this.state.data) : (this.state.data.website || '');
+        }
+
+        const dataUrl = QrEngine.generatePngDataUrl(payload, { scale: 8, margin: 2 });
+        if (dataUrl) {
+          const a = document.createElement('a');
+          a.href = dataUrl;
+          a.download = `mailcraft-qr-${(this.state.data.fullName || 'contact').toLowerCase().replace(/\s+/g, '-')}.png`;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => document.body.removeChild(a), 200);
+          this.showToast('Downloaded high-resolution QR PNG!', 'success');
+        }
+      });
+    }
+  },
+
+  /**
+   * Bind Custom Field Preset Tag Chips in Identity and Custom tabs
+   */
+  bindCustomFieldChips() {
+    document.querySelectorAll('.custom-field-preset-tag').forEach(tag => {
+      tag.addEventListener('click', () => {
+        const label = tag.dataset.label;
+        const val = tag.dataset.val;
+        if (!Array.isArray(this.state.data.customFields)) {
+          this.state.data.customFields = [];
+        }
+
+        this.state.data.customFields.push({
+          label: label || 'Field',
+          value: val || '',
+          url: ''
+        });
+
+        this.renderCustomFieldsInputs();
+        this.updateLivePreview();
+        this.showToast(`Added custom field "${label}"!`, 'success');
+      });
     });
   },
 
@@ -1760,6 +2452,15 @@ const App = {
     bindInput('address', 'address');
     bindInput('country', 'country');
 
+    // Granular Line-by-Line Identity Settings
+    bindSettingInput('namePrefix', 'namePrefix');
+    bindSettingInput('nameSuffix', 'nameSuffix');
+    bindSettingInput('nameTag', 'nameTag');
+    bindSettingInput('labelPhone', 'labelPhone');
+    bindSettingInput('labelEmail', 'labelEmail');
+    bindSettingInput('labelWebsite', 'labelWebsite');
+    bindSettingInput('labelAddress', 'labelAddress');
+
     // Headshot Upload & DPI
     const avatarInput = document.getElementById('avatarFileInput');
     if (avatarInput) {
@@ -1769,7 +2470,8 @@ const App = {
           ImageProcessor.loadImageFile(file, (dataUrl) => {
             this.state.data.avatarUrl = dataUrl;
             this.updateLivePreview();
-            this.showToast('Uploaded and scaled headshot with 2x Retina DPI!', 'success');
+            this.updateAvatarTelemetry();
+            this.showToast('Uploaded and optimized headshot with High-DPI!', 'success');
           });
         }
       });
@@ -1785,6 +2487,7 @@ const App = {
           ImageProcessor.process((dataUrl) => {
             this.state.data.avatarUrl = dataUrl;
             this.updateLivePreview();
+            this.updateAvatarTelemetry();
           });
         }
         const label = document.getElementById('dpiLabel');
@@ -1793,6 +2496,21 @@ const App = {
         if (hdBadge) hdBadge.textContent = `ONLINE // RETINA ${dpi}X`;
       });
     });
+
+    // Smart DPI Compression Engine Selector
+    const avatarCompSelect = document.getElementById('avatarCompressionSelect');
+    if (avatarCompSelect) {
+      avatarCompSelect.addEventListener('change', (e) => {
+        if (typeof ImageProcessor !== 'undefined') {
+          ImageProcessor.config.compressionMode = e.target.value;
+          ImageProcessor.process((dataUrl) => {
+            this.state.data.avatarUrl = dataUrl;
+            this.updateLivePreview();
+            this.updateAvatarTelemetry();
+          });
+        }
+      });
+    }
 
     // Avatar Shapes
     document.querySelectorAll('.shape-btn').forEach(btn => {
@@ -1818,6 +2536,7 @@ const App = {
           ImageProcessor.process((dataUrl) => {
             this.state.data.avatarUrl = dataUrl;
             this.updateLivePreview();
+            this.updateAvatarTelemetry();
           });
         } else {
           this.updateLivePreview();
@@ -1837,6 +2556,7 @@ const App = {
           ImageProcessor.process((dataUrl) => {
             this.state.data.avatarUrl = dataUrl;
             this.updateLivePreview();
+            this.updateAvatarTelemetry();
           });
         }
       });
@@ -1974,7 +2694,7 @@ const App = {
     bindColorPair('tplClosingColor', (v) => { this.state.templateData.closingColor = v; });
     bindColorPair('tplFooterColor', (v) => { this.state.templateData.footerTextColor = v; });
 
-    // Typography
+    // Typography & Line-by-Line Granular Customization
     const fontFamily = document.getElementById('fontFamily');
     if (fontFamily) {
       fontFamily.addEventListener('change', (e) => {
@@ -1993,12 +2713,64 @@ const App = {
       });
     }
 
+    const nameFontWeight = document.getElementById('nameFontWeight');
+    if (nameFontWeight) {
+      nameFontWeight.addEventListener('change', (e) => {
+        this.state.settings.nameFontWeight = e.target.value;
+        this.updateLivePreview();
+      });
+    }
+
+    const nameTransform = document.getElementById('nameTransform');
+    if (nameTransform) {
+      nameTransform.addEventListener('change', (e) => {
+        this.state.settings.nameTransform = e.target.value;
+        this.updateLivePreview();
+      });
+    }
+
+    const titleFontStyle = document.getElementById('titleFontStyle');
+    if (titleFontStyle) {
+      titleFontStyle.addEventListener('change', (e) => {
+        this.state.settings.titleFontStyle = e.target.value;
+        this.updateLivePreview();
+      });
+    }
+
+    const titleSeparator = document.getElementById('titleSeparator');
+    if (titleSeparator) {
+      titleSeparator.addEventListener('change', (e) => {
+        this.state.settings.titleSeparator = e.target.value;
+        this.updateLivePreview();
+      });
+    }
+
+    const titleFontSize = document.getElementById('titleFontSize');
+    if (titleFontSize) {
+      titleFontSize.addEventListener('input', (e) => {
+        this.state.settings.titleFontSize = parseFloat(e.target.value);
+        const valBadge = document.getElementById('titleFontSizeVal');
+        if (valBadge) valBadge.textContent = `${e.target.value}px`;
+        this.updateLivePreview();
+      });
+    }
+
     const bodyFontSize = document.getElementById('bodyFontSize');
     if (bodyFontSize) {
       bodyFontSize.addEventListener('input', (e) => {
         this.state.settings.bodyFontSize = parseFloat(e.target.value);
         const valBadge = document.getElementById('bodyFontSizeVal');
         if (valBadge) valBadge.textContent = `${e.target.value}px`;
+        this.updateLivePreview();
+      });
+    }
+
+    const labelScheme = document.getElementById('labelScheme');
+    if (labelScheme) {
+      labelScheme.addEventListener('change', (e) => {
+        this.state.settings.labelScheme = e.target.value;
+        const customGroup = document.getElementById('customLabelInputsGroup');
+        if (customGroup) customGroup.style.display = (e.target.value === 'custom') ? 'flex' : 'none';
         this.updateLivePreview();
       });
     }
@@ -2020,6 +2792,26 @@ const App = {
         this.updateLivePreview();
       });
     }
+
+    const dividerSpacing = document.getElementById('dividerSpacing');
+    if (dividerSpacing) {
+      dividerSpacing.addEventListener('input', (e) => {
+        this.state.settings.dividerSpacing = Number(e.target.value);
+        const valBadge = document.getElementById('dividerSpacingVal');
+        if (valBadge) valBadge.textContent = `${e.target.value}px`;
+        this.updateLivePreview();
+      });
+    }
+
+    // Line Spacing Density Chips
+    document.querySelectorAll('#lineSpacingChips .dpi-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('#lineSpacingChips .dpi-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        this.state.settings.lineSpacing = chip.dataset.spacing;
+        this.updateLivePreview();
+      });
+    });
 
     // Socials
     const iconStyle = document.getElementById('iconStyle');

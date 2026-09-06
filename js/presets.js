@@ -1,6 +1,6 @@
 /**
- * Pre-configured Style & Template Presets
- * Expanded 8+ Multi-Industry Presets
+ * Pre-configured Style & Template Presets (MailCraft Studio 2.0)
+ * Expanded 12+ Multi-Industry Presets & 10 Architectural Templates
  * Zero emojis - pure professional presets
  */
 
@@ -48,7 +48,7 @@ const Presets = {
       name: 'Academic Scholar',
       description: 'Classic editorial serif typography with deep sapphire accents, ORCID & Google Scholar',
       settings: {
-        template: 'vertical-divider',
+        template: 'academic-affil',
         fontFamily: "Georgia, 'Times New Roman', serif",
         nameFontSize: 18,
         nameFontWeight: '700',
@@ -76,7 +76,7 @@ const Presets = {
         labelEmail: 'Institutional:',
         labelWebsite: 'Web:',
         showBadges: true,
-        badgeText: 'BRAC University \u2022 IEEE Senior Member'
+        badgeText: 'BRAC University \u2022 Senior Researcher'
       }
     },
     corporateExecutive: {
@@ -148,6 +148,146 @@ const Presets = {
         labelWebsite: 'Agency:',
         showBadges: true,
         badgeText: 'Creative Studio'
+      }
+    },
+    headerBannerCorporate: {
+      id: 'headerBannerCorporate',
+      name: 'Header Hero Banner',
+      description: 'Full-width brand header bar with clean modern anchored profile and booking button',
+      settings: {
+        template: 'header-banner',
+        fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        nameFontSize: 17,
+        nameFontWeight: '700',
+        nameColor: '#0F172A',
+        titleFontSize: 13,
+        titleColor: '#2563EB',
+        bodyFontSize: 12,
+        bodyColor: '#334155',
+        labelColor: '#2563EB',
+        accentColor: '#2563EB',
+        linkColor: '#2563EB',
+        dividerStyle: 'solid',
+        dividerThickness: 2,
+        dividerColor: '#2563EB',
+        avatarShape: 'circle',
+        avatarSize: 80,
+        avatarBorderWidth: 2,
+        avatarBorderColor: '#DBEAFE',
+        avatarDpi: 2,
+        iconStyle: 'accent',
+        iconSize: 18,
+        iconSpacing: 8,
+        showLabels: true,
+        labelPhone: 'Direct:',
+        labelEmail: 'Email:',
+        labelWebsite: 'Web:',
+        showBadges: true,
+        badgeText: 'Executive Partner'
+      }
+    },
+    academicMultiAffil: {
+      id: 'academicMultiAffil',
+      name: 'Academic Multi-Affiliation',
+      description: 'Editorial structure for faculty & researchers with secondary lab, research tags and ORCID',
+      settings: {
+        template: 'academic-affil',
+        fontFamily: "Georgia, 'Times New Roman', serif",
+        nameFontSize: 18,
+        nameFontWeight: '700',
+        nameColor: '#1E1B4B',
+        titleFontSize: 13.5,
+        titleColor: '#3730A3',
+        bodyFontSize: 12,
+        bodyColor: '#27272A',
+        labelColor: '#3730A3',
+        accentColor: '#3730A3',
+        linkColor: '#3730A3',
+        dividerStyle: 'solid',
+        dividerThickness: 2,
+        dividerColor: '#3730A3',
+        avatarShape: 'circle',
+        avatarSize: 90,
+        avatarBorderWidth: 2,
+        avatarBorderColor: '#E0E7FF',
+        avatarDpi: 2,
+        iconStyle: 'accent',
+        iconSize: 18,
+        iconSpacing: 8,
+        showLabels: true,
+        labelPhone: 'Phone:',
+        labelEmail: 'Institutional:',
+        labelWebsite: 'Lab Web:',
+        showBadges: true,
+        badgeText: 'Computational Intelligence Lab'
+      }
+    },
+    microThreadReply: {
+      id: 'microThreadReply',
+      name: 'Micro-Thread Reply',
+      description: 'Ultra-low profile single-row thread signature for fast email reply chains',
+      settings: {
+        template: 'micro-thread',
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        nameFontSize: 15,
+        nameFontWeight: '700',
+        nameColor: '#0F172A',
+        titleFontSize: 12.5,
+        titleColor: '#64748B',
+        bodyFontSize: 12,
+        bodyColor: '#475569',
+        labelColor: '#0284C7',
+        accentColor: '#0284C7',
+        linkColor: '#0284C7',
+        dividerStyle: 'solid',
+        dividerThickness: 1,
+        dividerColor: '#CBD5E1',
+        avatarShape: 'circle',
+        avatarSize: 40,
+        avatarBorderWidth: 0,
+        avatarBorderColor: '#0284C7',
+        avatarDpi: 2,
+        iconStyle: 'brand',
+        iconSize: 16,
+        iconSpacing: 6,
+        showLabels: false,
+        showBadges: false
+      }
+    },
+    asciiTerminalHacker: {
+      id: 'asciiTerminalHacker',
+      name: 'Obsidian ASCII Terminal',
+      description: 'Monospace terminal box with CLI prompt prefixes and cyber green accent',
+      settings: {
+        template: 'ascii-terminal',
+        fontFamily: "'Courier New', Courier, monospace",
+        nameFontSize: 16,
+        nameFontWeight: '700',
+        nameColor: '#00DC82',
+        titleFontSize: 12.5,
+        titleColor: '#94A3B8',
+        bodyFontSize: 12,
+        bodyColor: '#D4D4D8',
+        labelColor: '#00DC82',
+        accentColor: '#00DC82',
+        linkColor: '#00DC82',
+        dividerStyle: 'solid',
+        dividerThickness: 1,
+        dividerColor: '#242424',
+        avatarShape: 'square',
+        avatarSize: 75,
+        avatarBorderWidth: 1,
+        avatarBorderColor: '#00DC82',
+        avatarDpi: 2,
+        iconStyle: 'accent',
+        iconSize: 16,
+        iconSpacing: 8,
+        showLabels: true,
+        labelPhone: '$ tel:',
+        labelEmail: '$ mail:',
+        labelWebsite: '$ web:',
+        showBadges: true,
+        badgeText: 'Root Architect'
       }
     },
     minimalistOneLiner: {
@@ -345,6 +485,29 @@ const Presets = {
     showCta: false,
     badgeText: 'Undergraduate Researcher',
     showBadge: false,
+    showStatusBadge: false,
+    statusBadge: {
+      enabled: false,
+      text: 'Available for Projects',
+      color: '#10B981'
+    },
+    showBookingBadge: false,
+    bookingBadge: {
+      enabled: false,
+      provider: 'calendly',
+      text: 'Schedule 1:1 Sync',
+      url: 'https://calendly.com'
+    },
+    showQrCode: false,
+    qrCode: {
+      enabled: false,
+      size: 64,
+      targetMode: 'vcard',
+      customUrl: '',
+      showCaption: true,
+      caption: 'Scan for vCard',
+      dataUrl: ''
+    },
     disclaimerText: 'CONFIDENTIALITY NOTICE: This transmission may contain confidential information intended only for the use of the individual or entity named.',
     showDisclaimer: false,
     greenNoteText: 'Please consider the environment before printing this email.',
@@ -465,3 +628,7 @@ const Presets = {
     }
   ]
 };
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = Presets;
+}

@@ -33,41 +33,50 @@
   <header class="studio-top-nav">
     <!-- Left Identity & Brand Link -->
     <div class="studio-nav-left">
-      <a href="index.html" class="studio-brand-link" title="MailCraft Home">
+      <a href="index.html" class="studio-brand-link" title="Back to MailCraft Showcase">
         <div class="brand-logo-badge" style="width: 28px; height: 28px; font-size: 11px;">MC</div>
         <div class="brand-title" style="font-size: 13.5px;">MailCraft Studio</div>
       </a>
-      <span class="sahinur-status-badge" style="padding: 3px 10px; font-size: 10.5px;">
+      <div class="studio-header-divider"></div>
+      <span class="sahinur-status-badge" title="2x High-DPI Canvas Active">
         <span class="sahinur-status-dot"></span>
-        <span id="hdBadge">ONLINE // RETINA 2X</span>
+        <span id="hdBadge">RETINA 2X</span>
       </span>
+      <button class="linter-badge linter-pass" id="linterStatusBtn" title="Click to view Email Compatibility & Size Linter Report">
+        <span class="sahinur-status-dot" id="linterDot"></span>
+        <span id="linterText">SIZE: 3.8 KB // 100% OK</span>
+      </button>
     </div>
 
     <!-- Center 3-Way Mode Switcher -->
     <div class="mode-switcher">
       <button class="mode-tab-btn active" id="modeSignatureBtn" title="Design individual email signatures">
         <span class="btn-icon" id="modeSigIcon"></span>
-        [01] Individual
+        <span>[01] Individual</span>
       </button>
       <button class="mode-tab-btn" id="modeTeamBtn" title="Batch generate signatures for teams from CSV">
         <span class="btn-icon" id="modeTeamIcon"></span>
-        [02] Team Batch
+        <span>[02] Team Batch</span>
       </button>
       <button class="mode-tab-btn" id="modeTemplateBtn" title="Create full HTML responsive email broadcasts">
         <span class="btn-icon" id="modeTplIcon"></span>
-        [03] Email Builder
+        <span>[03] Email Builder</span>
       </button>
     </div>
 
     <!-- Right Preset Selector & Actions -->
     <div class="header-actions">
       <!-- Preset Dropdown Selector -->
-      <select class="form-select" id="presetSelect" style="width: auto; padding: 5px 10px; font-family: var(--font-mono); font-size: 11px;">
+      <select class="form-select studio-preset-select" id="presetSelect" title="Select signature style preset">
         <optgroup label="Default Templates" id="defaultPresetsGroup">
           <option value="developerTerminal">Preset: Developer Terminal</option>
           <option value="academicScholar">Preset: Academic Scholar</option>
           <option value="corporateExecutive">Preset: Corporate Executive</option>
           <option value="creativeAgency">Preset: Creative Agency</option>
+          <option value="headerBannerCorporate">Preset: Header Hero Banner</option>
+          <option value="academicMultiAffil">Preset: Academic Multi-Affil</option>
+          <option value="microThreadReply">Preset: Micro-Thread Reply</option>
+          <option value="asciiTerminalHacker">Preset: Obsidian ASCII Terminal</option>
           <option value="minimalistOneLiner">Preset: Minimalist One-Liner</option>
           <option value="marketingPromo">Preset: Marketing Promo</option>
           <option value="siliconValley">Preset: Silicon Valley</option>
@@ -80,24 +89,34 @@
       </select>
 
       <!-- Preset Management Buttons -->
-      <button class="btn-secondary" id="savePresetBtn" title="Save current configuration to local presets">
+      <button class="btn-secondary header-btn" id="savePresetBtn" title="Save current configuration to local presets">
         <span class="btn-icon" id="savePresetIcon"></span>
-        Save Preset
+        <span>Save</span>
       </button>
 
-      <button class="btn-secondary" id="managePresetsBtn" title="Manage, import, or export custom presets">
+      <button class="btn-secondary header-btn" id="managePresetsBtn" title="Manage, import, or export custom presets">
         <span class="btn-icon" id="managePresetsIcon"></span>
-        Presets Hub
+        <span>Presets</span>
       </button>
 
-      <button class="btn-secondary" id="openGuideBtn">
+      <button class="btn-secondary header-btn" id="openDesktopExportBtn" title="Export Apple Mail (.mailsignature), Outlook (.htm), and Thunderbird files">
+        <span class="btn-icon" id="desktopIcon"></span>
+        <span>Desktop</span>
+      </button>
+
+      <button class="btn-secondary header-btn" id="openAdminDeployBtn" title="Generate Google Apps Script & Microsoft 365 PowerShell deployers">
+        <span class="btn-icon" id="adminIcon"></span>
+        <span>Deploy</span>
+      </button>
+
+      <button class="btn-secondary header-btn" id="openGuideBtn" title="Email Client Installation Guide">
         <span class="btn-icon" id="guideIcon"></span>
-        Guide
+        <span>Guide</span>
       </button>
 
-      <button class="btn-primary" id="copyPrimaryBtn">
+      <button class="btn-primary header-copy-btn" id="copyPrimaryBtn" title="Copy rich HTML signature to clipboard">
         <span class="btn-icon" id="copyPrimaryIcon"></span>
-        Copy Signature
+        <span>Copy</span>
       </button>
     </div>
   </header>
@@ -139,22 +158,38 @@
             <div class="section-title">
               <span class="sahinur-eyebrow">// 01. PERSONAL PROFILE</span>
             </div>
-            <div class="form-group">
-              <label class="form-label" for="fullName">Full Name</label>
-              <input type="text" id="fullName" class="form-input" value="Dhrubojyoti" placeholder="e.g. John Doe">
+            <div class="form-row">
+              <div class="form-group" style="flex: 1.6;">
+                <label class="form-label" for="fullName">Full Name</label>
+                <input type="text" id="fullName" class="form-input" value="Alex Vance" placeholder="e.g. John Doe">
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label class="form-label" for="nameTag">Status / Role Pill</label>
+                <input type="text" id="nameTag" class="form-input" value="" placeholder="e.g. DEV ARCHITECT">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="namePrefix">Prefix / Salutation</label>
+                <input type="text" id="namePrefix" class="form-input" value="" placeholder="e.g. Dr., Prof., Engr.">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="nameSuffix">Suffix / Credentials</label>
+                <input type="text" id="nameSuffix" class="form-input" value="" placeholder="e.g. Ph.D., PE, CISSP">
+              </div>
             </div>
             <div class="form-group">
               <label class="form-label" for="jobTitle">Job Title / Role</label>
-              <input type="text" id="jobTitle" class="form-input" value="Undergraduate Student" placeholder="e.g. Software Engineer">
+              <input type="text" id="jobTitle" class="form-input" value="Principal Systems Architect" placeholder="e.g. Software Engineer">
             </div>
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label" for="company">Organization / Brand</label>
-                <input type="text" id="company" class="form-input" value="BRAC University" placeholder="e.g. Tech Corp">
+                <input type="text" id="company" class="form-input" value="OmniCore Global" placeholder="e.g. Tech Corp">
               </div>
               <div class="form-group">
                 <label class="form-label" for="department">Department</label>
-                <input type="text" id="department" class="form-input" value="Dept. of CSE" placeholder="e.g. Engineering">
+                <input type="text" id="department" class="form-input" value="Infrastructure &amp; Cloud" placeholder="e.g. Engineering">
               </div>
             </div>
           </div>
@@ -186,6 +221,28 @@
               </div>
             </div>
           </div>
+
+          <!-- Section 3: Dynamic Custom Fields -->
+          <div class="control-section">
+            <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="sahinur-eyebrow">// 03. CUSTOM METADATA ROWS</span>
+              <button class="btn-secondary" id="addCustomFieldBtn" style="padding: 3px 8px; font-size: 11px;">
+                <span class="sahinur-prompt-prefix">+</span> Add Row
+              </button>
+            </div>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px;">
+              <span class="custom-field-preset-tag" data-label="Pronouns" data-val="he/him">+ Pronouns</span>
+              <span class="custom-field-preset-tag" data-label="Timezone" data-val="UTC+6 (BST)">+ Timezone</span>
+              <span class="custom-field-preset-tag" data-label="Office Hours" data-val="Mon-Thu 2-5 PM">+ Office Hours</span>
+              <span class="custom-field-preset-tag" data-label="Lab Affiliation" data-val="AI &amp; Robotics Lab">+ Lab</span>
+              <span class="custom-field-preset-tag" data-label="PGP Key" data-val="4A9F 88D2 19BC 00E1">+ PGP Key</span>
+            </div>
+
+            <div id="customFieldsContainer" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Custom fields dynamically rendered here -->
+            </div>
+          </div>
         </div>
 
         <!-- Tab 2: Dual Media (Avatar & Company Logo) -->
@@ -212,6 +269,22 @@
                 <button class="dpi-chip" data-dpi="3">3x SUPER</button>
                 <button class="dpi-chip" data-dpi="4">4x ULTRA</button>
               </div>
+
+              <!-- Live High-DPI Resolution & Size Telemetry -->
+              <div id="avatarTelemetryPill" style="display: flex; justify-content: space-between; align-items: center; background: #0A0A0A; border: 1px solid var(--sahinur-border); border-radius: 4px; padding: 6px 10px; margin-top: 6px; font-family: var(--font-mono); font-size: 10.5px;">
+                <span style="color: var(--sahinur-text-dim);">Density: <strong id="avatarPixelDim" style="color: #FFFFFF;">170×170px (2x DPI)</strong></span>
+                <span style="color: var(--sahinur-accent); font-weight: 700;" id="avatarPayloadSize">~12.4 KB (100% Crisp)</span>
+              </div>
+            </div>
+
+            <!-- Smart DPI Compression Selector -->
+            <div class="form-group">
+              <label class="form-label" for="avatarCompressionSelect">Smart DPI Compression Engine</label>
+              <select id="avatarCompressionSelect" class="form-select">
+                <option value="smart" selected>Smart High-DPI (Recommended · Full DPI · ~12 KB)</option>
+                <option value="high">Ultra-HD Quality (Full DPI · ~22 KB)</option>
+                <option value="lossless">Lossless PNG (Uncompressed Master)</option>
+              </select>
             </div>
 
             <div class="form-group">
@@ -389,6 +462,60 @@
                 <div class="template-card-title">Modern Card</div>
               </div>
 
+              <div class="template-card" data-template="header-banner">
+                <div class="template-card-preview">
+                  <div style="width: 80%; display: flex; flex-direction: column; gap: 2px;">
+                    <div style="width: 100%; height: 8px; background: #00DC82; border-radius: 2px 2px 0 0;"></div>
+                    <div style="width: 100%; height: 18px; background: #1c1c1c; border: 1px solid #282828; border-top: 0; border-radius: 0 0 2px 2px;"></div>
+                  </div>
+                </div>
+                <div class="template-card-title">Header Hero Banner</div>
+              </div>
+
+              <div class="template-card" data-template="academic-affil">
+                <div class="template-card-preview">
+                  <div style="display: flex; gap: 5px; width: 80%; align-items: center;">
+                    <div style="width: 16px; height: 16px; border-radius: 50%; background: #00DC82;"></div>
+                    <div style="width: 2px; height: 24px; background: #3730A3;"></div>
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
+                      <div style="width: 36px; height: 3px; background: #FFFFFF;"></div>
+                      <div style="width: 26px; height: 2px; background: #38BDF8;"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="template-card-title">Academic Multi-Affil</div>
+              </div>
+
+              <div class="template-card" data-template="micro-thread">
+                <div class="template-card-preview">
+                  <div style="display: flex; align-items: center; gap: 3px; width: 85%;">
+                    <div style="font-family: monospace; font-size: 8px; color: #00DC82;">//</div>
+                    <div style="flex: 1; height: 3px; background: #FFFFFF; border-radius: 1px;"></div>
+                  </div>
+                </div>
+                <div class="template-card-title">Micro-Thread Reply</div>
+              </div>
+
+              <div class="template-card" data-template="ascii-terminal">
+                <div class="template-card-preview">
+                  <div style="width: 80%; height: 24px; border: 1px dashed #00DC82; background: #000000; border-radius: 2px; display: flex; align-items: center; padding-left: 4px;">
+                    <span style="font-family: monospace; font-size: 8px; color: #00DC82;">$&gt;</span>
+                  </div>
+                </div>
+                <div class="template-card-title">Obsidian Terminal</div>
+              </div>
+
+              <div class="template-card" data-template="minimal-left">
+                <div class="template-card-preview">
+                  <div style="display: flex; flex-direction: column; gap: 3px; width: 75%;">
+                    <div style="width: 14px; height: 14px; border-radius: 50%; background: #00DC82;"></div>
+                    <div style="width: 44px; height: 4px; background: #FFFFFF;"></div>
+                    <div style="width: 30px; height: 3px; background: #8E8E93;"></div>
+                  </div>
+                </div>
+                <div class="template-card-title">Minimal Left</div>
+              </div>
+
               <div class="template-card" data-template="compact-inline">
                 <div class="template-card-preview">
                   <div style="display: flex; align-items: center; gap: 4px; width: 85%;">
@@ -560,6 +687,122 @@
               </div>
             </div>
           </div>
+
+          <!-- Section 4: Line-by-Line Granular Customization -->
+          <div class="control-section">
+            <div class="section-title">
+              <span class="sahinur-eyebrow">// 04. LINE-BY-LINE STYLING &amp; DENSITY</span>
+            </div>
+
+            <!-- Line Spacing & Density Chips -->
+            <div class="form-group">
+              <label class="form-label">Line Spacing &amp; Vertical Density</label>
+              <div class="dpi-chips-container" style="grid-template-columns: repeat(3, 1fr);" id="lineSpacingChips">
+                <button type="button" class="dpi-chip" data-spacing="tight">Tight (1.2x)</button>
+                <button type="button" class="dpi-chip active" data-spacing="normal">Standard (1.38x)</button>
+                <button type="button" class="dpi-chip" data-spacing="spacious">Spacious (1.65x)</button>
+              </div>
+            </div>
+
+            <!-- Name Line Formatting -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="nameFontWeight">Name Font Weight</label>
+                <select id="nameFontWeight" class="form-select">
+                  <option value="400">Regular (400)</option>
+                  <option value="500">Medium (500)</option>
+                  <option value="600">Semi-Bold (600)</option>
+                  <option value="700" selected>Bold (700)</option>
+                  <option value="800">Black / Extra Bold (800)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="nameTransform">Name Case</label>
+                <select id="nameTransform" class="form-select">
+                  <option value="none">Normal (Default)</option>
+                  <option value="uppercase">UPPERCASE</option>
+                  <option value="capitalize">Capitalize</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Title & Company Line Formatting -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="titleFontStyle">Title Style</label>
+                <select id="titleFontStyle" class="form-select">
+                  <option value="normal">Normal</option>
+                  <option value="italic">Italic (Academic / Editorial)</option>
+                  <option value="bold">Bold</option>
+                  <option value="uppercase">UPPERCASE</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="titleSeparator">Title &amp; Org Separator</label>
+                <select id="titleSeparator" class="form-select">
+                  <option value="bullet">&bull; Bullet ( &bull; )</option>
+                  <option value="pipe">| Pipe ( | )</option>
+                  <option value="doubleslash">// Double Slash ( // )</option>
+                  <option value="slash">/ Slash ( / )</option>
+                  <option value="emdash">&mdash; Em Dash ( &mdash; )</option>
+                  <option value="newline">&#x21B5; New Line (Stacked)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Title Font Size</span>
+                <span class="slider-val-badge" id="titleFontSizeVal">13px</span>
+              </div>
+              <input type="range" id="titleFontSize" class="custom-range" min="10" max="18" step="0.5" value="13">
+            </div>
+
+            <!-- Contact Channels Prefix Style Scheme -->
+            <div class="form-group" style="margin-top: 6px;">
+              <label class="form-label" for="labelScheme">Contact Line Prefixes</label>
+              <select id="labelScheme" class="form-select">
+                <option value="terminal">Terminal CLI ($ tel:, $ mail:, $ web:)</option>
+                <option value="compact">Compact Initial (T:, E:, W:, Loc:)</option>
+                <option value="full">Full Word (Mobile:, Email:, Website:)</option>
+                <option value="minimal">Minimal Clean (No Prefix Labels)</option>
+                <option value="custom">Custom Prefix Labels</option>
+              </select>
+            </div>
+
+            <!-- Custom Prefix Inputs (expandable if custom selected) -->
+            <div id="customLabelInputsGroup" style="display: none; flex-direction: column; gap: 8px; padding: 10px; background: var(--sahinur-surface-2); border: 1px solid var(--sahinur-border); border-radius: 4px;">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="labelPhone">Phone Prefix</label>
+                  <input type="text" id="labelPhone" class="form-input" value="$ tel:" placeholder="e.g. T: or Tel:">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="labelEmail">Email Prefix</label>
+                  <input type="text" id="labelEmail" class="form-input" value="$ mail:" placeholder="e.g. E: or Email:">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="labelWebsite">Website Prefix</label>
+                  <input type="text" id="labelWebsite" class="form-input" value="$ web:" placeholder="e.g. W: or Web:">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="labelAddress">Location Prefix</label>
+                  <input type="text" id="labelAddress" class="form-input" value="" placeholder="e.g. Loc: or 📍">
+                </div>
+              </div>
+            </div>
+
+            <!-- Divider Line Spacing -->
+            <div class="slider-group" style="margin-top: 6px;">
+              <div class="slider-header">
+                <span>Divider Spacing / Margin</span>
+                <span class="slider-val-badge" id="dividerSpacingVal">14px</span>
+              </div>
+              <input type="range" id="dividerSpacing" class="custom-range" min="4" max="24" value="14">
+            </div>
+          </div>
         </div>
 
         <!-- Tab 4: Social Media Icons -->
@@ -626,20 +869,29 @@
 
           <!-- Section 2: Promotional Campaign Banner -->
           <div class="control-section">
-            <label class="toggle-row" for="showPromoBanner">
-              <div class="toggle-label-group">
-                <span class="toggle-label">Campaign Promo Banner</span>
-                <span class="toggle-desc">Full-width promotional banner with clickable link</span>
-              </div>
-              <input type="checkbox" id="showPromoBanner" class="switch-input">
-              <div class="switch-track"><div class="switch-thumb"></div></div>
-            </label>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <label class="toggle-row" for="showPromoBanner" style="margin-bottom: 0; flex: 1;">
+                <div class="toggle-label-group">
+                  <span class="toggle-label">Campaign Promo Banner</span>
+                  <span class="toggle-desc">Full-width promotional banner with clickable link</span>
+                </div>
+                <input type="checkbox" id="showPromoBanner" class="switch-input">
+                <div class="switch-track"><div class="switch-thumb"></div></div>
+              </label>
+            </div>
 
-            <div id="promoBannerGroup" style="display: none; padding-top: 10px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="margin-bottom: 10px;">
+              <button class="btn-secondary" id="openBannerDesignerBtn" style="width: 100%; justify-content: center; font-size: 11px; padding: 7px 10px;">
+                <span class="btn-icon" id="bannerDesignerIcon">🎨</span>
+                Launch Interactive Banner Designer
+              </button>
+            </div>
+
+            <div id="promoBannerGroup" style="display: none; padding-top: 6px; display: flex; flex-direction: column; gap: 10px;">
               <div class="form-group">
-                <label class="form-label">Upload Banner Image</label>
+                <label class="form-label">Upload Custom Banner</label>
                 <input type="file" id="promoBannerFileInput" accept="image/*" class="form-input" style="padding: 6px;">
-                <span class="form-label-desc">Recommended size: 800x120px to 800x200px.</span>
+                <span class="form-label-desc">Recommended size: 800x140px to 800x200px.</span>
               </div>
               <div class="form-group">
                 <label class="form-label" for="promoTargetUrl">Banner Click Destination URL</label>
@@ -655,10 +907,124 @@
 
         <!-- Tab 6: Badges & Add-ons -->
         <div class="sidebar-panel" id="tab-addons">
+          
+          <!-- Section 1: Live Status Badge -->
+          <div class="control-section">
+            <label class="toggle-row" for="showStatusBadge">
+              <div class="toggle-label-group">
+                <span class="toggle-label">Dynamic Live Status Badge</span>
+                <span class="toggle-desc">Displays current availability or timezone indicator</span>
+              </div>
+              <input type="checkbox" id="showStatusBadge" class="switch-input">
+              <div class="switch-track"><div class="switch-thumb"></div></div>
+            </label>
+            <div id="statusBadgeGroup" style="display: none; display: flex; flex-direction: column; gap: 8px; padding-top: 8px;">
+              <div class="form-group">
+                <label class="form-label" for="statusPresetSelect">Status Preset</label>
+                <select id="statusPresetSelect" class="form-select">
+                  <option value="Available for Projects">● Available for Projects</option>
+                  <option value="In Office (UTC+6)">● In Office (UTC+6)</option>
+                  <option value="Traveling / Async Only">● Traveling / Async Only</option>
+                  <option value="Open to Research Collaboration">● Open to Research Collaboration</option>
+                  <option value="Focus Mode / Async">● Focus Mode / Async</option>
+                  <option value="custom">Custom Status Text...</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="statusBadgeText">Status Label</label>
+                <input type="text" id="statusBadgeText" class="form-input" value="Available for Projects">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="statusBadgeColor">Dot Indicator Color</label>
+                <div class="color-picker-row">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="statusBadgeColor" class="color-input" value="#10B981">
+                  </div>
+                  <input type="text" id="statusBadgeColorHex" class="form-input color-hex-input" value="#10B981">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Calendar & Meeting Booking Button -->
+          <div class="control-section">
+            <label class="toggle-row" for="showBookingBadge">
+              <div class="toggle-label-group">
+                <span class="toggle-label">Meeting / Calendar Booking Badge</span>
+                <span class="toggle-desc">Direct 1-click calendar sync button</span>
+              </div>
+              <input type="checkbox" id="showBookingBadge" class="switch-input">
+              <div class="switch-track"><div class="switch-thumb"></div></div>
+            </label>
+            <div id="bookingBadgeGroup" style="display: none; display: flex; flex-direction: column; gap: 8px; padding-top: 8px;">
+              <div class="form-group">
+                <label class="form-label" for="bookingProviderSelect">Calendar Provider</label>
+                <select id="bookingProviderSelect" class="form-select">
+                  <option value="calendly">Calendly</option>
+                  <option value="cal">Cal.com</option>
+                  <option value="google">Google Calendar</option>
+                  <option value="savvycal">SavvyCal</option>
+                  <option value="microsoft">Microsoft Bookings</option>
+                  <option value="custom">Custom Provider</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="bookingBadgeText">Button Label</label>
+                <input type="text" id="bookingBadgeText" class="form-input" value="Schedule 1:1 Call">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="bookingBadgeUrl">Booking Link URL</label>
+                <input type="text" id="bookingBadgeUrl" class="form-input" value="https://calendly.com">
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: QR Code & vCard Hub -->
+          <div class="control-section">
+            <label class="toggle-row" for="showQrCode">
+              <div class="toggle-label-group">
+                <span class="toggle-label">QR Code Contact Badge</span>
+                <span class="toggle-desc">Embeds high-resolution vCard or custom link QR code</span>
+              </div>
+              <input type="checkbox" id="showQrCode" class="switch-input">
+              <div class="switch-track"><div class="switch-thumb"></div></div>
+            </label>
+            <div id="qrCodeGroup" style="display: none; display: flex; flex-direction: column; gap: 10px; padding-top: 8px;">
+              <div class="form-group">
+                <label class="form-label" for="qrTargetMode">QR Code Payload</label>
+                <select id="qrTargetMode" class="form-select">
+                  <option value="vcard">RFC 2426 vCard 3.0 (Direct Contact)</option>
+                  <option value="website">Website / Portfolio URL</option>
+                  <option value="custom">Custom Target URL</option>
+                </select>
+              </div>
+              <div class="form-group" id="qrCustomUrlGroup" style="display: none;">
+                <label class="form-label" for="qrCustomUrl">Custom Destination URL</label>
+                <input type="text" id="qrCustomUrl" class="form-input" placeholder="https://your-custom-link.com">
+              </div>
+              <div class="slider-group">
+                <div class="slider-header">
+                  <span>QR Display Size</span>
+                  <span class="slider-val-badge" id="qrSizeVal">64px</span>
+                </div>
+                <input type="range" id="qrSize" class="custom-range" min="48" max="100" value="64">
+              </div>
+              <div style="display: flex; gap: 8px; margin-top: 4px;">
+                <button type="button" class="btn-secondary" id="downloadVcfBtn" style="flex: 1; font-size: 11px; padding: 6px;">
+                  Download .vcf Card
+                </button>
+                <button type="button" class="btn-secondary" id="downloadQrPngBtn" style="flex: 1; font-size: 11px; padding: 6px;">
+                  Download QR PNG
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 4: Text Role / Affiliation Badge -->
           <div class="control-section">
             <label class="toggle-row" for="showBadge">
               <div class="toggle-label-group">
-                <span class="toggle-label">Status Badge Chip</span>
+                <span class="toggle-label">Static Tag / Role Badge</span>
                 <span class="toggle-desc">Displays a verified role or institution tag</span>
               </div>
               <input type="checkbox" id="showBadge" class="switch-input" checked>
@@ -670,11 +1036,12 @@
             </div>
           </div>
 
+          <!-- Section 5: Generic Call To Action (CTA) Button -->
           <div class="control-section">
             <label class="toggle-row" for="showCta">
               <div class="toggle-label-group">
-                <span class="toggle-label">Call To Action (CTA) Button</span>
-                <span class="toggle-desc">Adds a direct link button below your signature</span>
+                <span class="toggle-label">Generic CTA Link Button</span>
+                <span class="toggle-desc">Adds a secondary action button below signature</span>
               </div>
               <input type="checkbox" id="showCta" class="switch-input">
               <div class="switch-track"><div class="switch-thumb"></div></div>
@@ -682,11 +1049,11 @@
             <div id="ctaInputGroup" style="display: none; display: flex; flex-direction: column; gap: 10px; padding-top: 8px;">
               <div class="form-group">
                 <label class="form-label" for="ctaText">Button Text</label>
-                <input type="text" id="ctaText" class="form-input" value="Schedule a 1:1 Sync">
+                <input type="text" id="ctaText" class="form-input" value="Explore Portfolio">
               </div>
               <div class="form-group">
                 <label class="form-label" for="ctaUrl">Target URL</label>
-                <input type="text" id="ctaUrl" class="form-input" value="https://calendly.com">
+                <input type="text" id="ctaUrl" class="form-input" value="https://www.dhrubojyoti.dev">
               </div>
             </div>
           </div>
@@ -1255,6 +1622,238 @@
     </div>
   </div>
 
+  <!-- Email Compatibility & Size Linter Report Modal -->
+  <div class="modal-overlay" id="compatibilityModalOverlay">
+    <div class="guide-modal-content sahinur-terminal" style="max-width: 700px;">
+      <div class="sahinur-terminal-header guide-modal-header">
+        <div class="sahinur-traffic-dots">
+          <span class="sahinur-traffic-dot red"></span>
+          <span class="sahinur-traffic-dot yellow"></span>
+          <span class="sahinur-traffic-dot green"></span>
+        </div>
+        <div class="guide-modal-title">
+          <span class="sahinur-prompt-prefix">$</span>
+          <span>email-linter --audit --clients=gmail,outlook,apple</span>
+        </div>
+        <button class="modal-close-btn" id="closeCompatibilityModalBtn" title="Close"></button>
+      </div>
+      <div class="guide-modal-body">
+        <!-- Size & Gmail 102KB Gauge -->
+        <div class="linter-gauge-container">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 700; font-size: 12px; color: var(--sahinur-text-bright);">Gmail 102KB Clipping Limit Meter</span>
+            <span id="linterSizeLabel" style="font-family: var(--font-mono); font-size: 11px; color: var(--sahinur-accent); font-weight: 700;">3.8 KB / 102 KB (4%)</span>
+          </div>
+          <div class="linter-gauge-bar">
+            <div class="linter-gauge-fill" id="linterGaugeFill" style="width: 4%; background-color: #00DC82;"></div>
+          </div>
+          <div id="linterSafetyText" style="font-size: 11px; color: var(--sahinur-text-dim);">Safe from message truncation across Gmail iOS, Android, and Web clients.</div>
+        </div>
+
+        <!-- Checklist Items -->
+        <div id="linterChecklistContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; padding-right: 4px;">
+          <!-- Dynamically populated by LinterEngine -->
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+          <button class="btn-secondary" id="copyAuditSummaryBtn">Copy Audit Report</button>
+          <button class="btn-primary" id="closeCompatibilityModalBtn2">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Direct Desktop Signature File Exporter Modal -->
+  <div class="modal-overlay" id="desktopExporterModalOverlay">
+    <div class="guide-modal-content sahinur-terminal" style="max-width: 720px;">
+      <div class="sahinur-terminal-header guide-modal-header">
+        <div class="sahinur-traffic-dots">
+          <span class="sahinur-traffic-dot red"></span>
+          <span class="sahinur-traffic-dot yellow"></span>
+          <span class="sahinur-traffic-dot green"></span>
+        </div>
+        <div class="guide-modal-title">
+          <span class="sahinur-prompt-prefix">$</span>
+          <span>export --desktop-signatures</span>
+        </div>
+        <button class="modal-close-btn" id="closeDesktopExporterModalBtn" title="Close"></button>
+      </div>
+      <div class="guide-modal-body">
+        <p style="font-size: 12px; color: var(--sahinur-text-dim); margin-bottom: 4px;">
+          Download native signature configuration files pre-formatted for desktop email clients:
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <!-- macOS Apple Mail -->
+          <div class="export-platform-card">
+            <div class="export-platform-header">
+              <div class="export-platform-title">macOS Apple Mail (.mailsignature)</div>
+              <button class="btn-primary" id="downloadAppleMailBtn" style="padding: 4px 12px; font-size: 11px;">
+                Download .mailsignature
+              </button>
+            </div>
+            <div style="font-size: 11.5px; color: var(--sahinur-text-dim);">
+              Place downloaded file into your Mail signature directory:
+            </div>
+            <div class="export-platform-path">~/Library/Mail/V10/MailData/Signatures/</div>
+          </div>
+
+          <!-- Windows Outlook -->
+          <div class="export-platform-card">
+            <div class="export-platform-header">
+              <div class="export-platform-title">Windows Microsoft Outlook (.htm)</div>
+              <button class="btn-primary" id="downloadOutlookHtmBtn" style="padding: 4px 12px; font-size: 11px;">
+                Download signature.htm
+              </button>
+            </div>
+            <div style="font-size: 11.5px; color: var(--sahinur-text-dim);">
+              Place downloaded file into your Outlook signatures folder:
+            </div>
+            <div class="export-platform-path">%APPDATA%\Microsoft\Signatures\</div>
+          </div>
+
+          <!-- Mozilla Thunderbird -->
+          <div class="export-platform-card">
+            <div class="export-platform-header">
+              <div class="export-platform-title">Mozilla Thunderbird (.html)</div>
+              <button class="btn-primary" id="downloadThunderbirdBtn" style="padding: 4px 12px; font-size: 11px;">
+                Download .html Snippet
+              </button>
+            </div>
+            <div style="font-size: 11.5px; color: var(--sahinur-text-dim);">
+              In Thunderbird &gt; Account Settings &gt; Check "Attach signature from a file".
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enterprise Admin Script Generator Modal -->
+  <div class="modal-overlay" id="adminDeployerModalOverlay">
+    <div class="guide-modal-content sahinur-terminal" style="max-width: 780px;">
+      <div class="sahinur-terminal-header guide-modal-header">
+        <div class="sahinur-traffic-dots">
+          <span class="sahinur-traffic-dot red"></span>
+          <span class="sahinur-traffic-dot yellow"></span>
+          <span class="sahinur-traffic-dot green"></span>
+        </div>
+        <div class="guide-modal-title">
+          <span class="sahinur-prompt-prefix">$</span>
+          <span>admin-deploy --google-workspace --m365</span>
+        </div>
+        <button class="modal-close-btn" id="closeAdminDeployerModalBtn" title="Close"></button>
+      </div>
+      <div class="guide-modal-body">
+        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+          <button class="btn-secondary active" id="adminTabGoogleBtn" style="flex: 1; padding: 6px; font-size: 11px;">
+            Google Workspace (Apps Script .gs)
+          </button>
+          <button class="btn-secondary" id="adminTabM365Btn" style="flex: 1; padding: 6px; font-size: 11px;">
+            Microsoft 365 (PowerShell .ps1)
+          </button>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 8px;">
+          <label class="form-label" for="adminTargetEmail">Target User / Domain Admin Email</label>
+          <input type="email" id="adminTargetEmail" class="form-input" value="user@yourdomain.com" style="font-size: 11.5px; padding: 5px 8px;">
+        </div>
+
+        <textarea id="adminScriptViewer" class="form-textarea" style="height: 280px; font-family: var(--font-mono); font-size: 11px; background-color: var(--sahinur-bg); border-color: var(--sahinur-border-strong); color: var(--sahinur-accent);" readonly></textarea>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
+          <button class="btn-secondary" id="downloadAdminScriptFileBtn">Download Script File</button>
+          <button class="btn-primary" id="copyAdminScriptBtn">Copy Script Code</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Promo Banner Designer Modal -->
+  <div class="modal-overlay" id="bannerDesignerModalOverlay">
+    <div class="guide-modal-content sahinur-terminal" style="max-width: 780px;">
+      <div class="sahinur-terminal-header guide-modal-header">
+        <div class="sahinur-traffic-dots">
+          <span class="sahinur-traffic-dot red"></span>
+          <span class="sahinur-traffic-dot yellow"></span>
+          <span class="sahinur-traffic-dot green"></span>
+        </div>
+        <div class="guide-modal-title">
+          <span class="sahinur-prompt-prefix">$</span>
+          <span>banner-designer --canvas-2x</span>
+        </div>
+        <button class="modal-close-btn" id="closeBannerDesignerModalBtn" title="Close"></button>
+      </div>
+      <div class="guide-modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+        
+        <!-- Live Canvas Preview Hero Stage -->
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px;">
+            <span style="color: var(--sahinur-text-dim);">// LIVE CANVAS PREVIEW (2X RETINA):</span>
+            <span style="color: var(--sahinur-accent); font-size: 10px;">[100% NATIVE SCALE · 640x144px]</span>
+          </div>
+          <div class="banner-designer-viewport">
+            <canvas id="bannerCanvas"></canvas>
+          </div>
+        </div>
+
+        <!-- Customization Controls Grid -->
+        <div style="display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--sahinur-border); padding-top: 14px;">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="bannerPresetSelect">Banner Preset Theme</label>
+              <select id="bannerPresetSelect" class="form-select">
+                <option value="hiring">Hiring / Recruitment</option>
+                <option value="research">Latest Research Paper</option>
+                <option value="product">Product Launch / Release</option>
+                <option value="webinar">Keynote / Webinar Speaker</option>
+                <option value="custom">Custom Campaign</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="bannerGradientSelect">Color Scheme / Palette</label>
+              <select id="bannerGradientSelect" class="form-select">
+                <option value="emerald">Emerald Matrix</option>
+                <option value="sapphire">Electric Sapphire</option>
+                <option value="violet">Cyber Violet</option>
+                <option value="amber">Amber Gold</option>
+                <option value="crimson">Crimson Flame</option>
+                <option value="darkSlate">Dark Slate</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="bannerTagInput">Tagline / Eyebrow Text</label>
+              <input type="text" id="bannerTagInput" class="form-input" value="WE ARE HIRING">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="bannerTitleInput">Headline Title</label>
+              <input type="text" id="bannerTitleInput" class="form-input" value="Join Our Core Engineering Team">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="bannerSubtitleInput">Subtitle / Description</label>
+              <input type="text" id="bannerSubtitleInput" class="form-input" value="Open roles in Distributed Systems, Frontend & Research.">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="bannerCtaInput">Button Pill Text</label>
+              <input type="text" id="bannerCtaInput" class="form-input" value="View Open Positions">
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; border-top: 1px solid var(--sahinur-border); padding-top: 12px;">
+          <button class="btn-secondary" id="downloadBannerPngBtn">Download PNG Image</button>
+          <button class="btn-primary" id="applyBannerToSigBtn">Insert into Signature Banner</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- JavaScript Modules -->
   <script src="assets/default-avatar.js"></script>
   <script src="js/html2canvas.min.js"></script>
@@ -1265,6 +1864,10 @@
   <script src="js/preset-manager.js"></script>
   <script src="js/team-engine.js"></script>
   <script src="js/image-processor.js"></script>
+  <script src="js/qr-vcard-engine.js"></script>
+  <script src="js/banner-builder.js"></script>
+  <script src="js/admin-tools.js"></script>
+  <script src="js/linter.js"></script>
   <script src="js/signature-engine.js"></script>
   <script src="js/email-template-engine.js"></script>
   <script src="js/clipboard.js"></script>

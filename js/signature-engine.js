@@ -1,7 +1,8 @@
 /**
- * Email-Safe HTML Signature Generation Engine
+ * Email-Safe HTML Signature Generation Engine (MailCraft Studio 2.0)
  * Produces rock-solid nested <table> HTML with inline CSS
  * Automatic Dark Mode Adaptation, High-DPI Retina dual-image support, custom fields & promo banners
+ * 10 Architectural Templates, QR/vCard integration, Booking & Status Badges
  * Zero emojis
  */
 
@@ -144,8 +145,10 @@ const SignatureEngine = {
    * Main render function that returns email-safe HTML string
    */
   generateHtml(data, settings, isDark = false, isExport = true) {
-    const rawSettings = Object.assign({}, Presets.styles.dhrubojyoti ? Presets.styles.dhrubojyoti.settings : {}, settings);
-    const d = Object.assign({}, Presets.defaultData, data);
+    const presetsStyles = (typeof Presets !== 'undefined' && Presets.styles) ? Presets.styles : {};
+    const defaultData = (typeof Presets !== 'undefined' && Presets.defaultData) ? Presets.defaultData : {};
+    const rawSettings = Object.assign({}, presetsStyles.dhrubojyoti ? presetsStyles.dhrubojyoti.settings : {}, settings);
+    const d = Object.assign({}, defaultData, data);
     const s = Object.assign({}, rawSettings);
 
     const darkColors = {
@@ -194,6 +197,18 @@ const SignatureEngine = {
       case 'compact-inline':
         renderedHtml = this.renderCompactInline(d, s);
         break;
+      case 'header-banner':
+        renderedHtml = this.renderHeaderBanner(d, s);
+        break;
+      case 'academic-affil':
+        renderedHtml = this.renderAcademicAffiliation(d, s);
+        break;
+      case 'micro-thread':
+        renderedHtml = this.renderMicroThread(d, s);
+        break;
+      case 'ascii-terminal':
+        renderedHtml = this.renderAsciiTerminal(d, s);
+        break;
       case 'vertical-divider':
       default:
         renderedHtml = this.renderVerticalDivider(d, s);
@@ -227,6 +242,7 @@ const SignatureEngine = {
     .sig-dark-cta { background-color: ${darkColors.accent} !important; color: ${ctaDarkText} !important; }
     .sig-dark-avatar { filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.25)) !important; }
     .sig-dark-invert { filter: brightness(0) invert(1) !important; }
+    .sig-dark-terminal { background-color: #090B0E !important; border-color: #1E293B !important; color: #F8FAFC !important; }
   }
   [data-ogsc] .sig-dark-name { color: ${darkColors.name} !important; }
   [data-ogsc] .sig-dark-title { color: ${darkColors.title} !important; }
@@ -240,6 +256,7 @@ const SignatureEngine = {
   [data-ogsc] .sig-dark-badge { background-color: ${darkColors.accent}25 !important; color: ${darkColors.accent} !important; }
   [data-ogsc] .sig-dark-cta { background-color: ${darkColors.accent} !important; color: ${ctaDarkText} !important; }
   [data-ogsc] .sig-dark-invert { filter: brightness(0) invert(1) !important; }
+  [data-ogsc] .sig-dark-terminal { background-color: #090B0E !important; border-color: #1E293B !important; color: #F8FAFC !important; }
 </style>
 `.trim();
 
@@ -256,6 +273,9 @@ const SignatureEngine = {
     const socialIconsHtml = this.renderSocialsRow(d, s);
     const ctaHtml = this.renderCtaButton(d, s);
     const badgeHtml = this.renderBadge(d, s);
+    const statusBadgeHtml = this.renderStatusBadgeHtml(d, s);
+    const bookingBadgeHtml = this.renderBookingBadgeHtml(d, s);
+    const qrHtml = this.renderQrCodeHtml(d, s);
     const promoBannerHtml = this.renderPromoBanner(d, s);
     const quoteHtml = this.renderQuote(d, s);
     const disclaimerHtml = this.renderDisclaimers(d, s);
@@ -274,12 +294,18 @@ const SignatureEngine = {
           <td valign="middle" align="center" style="padding-right: 14px; vertical-align: middle; width: ${s.avatarSize || 85}px; text-align: center;">
             ${avatarHtml}
             ${logoHtml ? `<div style="padding-top: 8px;">${logoHtml}</div>` : ''}
+            ${qrHtml ? `<div style="padding-top: 8px;">${qrHtml}</div>` : ''}
           </td>
           ` : (logoHtml ? `
           <td valign="middle" align="center" style="padding-right: 14px; vertical-align: middle; width: ${d.logoSize || 70}px; text-align: center;">
             ${logoHtml}
+            ${qrHtml ? `<div style="padding-top: 8px;">${qrHtml}</div>` : ''}
           </td>
-          ` : '')}
+          ` : (qrHtml ? `
+          <td valign="middle" align="center" style="padding-right: 14px; vertical-align: middle;">
+            ${qrHtml}
+          </td>
+          ` : ''))}
 
           <!-- Vertical Divider Bar -->
           <td valign="middle" class="sig-divider" style="width: 1px; border-left: ${dividerBorder}; padding: 0; font-size: 1px; line-height: 1px; vertical-align: middle;">
@@ -292,41 +318,27 @@ const SignatureEngine = {
               <!-- Name & Title -->
               <tr>
                 <td valign="top" style="padding-bottom: 4px; vertical-align: top;">
-                  <div class="sig-dark-name" style="font-size: ${s.nameFontSize || 17}px; font-weight: ${s.nameFontWeight || 'bold'}; color: ${s.nameColor}; line-height: 1.25; letter-spacing: -0.2px;">
-                    ${d.fullName}
-                  </div>
-                  ${d.jobTitle ? `
-                  <div class="sig-dark-title" style="font-size: ${s.titleFontSize || 13}px; color: ${s.titleColor}; line-height: 1.35; padding-top: 2px; font-weight: 500;">
-                    ${d.jobTitle}${d.company ? ` &bull; ${d.company}` : ''}
-                  </div>
-                  ` : ''}
-                  ${badgeHtml ? `<div style="padding-top: 3px;">${badgeHtml}</div>` : ''}
+                  ${this.renderNameHtml(d, s)}
+                  ${this.renderTitleHtml(d, s)}
+                  ${statusBadgeHtml ? `<div style="padding-top: 4px;">${statusBadgeHtml}</div>` : ''}
+                  ${badgeHtml ? `<div style="padding-top: 4px;">${badgeHtml}</div>` : ''}
                 </td>
               </tr>
 
               <!-- Contact Rows -->
-              ${textDetailsHtml ? `
               <tr>
-                <td valign="top" style="padding-bottom: 5px; line-height: 1.35; vertical-align: top;">
+                <td valign="top" style="padding-top: 2px; padding-bottom: 4px; vertical-align: top;">
                   ${textDetailsHtml}
                 </td>
               </tr>
-              ` : ''}
 
-              <!-- Social Links -->
-              ${socialIconsHtml ? `
+              <!-- Socials & Actions -->
+              ${(socialIconsHtml || bookingBadgeHtml || ctaHtml) ? `
               <tr>
-                <td valign="top" style="padding-top: 2px; vertical-align: top;">
+                <td valign="top" style="padding-top: 4px; vertical-align: top;">
                   ${socialIconsHtml}
-                </td>
-              </tr>
-              ` : ''}
-
-              <!-- CTA Button -->
-              ${ctaHtml ? `
-              <tr>
-                <td valign="top" style="padding-top: 6px; vertical-align: top;">
-                  ${ctaHtml}
+                  ${bookingBadgeHtml ? `<div style="padding-top: 6px;">${bookingBadgeHtml}</div>` : ''}
+                  ${ctaHtml ? `<div style="padding-top: 6px;">${ctaHtml}</div>` : ''}
                 </td>
               </tr>
               ` : ''}
@@ -336,8 +348,6 @@ const SignatureEngine = {
       </table>
     </td>
   </tr>
-
-  <!-- Promo Banner -->
   ${promoBannerHtml ? `
   <tr>
     <td valign="top" style="padding-top: 10px; vertical-align: top;">
@@ -345,8 +355,6 @@ const SignatureEngine = {
     </td>
   </tr>
   ` : ''}
-
-  <!-- Quote Block -->
   ${quoteHtml ? `
   <tr>
     <td valign="top" style="padding-top: 8px; vertical-align: top;">
@@ -354,8 +362,6 @@ const SignatureEngine = {
     </td>
   </tr>
   ` : ''}
-
-  <!-- Disclaimers & Notes -->
   ${disclaimerHtml ? `
   <tr>
     <td valign="top" style="padding-top: 8px; vertical-align: top;">
@@ -378,6 +384,9 @@ const SignatureEngine = {
     const socialIconsHtml = this.renderSocialsRow(d, s);
     const ctaHtml = this.renderCtaButton(d, s);
     const badgeHtml = this.renderBadge(d, s);
+    const statusBadgeHtml = this.renderStatusBadgeHtml(d, s);
+    const bookingBadgeHtml = this.renderBookingBadgeHtml(d, s);
+    const qrHtml = this.renderQrCodeHtml(d, s);
     const promoBannerHtml = this.renderPromoBanner(d, s);
     const quoteHtml = this.renderQuote(d, s);
     const disclaimerHtml = this.renderDisclaimers(d, s);
@@ -386,27 +395,24 @@ const SignatureEngine = {
 
     return `
 <!-- Email Signature Start -->
-<table cellpadding="0" cellspacing="0" border="0" class="sig-table" style="margin: 0; padding: 0; font-family: ${s.fontFamily}; font-size: ${s.bodyFontSize}px; line-height: 1.35; color: ${s.bodyColor}; background-color: transparent; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; max-width: 500px;">
+<table cellpadding="0" cellspacing="0" border="0" class="sig-table" style="margin: 0; padding: 0; font-family: ${s.fontFamily}; font-size: ${s.bodyFontSize}px; line-height: 1.35; color: ${s.bodyColor}; background-color: transparent; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
   <tr>
-    <td valign="top" style="padding: 0; vertical-align: top;">
-      <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
+    <td valign="top" style="vertical-align: top;">
+      <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse;">
         <tr>
           ${avatarHtml ? `
-          <td valign="top" style="padding-right: 14px; width: ${s.avatarSize || 85}px; vertical-align: top;">
+          <td valign="middle" style="padding-right: 12px; vertical-align: middle;">
             ${avatarHtml}
           </td>
           ` : ''}
-          <td valign="top" style="vertical-align: top;">
-            <div class="sig-dark-name" style="font-size: ${s.nameFontSize || 17}px; font-weight: ${s.nameFontWeight || 'bold'}; color: ${s.nameColor}; line-height: 1.25;">
-              ${d.fullName}
-            </div>
-            <div class="sig-dark-title" style="font-size: ${s.titleFontSize || 13}px; color: ${s.titleColor}; line-height: 1.35; padding-top: 2px;">
-              ${d.jobTitle}${d.company ? ` &bull; ${d.company}` : ''}
-            </div>
+          <td valign="middle" style="vertical-align: middle;">
+            ${this.renderNameHtml(d, s)}
+            ${this.renderTitleHtml(d, s)}
+            ${statusBadgeHtml ? `<div style="padding-top: 3px;">${statusBadgeHtml}</div>` : ''}
             ${badgeHtml ? `<div style="padding-top: 3px;">${badgeHtml}</div>` : ''}
           </td>
           ${logoHtml ? `
-          <td valign="top" align="right" style="padding-left: 14px; vertical-align: top; text-align: right;">
+          <td valign="middle" align="right" style="padding-left: 16px; vertical-align: middle;">
             ${logoHtml}
           </td>
           ` : ''}
@@ -422,12 +428,24 @@ const SignatureEngine = {
     </td>
   </tr>
 
-  <!-- Details and Social Row -->
+  <!-- Details & Actions Row -->
   <tr>
-    <td valign="top" style="padding-top: 6px; vertical-align: top;">
-      ${textDetailsHtml}
-      ${socialIconsHtml ? `<div style="padding-top: 6px;">${socialIconsHtml}</div>` : ''}
-      ${ctaHtml ? `<div style="padding-top: 6px;">${ctaHtml}</div>` : ''}
+    <td valign="top" style="padding-top: 8px; vertical-align: top;">
+      <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; width: 100%;">
+        <tr>
+          <td valign="top" style="vertical-align: top;">
+            ${textDetailsHtml}
+            ${socialIconsHtml ? `<div style="padding-top: 6px;">${socialIconsHtml}</div>` : ''}
+            ${bookingBadgeHtml ? `<div style="padding-top: 6px;">${bookingBadgeHtml}</div>` : ''}
+            ${ctaHtml ? `<div style="padding-top: 6px;">${ctaHtml}</div>` : ''}
+          </td>
+          ${qrHtml ? `
+          <td valign="top" align="right" style="padding-left: 14px; vertical-align: top; width: 75px;">
+            ${qrHtml}
+          </td>
+          ` : ''}
+        </tr>
+      </table>
     </td>
   </tr>
 
@@ -438,7 +456,6 @@ const SignatureEngine = {
     </td>
   </tr>
   ` : ''}
-
   ${quoteHtml ? `
   <tr>
     <td valign="top" style="padding-top: 8px; vertical-align: top;">
@@ -446,7 +463,6 @@ const SignatureEngine = {
     </td>
   </tr>
   ` : ''}
-
   ${disclaimerHtml ? `
   <tr>
     <td valign="top" style="padding-top: 8px; vertical-align: top;">
@@ -460,7 +476,7 @@ const SignatureEngine = {
   },
 
   /**
-   * Template 3: Two-Column Clean Grid
+   * Template 3: Two Column Grid
    */
   renderTwoColumn(d, s) {
     const avatarHtml = this.renderAvatarHtml(d, s);
@@ -469,37 +485,39 @@ const SignatureEngine = {
     const socialIconsHtml = this.renderSocialsRow(d, s);
     const ctaHtml = this.renderCtaButton(d, s);
     const badgeHtml = this.renderBadge(d, s);
+    const statusBadgeHtml = this.renderStatusBadgeHtml(d, s);
+    const bookingBadgeHtml = this.renderBookingBadgeHtml(d, s);
+    const qrHtml = this.renderQrCodeHtml(d, s);
     const promoBannerHtml = this.renderPromoBanner(d, s);
     const quoteHtml = this.renderQuote(d, s);
     const disclaimerHtml = this.renderDisclaimers(d, s);
+
     const innerBorder = s.isDarkModeActive ? '1px solid #334155' : '1px solid #E2E8F0';
 
     return `
 <!-- Email Signature Start -->
 <table cellpadding="0" cellspacing="0" border="0" class="sig-table" style="margin: 0; padding: 0; font-family: ${s.fontFamily}; font-size: ${s.bodyFontSize}px; line-height: 1.35; color: ${s.bodyColor}; background-color: transparent; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
   <tr>
-    <td valign="top" style="padding: 0; vertical-align: top;">
+    <td valign="top" style="vertical-align: top;">
       <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse;">
         <tr>
-          <!-- Column 1: Profile & Socials -->
-          <td valign="top" style="padding-right: 18px; vertical-align: top;">
+          <!-- Column 1: Identity & Avatar -->
+          <td valign="top" style="padding-right: 16px; vertical-align: top;">
             ${avatarHtml ? `<div style="margin-bottom: 8px;">${avatarHtml}</div>` : ''}
-            <div class="sig-dark-name" style="font-size: ${s.nameFontSize || 17}px; font-weight: ${s.nameFontWeight || 'bold'}; color: ${s.nameColor}; line-height: 1.25;">
-              ${d.fullName}
-            </div>
-            <div class="sig-dark-title" style="font-size: ${s.titleFontSize || 13}px; color: ${s.titleColor}; line-height: 1.35; padding-top: 2px;">
-              ${d.jobTitle}
-            </div>
-            ${d.company ? `<div class="sig-dark-title" style="font-size: ${s.titleFontSize - 1}px; color: ${s.titleColor};">${d.company}</div>` : ''}
-            ${badgeHtml ? `<div style="padding-top: 3px;">${badgeHtml}</div>` : ''}
-            ${logoHtml ? `<div style="padding-top: 6px;">${logoHtml}</div>` : ''}
+            ${this.renderNameHtml(d, s)}
+            ${this.renderTitleHtml(d, s)}
+            ${statusBadgeHtml ? `<div style="padding-top: 4px;">${statusBadgeHtml}</div>` : ''}
+            ${badgeHtml ? `<div style="padding-top: 4px;">${badgeHtml}</div>` : ''}
+            ${logoHtml ? `<div style="padding-top: 8px;">${logoHtml}</div>` : ''}
             ${socialIconsHtml ? `<div style="padding-top: 8px;">${socialIconsHtml}</div>` : ''}
           </td>
 
           <!-- Column 2: Contact Details -->
           <td valign="top" class="sig-dark-border" style="padding-left: 16px; border-left: ${innerBorder}; vertical-align: top;">
             ${textDetailsHtml}
-            ${ctaHtml ? `<div style="padding-top: 8px;">${ctaHtml}</div>` : ''}
+            ${bookingBadgeHtml ? `<div style="padding-top: 6px;">${bookingBadgeHtml}</div>` : ''}
+            ${ctaHtml ? `<div style="padding-top: 6px;">${ctaHtml}</div>` : ''}
+            ${qrHtml ? `<div style="padding-top: 8px;">${qrHtml}</div>` : ''}
           </td>
         </tr>
       </table>
@@ -541,6 +559,9 @@ const SignatureEngine = {
     const socialIconsHtml = this.renderSocialsRow(d, s);
     const ctaHtml = this.renderCtaButton(d, s);
     const badgeHtml = this.renderBadge(d, s);
+    const statusBadgeHtml = this.renderStatusBadgeHtml(d, s);
+    const bookingBadgeHtml = this.renderBookingBadgeHtml(d, s);
+    const qrHtml = this.renderQrCodeHtml(d, s);
     const promoBannerHtml = this.renderPromoBanner(d, s);
     const quoteHtml = this.renderQuote(d, s);
     const disclaimerHtml = this.renderDisclaimers(d, s);
@@ -550,7 +571,7 @@ const SignatureEngine = {
 
     return `
 <!-- Email Signature Start -->
-<table cellpadding="0" cellspacing="0" border="0" class="sig-table" style="margin: 0; padding: 0; font-family: ${s.fontFamily}; font-size: ${s.bodyFontSize}px; line-height: 1.35; color: ${s.bodyColor}; background-color: transparent; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; max-width: 500px;">
+<table cellpadding="0" cellspacing="0" border="0" class="sig-table" style="margin: 0; padding: 0; font-family: ${s.fontFamily}; font-size: ${s.bodyFontSize}px; line-height: 1.35; color: ${s.bodyColor}; background-color: transparent; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; max-width: 520px;">
   <tr>
     <td class="sig-dark-card" style="border: ${cardBorder}; border-left: 3.5px solid ${s.accentColor || '#2563EB'}; border-radius: 6px; padding: 12px 14px; background-color: ${cardBg};">
       <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; width: 100%;">
@@ -559,24 +580,24 @@ const SignatureEngine = {
           <td valign="top" style="padding-right: 14px; width: ${s.avatarSize || 85}px; vertical-align: top;">
             ${avatarHtml}
             ${logoHtml ? `<div style="padding-top: 6px;">${logoHtml}</div>` : ''}
+            ${qrHtml ? `<div style="padding-top: 6px;">${qrHtml}</div>` : ''}
           </td>
           ` : (logoHtml ? `
           <td valign="top" style="padding-right: 14px; width: ${d.logoSize || 70}px; vertical-align: top;">
             ${logoHtml}
+            ${qrHtml ? `<div style="padding-top: 6px;">${qrHtml}</div>` : ''}
           </td>
           ` : '')}
           <td valign="top" style="vertical-align: top;">
-            <div class="sig-dark-name" style="font-size: ${s.nameFontSize || 17}px; font-weight: ${s.nameFontWeight || 'bold'}; color: ${s.nameColor}; line-height: 1.25;">
-              ${d.fullName}
-            </div>
-            <div class="sig-dark-title" style="font-size: ${s.titleFontSize || 13}px; color: ${s.titleColor}; line-height: 1.35; padding-top: 2px;">
-              ${d.jobTitle}${d.company ? ` | ${d.company}` : ''}
-            </div>
+            ${this.renderNameHtml(d, s)}
+            ${this.renderTitleHtml(d, s)}
+            ${statusBadgeHtml ? `<div style="padding-top: 3px;">${statusBadgeHtml}</div>` : ''}
             ${badgeHtml ? `<div style="padding-top: 3px;">${badgeHtml}</div>` : ''}
             <div style="padding-top: 6px;">
               ${textDetailsHtml}
             </div>
             ${socialIconsHtml ? `<div style="padding-top: 6px;">${socialIconsHtml}</div>` : ''}
+            ${bookingBadgeHtml ? `<div style="padding-top: 6px;">${bookingBadgeHtml}</div>` : ''}
             ${ctaHtml ? `<div style="padding-top: 6px;">${ctaHtml}</div>` : ''}
           </td>
         </tr>
@@ -618,6 +639,10 @@ const SignatureEngine = {
     const textDetailsHtml = this.renderDetailsBlock(d, s);
     const socialIconsHtml = this.renderSocialsRow(d, s);
     const ctaHtml = this.renderCtaButton(d, s);
+    const badgeHtml = this.renderBadge(d, s);
+    const statusBadgeHtml = this.renderStatusBadgeHtml(d, s);
+    const bookingBadgeHtml = this.renderBookingBadgeHtml(d, s);
+    const qrHtml = this.renderQrCodeHtml(d, s);
     const promoBannerHtml = this.renderPromoBanner(d, s);
     const quoteHtml = this.renderQuote(d, s);
     const disclaimerHtml = this.renderDisclaimers(d, s);
@@ -628,16 +653,16 @@ const SignatureEngine = {
   <tr>
     <td valign="top" style="vertical-align: top;">
       ${avatarHtml ? `<div style="margin-bottom: 6px;">${avatarHtml}</div>` : ''}
-      <div class="sig-dark-name" style="font-size: ${s.nameFontSize || 17}px; font-weight: ${s.nameFontWeight || 'bold'}; color: ${s.nameColor}; line-height: 1.25;">
-        ${d.fullName}
-      </div>
-      <div class="sig-dark-title" style="font-size: ${s.titleFontSize || 13}px; color: ${s.titleColor}; padding-top: 2px; padding-bottom: 4px;">
-        ${d.jobTitle}${d.company ? ` &bull; ${d.company}` : ''}
-      </div>
+      ${this.renderNameHtml(d, s)}
+      ${this.renderTitleHtml(d, s)}
+      ${statusBadgeHtml ? `<div style="padding-bottom: 4px;">${statusBadgeHtml}</div>` : ''}
+      ${badgeHtml ? `<div style="padding-bottom: 4px;">${badgeHtml}</div>` : ''}
       ${textDetailsHtml}
       ${logoHtml ? `<div style="padding-top: 6px;">${logoHtml}</div>` : ''}
       ${socialIconsHtml ? `<div style="padding-top: 6px;">${socialIconsHtml}</div>` : ''}
+      ${bookingBadgeHtml ? `<div style="padding-top: 6px;">${bookingBadgeHtml}</div>` : ''}
       ${ctaHtml ? `<div style="padding-top: 6px;">${ctaHtml}</div>` : ''}
+      ${qrHtml ? `<div style="padding-top: 8px;">${qrHtml}</div>` : ''}
       ${promoBannerHtml ? `<div style="padding-top: 10px;">${promoBannerHtml}</div>` : ''}
       ${quoteHtml ? `<div style="padding-top: 8px;">${quoteHtml}</div>` : ''}
       ${disclaimerHtml ? `<div style="padding-top: 8px;">${disclaimerHtml}</div>` : ''}
@@ -662,9 +687,9 @@ const SignatureEngine = {
   <tr>
     ${avatarHtml ? `<td valign="middle" style="padding-right: 10px;">${avatarHtml}</td>` : ''}
     <td valign="middle">
-      <span class="sig-dark-name" style="font-size: ${s.nameFontSize || 17}px; font-weight: bold; color: ${s.nameColor};">${d.fullName}</span>
+      <span class="sig-dark-name" style="font-size: ${s.nameFontSize || 17}px; font-weight: ${s.nameFontWeight || 'bold'}; color: ${s.nameColor};">${d.fullName}</span>
       <span style="color: #94A3B8; margin: 0 4px;">|</span>
-      <span class="sig-dark-title" style="color: ${s.titleColor};">${d.jobTitle}${d.company ? `, ${d.company}` : ''}</span>
+      <span class="sig-dark-title" style="color: ${s.titleColor}; font-size: ${s.titleFontSize || 13}px;">${d.jobTitle}${d.company ? `, ${d.company}` : ''}</span>
       <div class="sig-dark-body" style="font-size: ${s.bodyFontSize - 1}px; color: ${s.bodyColor}; padding-top: 2px;">
         ${d.phone ? `<span>${s.showLabels !== false ? `${s.labelPhone || 'Mobile:'} ` : ''}<a href="tel:${d.phone.replace(/[^0-9+]/g, '')}" class="sig-dark-link" style="color: ${s.linkColor}; text-decoration: none;">${d.phone}</a></span>` : ''}
         ${d.email ? `<span style="color: #CBD5E1; margin: 0 4px;">&bull;</span><span>${s.showLabels !== false ? `${s.labelEmail || 'E-mail:'} ` : ''}<a href="mailto:${d.email}" class="sig-dark-link" style="color: ${s.linkColor}; text-decoration: none;">${d.email}</a></span>` : ''}
@@ -677,6 +702,288 @@ const SignatureEngine = {
   <tr>
     <td colspan="2" valign="top" style="padding-top: 6px; vertical-align: top;">
       ${quoteHtml}
+    </td>
+  </tr>
+  ` : ''}
+</table>
+<!-- Email Signature End -->
+`.trim();
+  },
+
+  /**
+   * Template 7: Header Hero Banner (NEW Blueprint)
+   */
+  renderHeaderBanner(d, s) {
+    const avatarHtml = this.renderAvatarHtml(d, s);
+    const logoHtml = this.renderLogoHtml(d, s);
+    const textDetailsHtml = this.renderDetailsBlock(d, s);
+    const socialIconsHtml = this.renderSocialsRow(d, s);
+    const ctaHtml = this.renderCtaButton(d, s);
+    const badgeHtml = this.renderBadge(d, s);
+    const statusBadgeHtml = this.renderStatusBadgeHtml(d, s);
+    const bookingBadgeHtml = this.renderBookingBadgeHtml(d, s);
+    const qrHtml = this.renderQrCodeHtml(d, s);
+    const promoBannerHtml = this.renderPromoBanner(d, s);
+    const quoteHtml = this.renderQuote(d, s);
+    const disclaimerHtml = this.renderDisclaimers(d, s);
+
+    const bannerBg = s.accentColor || '#2563EB';
+    const bannerTextColor = this.getLuminance(bannerBg) > 0.55 ? '#0F172A' : '#FFFFFF';
+
+    return `
+<!-- Email Signature Start -->
+<table cellpadding="0" cellspacing="0" border="0" class="sig-table" style="margin: 0; padding: 0; font-family: ${s.fontFamily}; font-size: ${s.bodyFontSize}px; line-height: 1.35; color: ${s.bodyColor}; background-color: transparent; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; max-width: 480px;">
+  <!-- Header Hero Bar -->
+  <tr>
+    <td style="background-color: ${bannerBg}; border-radius: 6px 6px 0 0; padding: 10px 14px;">
+      <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td valign="middle" style="color: ${bannerTextColor}; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">
+            ${d.company || 'Professional Portfolio'}
+          </td>
+          ${d.department ? `
+          <td valign="middle" align="right" style="color: ${bannerTextColor}; opacity: 0.85; font-size: 10px;">
+            ${d.department}
+          </td>
+          ` : ''}
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- Main Body Content -->
+  <tr>
+    <td class="sig-dark-card" style="border: 1px solid #E2E8F0; border-top: 0; border-radius: 0 0 6px 6px; padding: 12px 14px; background-color: ${s.isDarkModeActive ? '#0F172A' : '#FAFAFA'};">
+      <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; width: 100%;">
+        <tr>
+          ${avatarHtml ? `
+          <td valign="top" style="padding-right: 12px; width: ${s.avatarSize || 80}px; vertical-align: top;">
+            ${avatarHtml}
+            ${logoHtml ? `<div style="padding-top: 6px;">${logoHtml}</div>` : ''}
+            ${qrHtml ? `<div style="padding-top: 6px;">${qrHtml}</div>` : ''}
+          </td>
+          ` : ''}
+          <td valign="top" style="vertical-align: top;">
+            ${this.renderNameHtml(d, s)}
+            ${this.renderTitleHtml(d, s)}
+            ${statusBadgeHtml ? `<div style="padding-top: 3px;">${statusBadgeHtml}</div>` : ''}
+            ${badgeHtml ? `<div style="padding-top: 3px;">${badgeHtml}</div>` : ''}
+            <div style="padding-top: 6px;">
+              ${textDetailsHtml}
+            </div>
+            ${socialIconsHtml ? `<div style="padding-top: 6px;">${socialIconsHtml}</div>` : ''}
+            ${bookingBadgeHtml ? `<div style="padding-top: 6px;">${bookingBadgeHtml}</div>` : ''}
+            ${ctaHtml ? `<div style="padding-top: 6px;">${ctaHtml}</div>` : ''}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  ${promoBannerHtml ? `
+  <tr>
+    <td valign="top" style="padding-top: 10px; vertical-align: top;">
+      ${promoBannerHtml}
+    </td>
+  </tr>
+  ` : ''}
+  ${quoteHtml ? `
+  <tr>
+    <td valign="top" style="padding-top: 8px; vertical-align: top;">
+      ${quoteHtml}
+    </td>
+  </tr>
+  ` : ''}
+  ${disclaimerHtml ? `
+  <tr>
+    <td valign="top" style="padding-top: 8px; vertical-align: top;">
+      ${disclaimerHtml}
+    </td>
+  </tr>
+  ` : ''}
+</table>
+<!-- Email Signature End -->
+`.trim();
+  },
+
+  /**
+   * Template 8: Academic Multi-Affiliation (NEW Blueprint)
+   */
+  renderAcademicAffiliation(d, s) {
+    const avatarHtml = this.renderAvatarHtml(d, s);
+    const logoHtml = this.renderLogoHtml(d, s);
+    const textDetailsHtml = this.renderDetailsBlock(d, s);
+    const socialIconsHtml = this.renderSocialsRow(d, s);
+    const ctaHtml = this.renderCtaButton(d, s);
+    const badgeHtml = this.renderBadge(d, s);
+    const statusBadgeHtml = this.renderStatusBadgeHtml(d, s);
+    const bookingBadgeHtml = this.renderBookingBadgeHtml(d, s);
+    const qrHtml = this.renderQrCodeHtml(d, s);
+    const promoBannerHtml = this.renderPromoBanner(d, s);
+    const quoteHtml = this.renderQuote(d, s);
+    const disclaimerHtml = this.renderDisclaimers(d, s);
+
+    const academicBorder = `2px solid ${s.accentColor || '#1E3A8A'}`;
+
+    return `
+<!-- Email Signature Start -->
+<table cellpadding="0" cellspacing="0" border="0" class="sig-table" style="margin: 0; padding: 0; font-family: ${s.fontFamily || 'Georgia, serif'}; font-size: ${s.bodyFontSize}px; line-height: 1.35; color: ${s.bodyColor}; background-color: transparent; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; max-width: 520px;">
+  <tr>
+    <td valign="top" style="vertical-align: top;">
+      <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse;">
+        <tr>
+          ${avatarHtml ? `
+          <td valign="top" style="padding-right: 14px; width: ${s.avatarSize || 90}px; vertical-align: top;">
+            ${avatarHtml}
+            ${logoHtml ? `<div style="padding-top: 8px;">${logoHtml}</div>` : ''}
+            ${qrHtml ? `<div style="padding-top: 8px;">${qrHtml}</div>` : ''}
+          </td>
+          ` : ''}
+          <td valign="top" style="border-left: ${academicBorder}; padding-left: 14px; vertical-align: top;">
+            ${this.renderNameHtml(d, s)}
+            ${this.renderTitleHtml(d, s)}
+            ${statusBadgeHtml ? `<div style="padding-top: 4px;">${statusBadgeHtml}</div>` : ''}
+            ${badgeHtml ? `<div style="padding-top: 4px;">${badgeHtml}</div>` : ''}
+
+            <!-- Academic Metadata & Contacts -->
+            <div style="padding-top: 6px;">
+              ${textDetailsHtml}
+            </div>
+
+            ${socialIconsHtml ? `<div style="padding-top: 6px;">${socialIconsHtml}</div>` : ''}
+            ${bookingBadgeHtml ? `<div style="padding-top: 6px;">${bookingBadgeHtml}</div>` : ''}
+            ${ctaHtml ? `<div style="padding-top: 6px;">${ctaHtml}</div>` : ''}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  ${promoBannerHtml ? `
+  <tr>
+    <td valign="top" style="padding-top: 10px; vertical-align: top;">
+      ${promoBannerHtml}
+    </td>
+  </tr>
+  ` : ''}
+  ${quoteHtml ? `
+  <tr>
+    <td valign="top" style="padding-top: 8px; vertical-align: top;">
+      ${quoteHtml}
+    </td>
+  </tr>
+  ` : ''}
+  ${disclaimerHtml ? `
+  <tr>
+    <td valign="top" style="padding-top: 8px; vertical-align: top;">
+      ${disclaimerHtml}
+    </td>
+  </tr>
+  ` : ''}
+</table>
+<!-- Email Signature End -->
+`.trim();
+  },
+
+  /**
+   * Template 9: Ultra-Compact Micro Thread (NEW Blueprint)
+   */
+  renderMicroThread(d, s) {
+    const socialIconsHtml = this.renderSocialsRow(d, s);
+    const linkStyle = `color: ${s.linkColor || s.accentColor || '#0284C7'}; text-decoration: none;`;
+
+    return `
+<!-- Email Signature Start -->
+<table cellpadding="0" cellspacing="0" border="0" class="sig-table" style="margin: 0; padding: 0; font-family: ${s.fontFamily}; font-size: ${s.bodyFontSize - 0.5}px; line-height: 1.4; color: ${s.bodyColor}; background-color: transparent; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+  <tr>
+    <td style="padding-right: 6px; color: ${s.accentColor || '#00DC82'}; font-weight: bold; font-family: monospace;">//</td>
+    <td>
+      <span class="sig-dark-name" style="font-weight: 700; color: ${s.nameColor}; font-size: ${s.nameFontSize - 2}px;">${d.fullName}</span>
+      <span style="color: #94A3B8; margin: 0 4px;">&sim;</span>
+      <span class="sig-dark-title" style="color: ${s.titleColor};">${d.jobTitle}${d.company ? ` @ ${d.company}` : ''}</span>
+      ${d.phone ? `<span style="color: #CBD5E1; margin: 0 4px;">&bull;</span><span><a href="tel:${d.phone.replace(/[^0-9+]/g, '')}" class="sig-dark-link" style="${linkStyle}">${d.phone}</a></span>` : ''}
+      ${d.email ? `<span style="color: #CBD5E1; margin: 0 4px;">&bull;</span><span><a href="mailto:${d.email}" class="sig-dark-link" style="${linkStyle}">${d.email}</a></span>` : ''}
+      ${d.website ? `<span style="color: #CBD5E1; margin: 0 4px;">&bull;</span><span><a href="https://${d.website.replace(/^https?:\/\//, '')}" class="sig-dark-link" style="${linkStyle}">${d.website.replace(/^https?:\/\//, '')}</a></span>` : ''}
+    </td>
+  </tr>
+  ${socialIconsHtml ? `
+  <tr>
+    <td style="padding-right: 6px;"></td>
+    <td style="padding-top: 3px;">
+      ${socialIconsHtml}
+    </td>
+  </tr>
+  ` : ''}
+</table>
+<!-- Email Signature End -->
+`.trim();
+  },
+
+  /**
+   * Template 10: Obsidian ASCII Terminal (NEW Blueprint)
+   */
+  renderAsciiTerminal(d, s) {
+    const avatarHtml = this.renderAvatarHtml(d, s);
+    const socialIconsHtml = this.renderSocialsRow(d, s);
+    const bookingBadgeHtml = this.renderBookingBadgeHtml(d, s);
+    const ctaHtml = this.renderCtaButton(d, s);
+    const qrHtml = this.renderQrCodeHtml(d, s);
+    const promoBannerHtml = this.renderPromoBanner(d, s);
+
+    const termAccent = s.accentColor || '#00DC82';
+    const termFont = "'Courier New', Courier, monospace";
+
+    return `
+<!-- Email Signature Start -->
+<table cellpadding="0" cellspacing="0" border="0" class="sig-table" style="margin: 0; padding: 0; font-family: ${termFont}; font-size: ${s.bodyFontSize}px; line-height: 1.35; color: ${s.bodyColor}; background-color: transparent; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; max-width: 500px;">
+  <tr>
+    <td class="sig-dark-terminal" style="background-color: #0A0A0A; border: 1px solid #242424; border-radius: 4px; padding: 10px 12px; color: #D4D4D8;">
+      <!-- Terminal Header Prompt Bar -->
+      <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; border-collapse: collapse; margin-bottom: 6px;">
+        <tr>
+          <td style="font-size: 10.5px; color: ${termAccent}; font-weight: bold; border-bottom: 1px dashed #333333; padding-bottom: 4px;">
+            &gt; identity --whoami [status: active]
+          </td>
+        </tr>
+      </table>
+
+      <!-- Terminal Body Content -->
+      <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; width: 100%;">
+        <tr>
+          ${avatarHtml ? `
+          <td valign="top" style="padding-right: 12px; width: ${s.avatarSize || 75}px; vertical-align: top;">
+            ${avatarHtml}
+            ${qrHtml ? `<div style="padding-top: 6px;">${qrHtml}</div>` : ''}
+          </td>
+          ` : ''}
+          <td valign="top" style="vertical-align: top; font-size: 11.5px; line-height: 1.4;">
+            <div>
+              <span style="color: ${termAccent}; font-weight: bold;">$ user:</span> 
+              <span class="sig-dark-name" style="font-weight: bold; color: #FFFFFF;">${d.fullName}</span>
+            </div>
+            <div>
+              <span style="color: ${termAccent}; font-weight: bold;">$ role:</span> 
+              <span class="sig-dark-title" style="color: #94A3B8;">${d.jobTitle}${d.company ? ` @ ${d.company}` : ''}</span>
+            </div>
+            ${d.phone ? `<div><span style="color: ${termAccent};">$ tel:</span> <a href="tel:${d.phone.replace(/[^0-9+]/g, '')}" class="sig-dark-link" style="color: ${s.linkColor || termAccent}; text-decoration: none;">${d.phone}</a></div>` : ''}
+            ${d.email ? `<div><span style="color: ${termAccent};">$ mail:</span> <a href="mailto:${d.email}" class="sig-dark-link" style="color: ${s.linkColor || termAccent}; text-decoration: none;">${d.email}</a></div>` : ''}
+            ${d.website ? `<div><span style="color: ${termAccent};">$ web:</span> <a href="https://${d.website.replace(/^https?:\/\//, '')}" class="sig-dark-link" style="color: ${s.linkColor || termAccent}; text-decoration: none;">${d.website.replace(/^https?:\/\//, '')}</a></div>` : ''}
+            
+            ${(socialIconsHtml || bookingBadgeHtml || ctaHtml) ? `
+            <div style="padding-top: 6px; border-top: 1px dotted #27272A; margin-top: 6px;">
+              ${socialIconsHtml}
+              ${bookingBadgeHtml ? `<div style="padding-top: 6px;">${bookingBadgeHtml}</div>` : ''}
+              ${ctaHtml ? `<div style="padding-top: 6px;">${ctaHtml}</div>` : ''}
+            </div>
+            ` : ''}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  ${promoBannerHtml ? `
+  <tr>
+    <td valign="top" style="padding-top: 8px; vertical-align: top;">
+      ${promoBannerHtml}
     </td>
   </tr>
   ` : ''}
@@ -709,7 +1016,7 @@ const SignatureEngine = {
   },
 
   /**
-   * Render Company / Brand Logo (Independent sizing & shape)
+   * Render Company / Brand Logo
    */
   renderLogoHtml(d, s) {
     if (!d.showLogo || !d.logoUrl) return '';
@@ -726,46 +1033,138 @@ const SignatureEngine = {
   },
 
   /**
-   * Render Text Details Block with Dynamic Custom Key-Value Rows
+   * Render Granular Customizable Full Name Line
+   */
+  renderNameHtml(d, s) {
+    if (!d.fullName) return '';
+    const prefix = s.namePrefix ? `<span style="font-weight: normal; opacity: 0.85; margin-right: 3px;">${s.namePrefix}</span>` : '';
+    const suffix = s.nameSuffix ? `<span style="font-weight: normal; opacity: 0.85; margin-left: 3px;">${s.nameSuffix}</span>` : '';
+    const tag = (s.nameTag || s.badgeText) && s.showBadges !== false
+      ? `<span class="sig-dark-badge" style="display: inline-block; font-size: ${Math.max(9, (s.nameFontSize || 17) - 7)}px; font-weight: 700; padding: 1.5px 6px; border-radius: 3px; background-color: ${s.accentColor || '#00DC82'}1F; color: ${s.accentColor || '#00DC82'}; border: 1px solid ${s.accentColor || '#00DC82'}4D; vertical-align: middle; margin-left: 6px; text-transform: uppercase; letter-spacing: 0.05em;">${s.nameTag || s.badgeText}</span>`
+      : '';
+    
+    const transformStyle = s.nameTransform && s.nameTransform !== 'none' ? `text-transform: ${s.nameTransform};` : '';
+    const weightStyle = s.nameFontWeight || 'bold';
+    const size = s.nameFontSize || 17;
+    const color = s.nameColor || '#0A0A0A';
+    const mb = s.nameMarginBottom || '2px';
+
+    return `<div class="sig-dark-name" style="font-size: ${size}px; font-weight: ${weightStyle}; color: ${color}; line-height: 1.25; letter-spacing: -0.2px; margin-bottom: ${mb}; ${transformStyle}">${prefix}${d.fullName}${suffix}${tag}</div>`;
+  },
+
+  /**
+   * Render Granular Customizable Professional Title & Organization Line
+   */
+  renderTitleHtml(d, s) {
+    if (!d.jobTitle && !d.company && !d.department) return '';
+    const size = s.titleFontSize || 13;
+    const color = s.titleColor || s.accentColor || '#00DC82';
+    const style = s.titleFontStyle || 'normal';
+    const transform = s.titleTransform && s.titleTransform !== 'none' ? `text-transform: ${s.titleTransform};` : '';
+    
+    let sep = ' &bull; ';
+    if (s.titleSeparator === 'pipe') sep = ' | ';
+    else if (s.titleSeparator === 'slash') sep = ' / ';
+    else if (s.titleSeparator === 'doubleslash') sep = ' // ';
+    else if (s.titleSeparator === 'emdash') sep = ' &mdash; ';
+    else if (s.titleSeparator === 'newline') sep = '<br>';
+    else if (s.titleSeparator === 'bullet') sep = ' &bull; ';
+
+    const fontStyleCss = style === 'italic' ? 'font-style: italic;' : (style === 'bold' ? 'font-weight: 700;' : (style === 'uppercase' ? 'text-transform: uppercase;' : ''));
+
+    let titlePart = d.jobTitle || '';
+    let compPart = d.company || '';
+    let mainLine = '';
+
+    if (titlePart && compPart) {
+      mainLine = `<span style="${fontStyleCss}">${titlePart}</span><span style="opacity: 0.6; margin: 0 1px;">${sep}</span><span style="color: ${s.companyColor || color}; font-weight: 600;">${compPart}</span>`;
+    } else if (titlePart) {
+      mainLine = `<span style="${fontStyleCss}">${titlePart}</span>`;
+    } else if (compPart) {
+      mainLine = `<span style="color: ${s.companyColor || color}; font-weight: 600;">${compPart}</span>`;
+    }
+
+    const deptHtml = d.department
+      ? `<div class="sig-dark-body" style="font-size: ${Math.max(10, (s.bodyFontSize || 12.5) - 1)}px; color: ${s.departmentColor || s.bodyColor || '#64748B'}; opacity: 0.88; line-height: 1.3; padding-top: 1px;">${d.department}</div>`
+      : '';
+
+    return `<div class="sig-dark-title" style="font-size: ${size}px; color: ${color}; line-height: 1.35; padding-top: 2px; ${transform}">${mainLine}</div>${deptHtml}`;
+  },
+
+  /**
+   * Render Text Details Block with Dynamic Custom Key-Value Rows & Customizable Prefixes
    */
   renderDetailsBlock(d, s) {
     const rows = [];
-    const labelStyle = `font-weight: 700; color: ${s.labelColor || '#475569'}; margin-right: 4px;`;
-    const linkStyle = `color: ${s.linkColor || '#2563EB'}; text-decoration: none;`;
+    const labelStyle = `font-weight: 700; color: ${s.labelColor || s.accentColor || '#475569'}; margin-right: 4px;`;
+    const linkStyle = `color: ${s.linkColor || s.accentColor || '#2563EB'}; text-decoration: none;`;
+    
+    // Spacing & line padding
+    let linePad = '2.5px';
+    let lineH = '1.38';
+    if (s.lineSpacing === 'tight') { linePad = '1px'; lineH = '1.22'; }
+    else if (s.lineSpacing === 'spacious') { linePad = '5px'; lineH = '1.65'; }
+
+    // Label prefixes resolution
+    let pPhone = '$ tel:';
+    let pEmail = '$ mail:';
+    let pWeb = '$ web:';
+    let pAddr = '$ loc:';
+
+    if (s.labelScheme === 'compact') {
+      pPhone = 'T:'; pEmail = 'E:'; pWeb = 'W:'; pAddr = 'A:';
+    } else if (s.labelScheme === 'full') {
+      pPhone = 'Mobile:'; pEmail = 'Email:'; pWeb = 'Website:'; pAddr = 'Address:';
+    } else if (s.labelScheme === 'minimal') {
+      pPhone = ''; pEmail = ''; pWeb = ''; pAddr = '';
+    } else if (s.labelScheme === 'custom') {
+      pPhone = s.labelPhone !== undefined ? s.labelPhone : 'Phone:';
+      pEmail = s.labelEmail !== undefined ? s.labelEmail : 'Email:';
+      pWeb = s.labelWebsite !== undefined ? s.labelWebsite : 'Web:';
+      pAddr = s.labelAddress !== undefined ? s.labelAddress : 'Loc:';
+    } else if (s.labelPhone || s.labelEmail || s.labelWebsite || s.labelAddress) {
+      pPhone = s.labelPhone || '';
+      pEmail = s.labelEmail || '';
+      pWeb = s.labelWebsite || '';
+      pAddr = s.labelAddress || '';
+    }
+
+    const showLabels = s.showLabels !== false && s.labelScheme !== 'minimal';
 
     // Phone
-    if (d.phone) {
-      const label = s.showLabels !== false ? `<span class="sig-dark-label" style="${labelStyle}">${s.labelPhone || 'Mobile:'}</span> ` : '';
-      rows.push(`<div style="line-height: 1.35; padding-bottom: 2px;">${label}<a href="tel:${d.phone.replace(/[^0-9+]/g, '')}" class="sig-dark-link" style="${linkStyle}">${d.phone}</a></div>`);
+    if (d.phone && s.showPhone !== false) {
+      const label = (showLabels && pPhone) ? `<span class="sig-dark-label" style="${labelStyle}">${pPhone}</span> ` : '';
+      rows.push(`<div style="line-height: ${lineH}; padding-bottom: ${linePad};">${label}<a href="tel:${d.phone.replace(/[^0-9+]/g, '')}" class="sig-dark-link" style="${linkStyle}">${d.phone}</a></div>`);
     }
 
     // Email
-    if (d.email) {
-      const label = s.showLabels !== false ? `<span class="sig-dark-label" style="${labelStyle}">${s.labelEmail || 'E-mail:'}</span> ` : '';
-      rows.push(`<div style="line-height: 1.35; padding-bottom: 2px;">${label}<a href="mailto:${d.email}" class="sig-dark-link" style="${linkStyle}">${d.email}</a></div>`);
+    if (d.email && s.showEmail !== false) {
+      const label = (showLabels && pEmail) ? `<span class="sig-dark-label" style="${labelStyle}">${pEmail}</span> ` : '';
+      rows.push(`<div style="line-height: ${lineH}; padding-bottom: ${linePad};">${label}<a href="mailto:${d.email}" class="sig-dark-link" style="${linkStyle}">${d.email}</a></div>`);
     }
 
     // Website
-    if (d.website) {
+    if (d.website && s.showWebsite !== false) {
       const cleanWeb = d.website.replace(/^https?:\/\//, '');
-      const label = s.showLabels !== false ? `<span class="sig-dark-label" style="${labelStyle}">${s.labelWebsite || 'Website:'}</span> ` : '';
-      rows.push(`<div style="line-height: 1.35; padding-bottom: 2px;">${label}<a href="https://${cleanWeb}" class="sig-dark-link" style="${linkStyle}">${cleanWeb}</a></div>`);
+      const label = (showLabels && pWeb) ? `<span class="sig-dark-label" style="${labelStyle}">${pWeb}</span> ` : '';
+      rows.push(`<div style="line-height: ${lineH}; padding-bottom: ${linePad};">${label}<a href="https://${cleanWeb}" class="sig-dark-link" style="${linkStyle}">${cleanWeb}</a></div>`);
     }
 
     // Address & Country
-    if (d.address) {
+    if (d.address && s.showAddress !== false) {
+      const label = (showLabels && pAddr) ? `<span class="sig-dark-label" style="${labelStyle}">${pAddr}</span> ` : '';
       const fullAddress = d.country ? `${d.address} <span style="color: #94A3B8; margin: 0 4px;">|</span> ${d.country}` : d.address;
-      rows.push(`<div class="sig-dark-body" style="color: ${s.bodyColor}; font-size: ${s.bodyFontSize - 0.5}px; line-height: 1.35; padding-bottom: 2px;">${fullAddress}</div>`);
+      rows.push(`<div class="sig-dark-body" style="color: ${s.bodyColor}; font-size: ${(s.bodyFontSize || 12.5) - 0.5}px; line-height: ${lineH}; padding-bottom: ${linePad};">${label}${fullAddress}</div>`);
     }
 
-    // Dynamic Custom Key-Value Fields (e.g. Pronouns, Working Hours, Calendly)
+    // Dynamic Custom Key-Value Fields
     if (Array.isArray(d.customFields) && d.customFields.length > 0) {
       d.customFields.forEach(field => {
         if (!field || !field.label || !field.value) return;
         const valContent = field.url
           ? `<a href="${field.url}" class="sig-dark-link" target="_blank" style="${linkStyle}">${field.value}</a>`
           : field.value;
-        rows.push(`<div style="line-height: 1.35; padding-bottom: 2px;"><span class="sig-dark-label" style="${labelStyle}">${field.label}:</span> <span class="sig-dark-body" style="color: ${s.bodyColor};">${valContent}</span></div>`);
+        rows.push(`<div style="line-height: ${lineH}; padding-bottom: ${linePad};"><span class="sig-dark-label" style="${labelStyle}">${field.label}:</span> <span class="sig-dark-body" style="color: ${s.bodyColor};">${valContent}</span></div>`);
       });
     }
 
@@ -777,7 +1176,8 @@ const SignatureEngine = {
    */
   formatSocialUrl(id, rawUrl) {
     if (!rawUrl || !rawUrl.trim()) {
-      const def = (Presets.defaultData.socials || []).find(s => s.id === id);
+      const defSocials = (typeof Presets !== 'undefined' && Presets.defaultData && Presets.defaultData.socials) ? Presets.defaultData.socials : [];
+      const def = defSocials.find(s => s.id === id);
       if (def && def.url) rawUrl = def.url;
       else return '#';
     }
@@ -837,7 +1237,7 @@ const SignatureEngine = {
     const styleType = s.iconStyle || 'brand';
 
     const cells = activeSocials.map((item, index) => {
-      const meta = Icons.social[item.id] || { name: item.id, color: '#2563EB', svg: '' };
+      const meta = (typeof Icons !== 'undefined' && Icons.social[item.id]) ? Icons.social[item.id] : { name: item.id, color: '#2563EB', svg: '' };
       
       let fillColor = meta.color;
       let bgStyle = '';
@@ -868,7 +1268,7 @@ const SignatureEngine = {
         }
       }
 
-      const dataUri = Icons.getIconDataUri(item.id, fillColor, iconSize);
+      const dataUri = (typeof Icons !== 'undefined' && Icons.getIconDataUri) ? Icons.getIconDataUri(item.id, fillColor, iconSize) : '';
       const paddingRight = index === activeSocials.length - 1 ? '0' : `${spacing}px`;
       const imgClass = (styleType === 'brand' && this.getLuminance(meta.color) < 0.35) ? 'sig-dark-invert' : '';
       const targetUrl = this.formatSocialUrl(item.id, item.url);
@@ -892,7 +1292,7 @@ const SignatureEngine = {
   },
 
   /**
-   * Render Status Badge
+   * Render Static / Text Badge Chip
    */
   renderBadge(d, s) {
     if (!d.showBadge || !d.badgeText) return '';
@@ -901,6 +1301,96 @@ const SignatureEngine = {
 <span class="sig-dark-badge" style="display: inline-block; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 1.5px 6px; border-radius: 3px; background-color: ${badgeColor}20; color: ${badgeColor}; border: 1px solid ${badgeColor}40; line-height: 1.2;">
   ${d.badgeText}
 </span>
+`.trim();
+  },
+
+  /**
+   * Render Dynamic Status Badge with Pulse Indicator
+   */
+  renderStatusBadgeHtml(d, s) {
+    const statusObj = d.statusBadge || {};
+    const enabled = (d.showStatusBadge !== undefined) ? d.showStatusBadge : statusObj.enabled;
+    const text = statusObj.text || d.statusText;
+    if (!enabled || !text) return '';
+
+    const dotColor = statusObj.color || '#10B981';
+
+    return `
+<table cellpadding="0" cellspacing="0" border="0" style="display: inline-table; border-collapse: collapse; margin-top: 2px;">
+  <tr>
+    <td valign="middle" style="background-color: ${dotColor}18; border: 1px solid ${dotColor}35; border-radius: 12px; padding: 2px 8px; font-size: 10px; font-weight: 600; color: ${s.isDarkModeActive ? '#F8FAFC' : '#1E293B'}; vertical-align: middle; line-height: 1.2;">
+      <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background-color: ${dotColor}; margin-right: 5px; vertical-align: middle;"></span>
+      <span style="vertical-align: middle;">${text}</span>
+    </td>
+  </tr>
+</table>
+`.trim();
+  },
+
+  /**
+   * Render Meeting / Calendar Booking Button (Bulletproof table button)
+   */
+  renderBookingBadgeHtml(d, s) {
+    const booking = d.bookingBadge || {};
+    const enabled = (d.showBookingBadge !== undefined) ? d.showBookingBadge : booking.enabled;
+    if (!enabled) return '';
+
+    const provider = booking.provider || 'calendly';
+    const label = booking.text || 'Schedule Meeting';
+    const targetUrl = booking.url || 'https://calendly.com';
+    const btnBg = s.accentColor || '#00DC82';
+    const btnTextColor = this.getLuminance(btnBg) > 0.55 ? '#0F172A' : '#FFFFFF';
+
+    return `
+<table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; margin-top: 4px;">
+  <tr>
+    <td align="center" class="sig-dark-cta" style="background-color: ${btnBg}; border-radius: 4px; padding: 4px 10px;">
+      <a href="${targetUrl}" target="_blank" style="font-family: ${s.fontFamily}; font-size: 11px; font-weight: 600; color: ${btnTextColor}; text-decoration: none; display: inline-block; line-height: 1.2;">
+        📅 ${label}
+      </a>
+    </td>
+  </tr>
+</table>
+`.trim();
+  },
+
+  /**
+   * Render Embedded QR Code Contact Badge
+   */
+  renderQrCodeHtml(d, s) {
+    const qr = d.qrCode || {};
+    const enabled = (d.showQrCode !== undefined) ? d.showQrCode : qr.enabled;
+    if (!enabled) return '';
+
+    const qrSize = Number(qr.size) || 64;
+    let qrDataUrl = qr.dataUrl;
+
+    if (!qrDataUrl && typeof VCardEngine !== 'undefined') {
+      qrDataUrl = VCardEngine.generateContactQrDataUrl(d, {
+        targetMode: qr.targetMode || 'vcard',
+        customUrl: qr.customUrl,
+        size: qrSize * 2,
+        color: s.isDarkModeActive ? '#00DC82' : (s.nameColor || '#0A0A0A')
+      });
+    }
+
+    if (!qrDataUrl) return '';
+
+    return `
+<table cellpadding="0" cellspacing="0" border="0" align="center" style="border-collapse: collapse; text-align: center; margin-top: 4px;">
+  <tr>
+    <td align="center" style="background-color: #FFFFFF; padding: 3px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); width: ${qrSize}px;">
+      <img src="${qrDataUrl}" alt="Contact QR Code" width="${qrSize}" height="${qrSize}" border="0" style="display: block; width: ${qrSize}px; height: ${qrSize}px; border: 0; outline: none; image-rendering: -webkit-optimize-contrast;" />
+    </td>
+  </tr>
+  ${qr.showCaption ? `
+  <tr>
+    <td align="center" style="font-size: 8.5px; color: ${s.bodyColor}; opacity: 0.8; font-weight: 600; padding-top: 2px;">
+      ${qr.caption || 'Scan for vCard'}
+    </td>
+  </tr>
+  ` : ''}
+</table>
 `.trim();
   },
 
@@ -983,3 +1473,7 @@ const SignatureEngine = {
     `.trim();
   }
 };
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = SignatureEngine;
+}
