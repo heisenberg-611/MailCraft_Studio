@@ -3,7 +3,7 @@
  * High-reliability caching with Network-First navigation & Stale-While-Revalidate assets
  */
 
-const CACHE_NAME = 'mailcraft-v1.1.1';
+const CACHE_NAME = 'mailcraft-v1.1.2';
 
 const ASSETS_TO_CACHE = [
   '/',
@@ -14,6 +14,7 @@ const ASSETS_TO_CACHE = [
   '/favicon.ico',
   '/assets/favicon.svg',
   '/assets/apple-touch-icon.png',
+  '/assets/og-image.png',
   '/assets/default-avatar.js',
   '/assets/default-avatar.jpg',
   '/css/studio.css',
