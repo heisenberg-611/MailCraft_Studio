@@ -1943,6 +1943,10 @@ const App = {
     const subInput = document.getElementById('bannerSubtitleInput');
     const ctaInput = document.getElementById('bannerCtaInput');
     const gradSelect = document.getElementById('bannerGradientSelect');
+    const btnBgInput = document.getElementById('bannerButtonBgColor');
+    const btnBgHex = document.getElementById('bannerButtonBgColorHex');
+    const btnTxtInput = document.getElementById('bannerButtonTextColor');
+    const btnTxtHex = document.getElementById('bannerButtonTextColorHex');
     const applyBtn = document.getElementById('applyBannerToSigBtn');
     const dlBtn = document.getElementById('downloadBannerPngBtn');
 
@@ -1966,10 +1970,66 @@ const App = {
           if (subInput) subInput.value = p.subtitle;
           if (ctaInput) ctaInput.value = p.ctaText;
           if (gradSelect) gradSelect.value = p.gradient;
+          if (p.buttonBgColor) {
+            if (btnBgInput) btnBgInput.value = p.buttonBgColor;
+            if (btnBgHex) btnBgHex.value = p.buttonBgColor;
+          }
+          if (p.buttonTextColor) {
+            if (btnTxtInput) btnTxtInput.value = p.buttonTextColor;
+            if (btnTxtHex) btnTxtHex.value = p.buttonTextColor;
+          }
           this.renderBannerDesignerPreview();
         }
       });
     }
+
+    // 2-Way Color & Hex input sync for button colors
+    if (btnBgInput && btnBgHex) {
+      btnBgInput.addEventListener('input', (e) => {
+        btnBgHex.value = e.target.value;
+        this.renderBannerDesignerPreview();
+      });
+      btnBgHex.addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+          btnBgInput.value = val;
+        }
+        this.renderBannerDesignerPreview();
+      });
+    }
+
+    if (btnTxtInput && btnTxtHex) {
+      btnTxtInput.addEventListener('input', (e) => {
+        btnTxtHex.value = e.target.value;
+        this.renderBannerDesignerPreview();
+      });
+      btnTxtHex.addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+          btnTxtInput.value = val;
+        }
+        this.renderBannerDesignerPreview();
+      });
+    }
+
+    // Quick swatches for button colors
+    document.querySelectorAll('[data-btn-color]').forEach(swatch => {
+      swatch.addEventListener('click', () => {
+        const col = swatch.getAttribute('data-btn-color');
+        if (btnBgInput) btnBgInput.value = col;
+        if (btnBgHex) btnBgHex.value = col;
+        this.renderBannerDesignerPreview();
+      });
+    });
+
+    document.querySelectorAll('[data-btn-txt-color]').forEach(swatch => {
+      swatch.addEventListener('click', () => {
+        const col = swatch.getAttribute('data-btn-txt-color');
+        if (btnTxtInput) btnTxtInput.value = col;
+        if (btnTxtHex) btnTxtHex.value = col;
+        this.renderBannerDesignerPreview();
+      });
+    });
 
     const inputs = [tagInput, titleInput, subInput, ctaInput, gradSelect];
     inputs.forEach(el => {
@@ -2023,6 +2083,13 @@ const App = {
     const subInput = document.getElementById('bannerSubtitleInput');
     const ctaInput = document.getElementById('bannerCtaInput');
     const gradSelect = document.getElementById('bannerGradientSelect');
+    const btnBgHex = document.getElementById('bannerButtonBgColorHex');
+    const btnBgInput = document.getElementById('bannerButtonBgColor');
+    const btnTxtHex = document.getElementById('bannerButtonTextColorHex');
+    const btnTxtInput = document.getElementById('bannerButtonTextColor');
+
+    const buttonBgColor = (btnBgHex && btnBgHex.value) || (btnBgInput && btnBgInput.value) || this.state.settings.accentColor || '#00DC82';
+    const buttonTextColor = (btnTxtHex && btnTxtHex.value) || (btnTxtInput && btnTxtInput.value) || '#090D16';
 
     return {
       tag: tagInput ? tagInput.value.trim() : 'ANNOUNCEMENT',
@@ -2030,7 +2097,9 @@ const App = {
       subtitle: subInput ? subInput.value.trim() : 'Subtitle description',
       ctaText: ctaInput ? ctaInput.value.trim() : 'Learn More',
       gradient: gradSelect ? gradSelect.value : 'emerald',
-      accentColor: this.state.settings.accentColor || '#00DC82'
+      accentColor: buttonBgColor,
+      buttonBgColor: buttonBgColor,
+      buttonTextColor: buttonTextColor
     };
   },
 
