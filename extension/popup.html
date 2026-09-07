@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MailCraft Signature Switcher</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="header-brand">
+        <span class="prompt-symbol">$</span>
+        <span class="brand-title">MailCraft Studio</span>
+      </div>
+      <span class="version-tag">v1.0.0</span>
+    </header>
+
+    <!-- Profile Selector -->
+    <div class="form-group">
+      <label class="form-label" for="profileSelect">Active Signature Profile</label>
+      <select id="profileSelect" class="form-select">
+        <!-- Dynamically populated from Presets.styles + Custom Profile -->
+      </select>
+    </div>
+
+    <!-- Live Preview Stage -->
+    <div class="preview-box">
+      <div class="preview-header">
+        <span class="preview-label">LIVE SIGNATURE PREVIEW</span>
+        <span class="status-dot"></span>
+      </div>
+      <div class="preview-content" id="miniPreviewContainer">
+        <!-- Rendered Full HTML Signature with Avatar & Icons -->
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-grid">
+      <button class="btn-primary" id="injectSignatureBtn" title="Inject into active Gmail / Outlook compose box">
+        <span>⚡</span> Insert into Compose Box
+      </button>
+      <button class="btn-secondary" id="copyRichSignatureBtn" title="Copy rich HTML signature for any email client">
+        <span>📋</span> Copy Rich Text
+      </button>
+    </div>
+
+    <!-- Status Message -->
+    <div class="status-msg" id="statusMessage"></div>
+
+    <!-- Footer -->
+    <footer class="popup-footer">
+      <a href="https://mailcraftstudio.vercel.app/studio.html" target="_blank" id="openStudioLink" class="footer-link">Open Full Studio ↗</a>
+      <span class="privacy-note">100% Client-Side</span>
+    </footer>
+  </div>
+
+  <!-- Signature Generation Engine & Presets -->
+  <script src="default-avatar.js"></script>
+  <script src="icons.js"></script>
+  <script src="presets.js"></script>
+  <script src="signature-engine.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

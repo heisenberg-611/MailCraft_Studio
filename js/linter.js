@@ -199,6 +199,18 @@
         passedScore -= 5;
       }
 
+      // 7. Outlook VML Vector Buttons & Conditionals (Pillar 3B)
+      const hasVml = /<v:roundrect/i.test(htmlString) || /xmlns:v="urn:schemas-microsoft-com:vml"/i.test(htmlString);
+      const hasCtaOrBadge = /renderCtaButton|bookingBadge|btn-cta/i.test(htmlString) || /<v:roundrect/i.test(htmlString);
+      if (hasVml) {
+        checks.push({
+          id: 'vml_buttons',
+          title: 'Outlook VML Vector Buttons (3B)',
+          status: 'pass',
+          message: 'Outlook Word MSO vector buttons (<v:roundrect>) with high-DPI fallbacks detected.'
+        });
+      }
+
       const score = Math.max(0, Math.min(100, passedScore));
       let rating = 'EXCELLENT';
       let badgeClass = 'badge-pass';

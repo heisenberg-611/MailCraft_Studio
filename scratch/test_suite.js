@@ -65,8 +65,10 @@ it('VCardEngine: Generates RFC 2426 compliant vCard 3.0 string', () => {
 });
 
 // 2. Test Presets & SignatureEngine
+const Icons = require('../js/icons.js');
 const Presets = require('../js/presets.js');
 const SignatureEngine = require('../js/signature-engine.js');
+global.Icons = Icons;
 global.Presets = Presets;
 
 it('Presets: Contains all style presets including new architectural blueprints', () => {

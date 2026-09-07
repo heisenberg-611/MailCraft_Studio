@@ -225,6 +225,196 @@ Disconnect-ExchangeOnline -Confirm:$false
     downloadExchangePowerShell(htmlContent, userEmail) {
       const code = this.generateExchangePowerShell(htmlContent, userEmail);
       downloadTextFile(code, 'Deploy_Microsoft365_Signature.ps1', 'text/plain;charset=utf-8');
+    },
+
+    /**
+     * Bundle and download the complete Chrome Extension package as a ZIP
+     */
+    async downloadChromeExtensionZip(state = {}) {
+      if (typeof ZipBuilder === 'undefined') {
+        console.error('ZipBuilder not loaded');
+        return;
+      }
+
+      // Try fetching local extension files if running on web server / localhost
+      let defaultAvatarContent = '';
+      let iconsContent = '';
+      let presetsContent = '';
+      let sigEngineContent = '';
+      let popupHtmlContent = '';
+      let popupCssContent = '';
+      let popupJsContent = '';
+      let contentJsContent = '';
+      let manifestContent = '';
+      let readmeContent = '';
+
+      try {
+        const [
+          resAvatar, resIcons, resPresets, resEngine,
+          resPopupHtml, resPopupCss, resPopupJs, resContentJs, resManifest, resReadme
+        ] = await Promise.all([
+          fetch('extension/default-avatar.js').then(r => r.ok ? r.text() : '').catch(() => ''),
+          fetch('extension/icons.js').then(r => r.ok ? r.text() : '').catch(() => ''),
+          fetch('extension/presets.js').then(r => r.ok ? r.text() : '').catch(() => ''),
+          fetch('extension/signature-engine.js').then(r => r.ok ? r.text() : '').catch(() => ''),
+          fetch('extension/popup.html').then(r => r.ok ? r.text() : '').catch(() => ''),
+          fetch('extension/popup.css').then(r => r.ok ? r.text() : '').catch(() => ''),
+          fetch('extension/popup.js').then(r => r.ok ? r.text() : '').catch(() => ''),
+          fetch('extension/content.js').then(r => r.ok ? r.text() : '').catch(() => ''),
+          fetch('extension/manifest.json').then(r => r.ok ? r.text() : '').catch(() => ''),
+          fetch('extension/README.md').then(r => r.ok ? r.text() : '').catch(() => '')
+        ]);
+
+        defaultAvatarContent = resAvatar;
+        iconsContent = resIcons;
+        presetsContent = resPresets;
+        sigEngineContent = resEngine;
+        popupHtmlContent = resPopupHtml;
+        popupCssContent = resPopupCss;
+        popupJsContent = resPopupJs;
+        contentJsContent = resContentJs;
+        manifestContent = resManifest;
+        readmeContent = resReadme;
+      } catch (err) {
+        console.warn('Could not fetch extension files via HTTP, using bundled memory fallbacks:', err);
+      }
+
+      // Fallbacks if not fetched via HTTP
+      if (!manifestContent) {
+        manifestContent = `{
+  "manifest_version": 3,
+  "name": "MailCraft Studio - Email Signature Switcher",
+  "version": "1.0.0",
+  "description": "1-Click inject and switch pixel-perfect, retina-ready email signatures in Gmail and Outlook Web.",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://mail.google.com/*",
+    "https://outlook.live.com/*",
+    "https://outlook.office.com/*",
+    "https://outlook.office365.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "MailCraft Signature Switcher"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://mail.google.com/*",
+        "https://outlook.live.com/*",
+        "https://outlook.office.com/*",
+        "https://outlook.office365.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}`;
+      }
+
+      if (!popupHtmlContent) {
+        popupHtmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MailCraft Signature Switcher</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header class="popup-header">
+      <div class="header-brand">
+        <span class="prompt-symbol">$</span>
+        <span class="brand-title">MailCraft Studio</span>
+      </div>
+      <span class="version-tag">v1.0.0</span>
+    </header>
+    <div class="form-group">
+      <label class="form-label" for="profileSelect">Active Signature Profile</label>
+      <select id="profileSelect" class="form-select"></select>
+    </div>
+    <div class="preview-box">
+      <div class="preview-header">
+        <span class="preview-label">LIVE SIGNATURE PREVIEW</span>
+        <span class="status-dot"></span>
+      </div>
+      <div class="preview-content" id="miniPreviewContainer"></div>
+    </div>
+    <div class="action-grid">
+      <button class="btn-primary" id="injectSignatureBtn" title="Inject into active Gmail / Outlook compose box">
+        <span>⚡</span> Insert into Compose Box
+      </button>
+      <button class="btn-secondary" id="copyRichSignatureBtn" title="Copy rich HTML signature for any email client">
+        <span>📋</span> Copy Rich Text
+      </button>
+    </div>
+    <div class="status-msg" id="statusMessage"></div>
+    <footer class="popup-footer">
+      <a href="https://mailcraftstudio.vercel.app/studio.html" target="_blank" class="footer-link">Open Full Studio ↗</a>
+      <span class="privacy-note">100% Client-Side</span>
+    </footer>
+  </div>
+  <script src="default-avatar.js"></script>
+  <script src="icons.js"></script>
+  <script src="presets.js"></script>
+  <script src="signature-engine.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>`;
+      }
+
+      if (!contentJsContent) {
+        contentJsContent = `chrome.runtime.onMessage.addListener((req, sender, sendRes) => {
+  if (req.action === 'INJECT_SIGNATURE') {
+    const compose = document.querySelector('.Am.Al.editable, div[aria-label="Message Body"], div[role="textbox"]');
+    if (compose) {
+      const old = compose.querySelector('.mailcraft-injected-signature');
+      if (old) old.remove();
+      const wrap = document.createElement('div');
+      wrap.className = 'mailcraft-injected-signature';
+      wrap.style.marginTop = '16px';
+      wrap.innerHTML = req.html;
+      compose.appendChild(wrap);
+      compose.dispatchEvent(new Event('input', { bubbles: true }));
+      sendRes({ success: true });
+    } else {
+      sendRes({ success: false });
+    }
+  }
+  return true;
+});`;
+      }
+
+      if (!readmeContent) {
+        readmeContent = `# MailCraft Chrome Extension (Manifest V3)
+1. Open chrome://extensions
+2. Turn on "Developer mode" in the top-right corner.
+3. Click "Load unpacked" and select this folder.
+4. Click the extension icon in your toolbar to switch signatures and 1-click inject into Gmail/Outlook!`;
+      }
+
+      const files = [
+        { name: 'manifest.json', content: manifestContent },
+        { name: 'popup.html', content: popupHtmlContent },
+        { name: 'popup.css', content: popupCssContent },
+        { name: 'popup.js', content: popupJsContent },
+        { name: 'content.js', content: contentJsContent },
+        { name: 'default-avatar.js', content: defaultAvatarContent },
+        { name: 'icons.js', content: iconsContent },
+        { name: 'presets.js', content: presetsContent },
+        { name: 'signature-engine.js', content: sigEngineContent },
+        { name: 'README.md', content: readmeContent }
+      ];
+
+      ZipBuilder.downloadZip(files, 'MailCraft_Studio_Chrome_Extension.zip');
     }
   };
 

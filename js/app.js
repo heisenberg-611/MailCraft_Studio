@@ -126,6 +126,8 @@ const App = {
 
     this.bindEvents();
     this.bindWebsiteInteractions();
+    this.bindInlineCanvasEditing();
+    this.bindBlockOrganizerEvents();
     this.syncFormWithState();
     this.renderCustomFieldsInputs();
     this.syncEmailTemplateFromDom();
@@ -731,6 +733,16 @@ const App = {
     if (promoBannerGroup) promoBannerGroup.style.display = (d.promoBanner && d.promoBanner.enabled) ? 'flex' : 'none';
     setVal('promoTargetUrl', (d.promoBanner && d.promoBanner.targetUrl) || 'https://www.dhrubojyoti.dev');
     setVal('promoAltText', (d.promoBanner && d.promoBanner.alt) || 'Special Announcement');
+
+    // Modular Block Organizer Hierarchy (Pillar 4B)
+    const blockListContainer = document.getElementById('blockOrganizerList');
+    if (blockListContainer && Array.isArray(s.blockOrder) && s.blockOrder.length > 0) {
+      const items = Array.from(blockListContainer.querySelectorAll('.block-item'));
+      s.blockOrder.forEach(blockKey => {
+        const item = items.find(el => el.dataset.block === blockKey);
+        if (item) blockListContainer.appendChild(item);
+      });
+    }
   },
 
   /**
@@ -2259,6 +2271,20 @@ const App = {
         }
       });
     }
+
+    // Chrome Extension Package ZIP Downloader
+    const extZipBtn = document.getElementById('downloadExtensionZipBtn');
+    if (extZipBtn && typeof AdminTools !== 'undefined') {
+      extZipBtn.addEventListener('click', async () => {
+        try {
+          await AdminTools.downloadChromeExtensionZip(this.state);
+          this.showToast('Downloaded Chrome Extension (.zip) package!', 'success');
+        } catch (err) {
+          console.error('Failed to export Chrome extension package:', err);
+          this.showToast('Failed to generate extension zip package', 'error');
+        }
+      });
+    }
   },
 
   /**
@@ -2911,6 +2937,193 @@ const App = {
             this.showToast(msg, success ? 'success' : 'error');
           });
         }
+      });
+    }
+  },
+
+  /**
+   * Pillar 4A: WYSIWYG Direct Inline Canvas Editing with 2-Way Input Sync
+   */
+  bindInlineCanvasEditing() {
+    const canvas = document.getElementById('liveRenderCanvas');
+    if (!canvas) return;
+
+    // Prevent navigation when clicking links containing inline editable spans
+    canvas.addEventListener('click', (e) => {
+      const fieldSpan = e.target.closest('[data-inline-field]');
+      if (fieldSpan) {
+        const anchor = e.target.closest('a');
+        if (anchor) {
+          e.preventDefault();
+        }
+      }
+    });
+
+    // Direct input typing on editable canvas fields
+    canvas.addEventListener('input', (e) => {
+      const fieldSpan = e.target.closest('[data-inline-field]');
+      if (!fieldSpan) return;
+
+      const fieldName = fieldSpan.getAttribute('data-inline-field');
+      const val = fieldSpan.innerText || fieldSpan.textContent || '';
+
+      if (fieldName.startsWith('customField_')) {
+        const idx = parseInt(fieldName.replace('customField_', ''), 10);
+        if (this.state.data.customFields && this.state.data.customFields[idx]) {
+          this.state.data.customFields[idx].value = val;
+          const input = document.getElementById(`customFieldVal_${idx}`);
+          if (input) input.value = val;
+        }
+      } else if (fieldName === 'statusText') {
+        if (!this.state.data.statusBadge) this.state.data.statusBadge = {};
+        this.state.data.statusBadge.text = val;
+        this.state.data.statusText = val;
+        const input = document.getElementById('statusBadgeText');
+        if (input) input.value = val;
+      } else if (fieldName === 'bookingBadgeText') {
+        if (!this.state.data.bookingBadge) this.state.data.bookingBadge = {};
+        this.state.data.bookingBadge.text = val;
+        const input = document.getElementById('bookingBadgeText');
+        if (input) input.value = val;
+      } else if (fieldName in this.state.data) {
+        this.state.data[fieldName] = val;
+        const input = document.getElementById(fieldName);
+        if (input) input.value = val;
+      }
+
+      this.saveToStorage();
+    });
+
+    // Blur / Focusout: Re-run live preview for complete layout sync & linter audit
+    canvas.addEventListener('focusout', (e) => {
+      const fieldSpan = e.target.closest('[data-inline-field]');
+      if (!fieldSpan) return;
+      this.updateLivePreview();
+    });
+
+    // Keydown: Prevent unwanted newline line breaks on single-line header fields
+    canvas.addEventListener('keydown', (e) => {
+      const fieldSpan = e.target.closest('[data-inline-field]');
+      if (!fieldSpan) return;
+      const fieldName = fieldSpan.getAttribute('data-inline-field');
+      const multilineFields = ['disclaimerText', 'quoteText', 'address'];
+      if (e.key === 'Enter' && !multilineFields.includes(fieldName)) {
+        e.preventDefault();
+        fieldSpan.blur();
+      }
+    });
+  },
+
+  /**
+   * Pillar 4B: Modular Block Organizer (Drag & Drop + Up/Down Reordering)
+   */
+  bindBlockOrganizerEvents() {
+    const container = document.getElementById('blockOrganizerList');
+    const resetBtn = document.getElementById('resetBlockOrderBtn');
+    if (!container) return;
+
+    const defaultOrder = ['identity', 'contact', 'socials', 'badges', 'banner', 'footer'];
+    if (!Array.isArray(this.state.settings.blockOrder) || this.state.settings.blockOrder.length === 0) {
+      this.state.settings.blockOrder = [...defaultOrder];
+    }
+
+    const syncOrganizerDom = () => {
+      const order = this.state.settings.blockOrder || defaultOrder;
+      const items = Array.from(container.querySelectorAll('.block-item'));
+      order.forEach(blockKey => {
+        const item = items.find(el => el.dataset.block === blockKey);
+        if (item) container.appendChild(item);
+      });
+    };
+
+    syncOrganizerDom();
+
+    // Up / Down reorder button clicks
+    container.addEventListener('click', (e) => {
+      const btnUp = e.target.closest('.block-btn-up');
+      const btnDown = e.target.closest('.block-btn-down');
+      if (!btnUp && !btnDown) return;
+
+      const item = e.target.closest('.block-item');
+      if (!item) return;
+      const blockKey = item.dataset.block;
+      let order = [...(this.state.settings.blockOrder || defaultOrder)];
+      const idx = order.indexOf(blockKey);
+      if (idx === -1) return;
+
+      if (btnUp && idx > 0) {
+        const temp = order[idx];
+        order[idx] = order[idx - 1];
+        order[idx - 1] = temp;
+      } else if (btnDown && idx < order.length - 1) {
+        const temp = order[idx];
+        order[idx] = order[idx + 1];
+        order[idx + 1] = temp;
+      }
+
+      this.state.settings.blockOrder = order;
+      syncOrganizerDom();
+      this.updateLivePreview();
+      this.saveToStorage();
+    });
+
+    // HTML5 Drag and Drop Handlers
+    let draggedItem = null;
+
+    container.addEventListener('dragstart', (e) => {
+      draggedItem = e.target.closest('.block-item');
+      if (draggedItem) {
+        draggedItem.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', draggedItem.dataset.block);
+      }
+    });
+
+    container.addEventListener('dragend', () => {
+      if (draggedItem) {
+        draggedItem.classList.remove('dragging');
+        draggedItem = null;
+      }
+      container.querySelectorAll('.block-item').forEach(el => el.classList.remove('drag-over'));
+    });
+
+    container.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const targetItem = e.target.closest('.block-item');
+      if (targetItem && targetItem !== draggedItem) {
+        container.querySelectorAll('.block-item').forEach(el => el.classList.remove('drag-over'));
+        targetItem.classList.add('drag-over');
+      }
+    });
+
+    container.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const targetItem = e.target.closest('.block-item');
+      if (targetItem && draggedItem && targetItem !== draggedItem) {
+        const items = Array.from(container.querySelectorAll('.block-item'));
+        const draggedIdx = items.indexOf(draggedItem);
+        const targetIdx = items.indexOf(targetItem);
+
+        let order = [...(this.state.settings.blockOrder || defaultOrder)];
+        const [removed] = order.splice(draggedIdx, 1);
+        order.splice(targetIdx, 0, removed);
+
+        this.state.settings.blockOrder = order;
+        syncOrganizerDom();
+        this.updateLivePreview();
+        this.saveToStorage();
+      }
+      container.querySelectorAll('.block-item').forEach(el => el.classList.remove('drag-over'));
+    });
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        this.state.settings.blockOrder = [...defaultOrder];
+        syncOrganizerDom();
+        this.updateLivePreview();
+        this.saveToStorage();
+        this.showToast('Reset block order to default hierarchy', 'info');
       });
     }
   },

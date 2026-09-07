@@ -613,7 +613,136 @@ try {
   assert(`Preheader Preview & Inbox Simulator tests execute cleanly`, false, e);
 }
 
+// 13. Pillar 4A: WYSIWYG Inline Canvas Editing & 2-Way Sync
+console.log("\n--- Audit 12: Pillar 4A WYSIWYG Inline Canvas Editing ---");
+try {
+  const testData = { ...Presets.defaultData, fullName: 'Antigravity Test Engineer', jobTitle: 'Principal Architect' };
+  const testSettings = { ...Presets.styles.dhrubojyoti.settings };
+
+  // 1. Preview mode (isExport = false) includes data-inline-field & contenteditable
+  const previewHtml = SignatureEngine.generateHtml(testData, testSettings, false, false);
+  assert(`Preview mode wraps fullName with data-inline-field="fullName"`, previewHtml.includes('data-inline-field="fullName"') && previewHtml.includes('contenteditable="true"'));
+  assert(`Preview mode wraps jobTitle with data-inline-field="jobTitle"`, previewHtml.includes('data-inline-field="jobTitle"'));
+  assert(`Preview mode includes .wysiwyg-editable-field class`, previewHtml.includes('wysiwyg-editable-field'));
+
+  // 2. Export mode (isExport = true) generates clean standard HTML with ZERO editable attributes
+  const exportHtml = SignatureEngine.generateHtml(testData, testSettings, false, true);
+  assert(`Export mode strips all data-inline-field attributes`, !exportHtml.includes('data-inline-field'));
+  assert(`Export mode strips contenteditable="true"`, !exportHtml.includes('contenteditable'));
+  assert(`Export mode preserves raw text content ("Antigravity Test Engineer")`, exportHtml.includes('Antigravity Test Engineer'));
+
+  // 3. Test 2-way sync simulation
+  const liveCanvas = document.getElementById('liveRenderCanvas');
+  assert(`Live canvas element exists for WYSIWYG interaction`, !!liveCanvas);
+  assert(`WYSIWYG live status badge exists in toolbar`, !!document.getElementById('wysiwygIndicator'));
+
+} catch (e) {
+  assert(`WYSIWYG Inline Canvas Editing tests execute cleanly`, false, e);
+}
+
+// 14. Pillar 4B: Modular Block Reordering & Dynamic Hierarchy
+console.log("\n--- Audit 13: Pillar 4B Modular Block Organizer ---");
+try {
+  const blockOrganizerList = document.getElementById('blockOrganizerList');
+  const resetBlockOrderBtn = document.getElementById('resetBlockOrderBtn');
+  assert(`Block organizer DOM list exists in Tab 3`, !!blockOrganizerList);
+  assert(`Reset block order button exists`, !!resetBlockOrderBtn);
+
+  const blockItems = querySelectorAll(rootEl, '.block-item');
+  assert(`Block organizer contains 6 modular draggable blocks`, blockItems.length === 6);
+
+  const testData = { ...Presets.defaultData, showCta: true, ctaText: 'Visit Workspace' };
+  const baseSettings = { ...Presets.styles.dhrubojyoti.settings };
+
+  // Test custom block order in SignatureEngine
+  const customOrderSettings = {
+    ...baseSettings,
+    blockOrder: ['contact', 'identity', 'socials', 'badges', 'banner', 'footer']
+  };
+
+  const customOrderHtml = SignatureEngine.generateHtml(testData, customOrderSettings, false, true);
+  const customIdentityIdx = customOrderHtml.indexOf(testData.jobTitle);
+  const customContactIdx = customOrderHtml.indexOf(testData.phone);
+  assert(`Custom blockOrder renders contact before identity hierarchy`, customIdentityIdx > -1 && customContactIdx > -1 && (customContactIdx < customIdentityIdx));
+
+  // Test reset block order
+  if (resetBlockOrderBtn) {
+    resetBlockOrderBtn.click();
+    assert(`Reset block order restores default 6-block array`, Array.isArray(App.state.settings.blockOrder) && App.state.settings.blockOrder[0] === 'identity');
+  }
+
+} catch (e) {
+  assert(`Modular Block Organizer tests execute cleanly`, false, e);
+}
+
+// 15. Pillar 3B: Outlook MSO / VML Vector Buttons & Conditionals
+console.log("\n--- Audit 14: Pillar 3B Outlook MSO / VML Vector Buttons ---");
+try {
+  const vmlData = {
+    ...Presets.defaultData,
+    showCta: true,
+    ctaText: 'Schedule Technical Review',
+    ctaUrl: 'https://www.dhrubojyoti.dev',
+    showBookingBadge: true,
+    bookingBadge: { enabled: true, text: 'Book 1:1 Call', url: 'https://calendly.com' }
+  };
+  const vmlSettings = { ...Presets.styles.dhrubojyoti.settings, template: 'vertical-divider' };
+
+  const sigHtml = SignatureEngine.generateHtml(vmlData, vmlSettings, false, true);
+
+  // 1. Verify MSO conditional comments
+  assert(`Signature HTML contains <!--[if mso]> conditional`, sigHtml.includes('<!--[if mso]>'));
+  assert(`Signature HTML contains <!--[if !mso]><!--> standard fallback`, sigHtml.includes('<!--[if !mso]><!-->'));
+
+  // 2. Verify VML vector button tags
+  assert(`Signature HTML contains <v:roundrect> vector shape`, sigHtml.includes('<v:roundrect'));
+  assert(`Signature HTML contains <v:fill> vector fill`, sigHtml.includes('<v:fill'));
+  assert(`Signature HTML contains <w:anchorlock/> XML namespace tag`, sigHtml.includes('<w:anchorlock/>'));
+  assert(`Signature HTML contains VML xmlns namespace definition`, sigHtml.includes('xmlns:v="urn:schemas-microsoft-com:vml"'));
+
+  // 3. Verify Linter audit detects and passes VML buttons check
+  const lintReport = LinterEngine.audit(sigHtml);
+  const vmlCheck = lintReport.checks.find(c => c.id === 'vml_buttons');
+  assert(`LinterEngine recognizes Outlook VML Vector Buttons check`, !!vmlCheck && vmlCheck.status === 'pass');
+
+} catch (e) {
+  assert(`Outlook MSO / VML Vector Buttons tests execute cleanly`, false, e);
+}
+
+// 16. Chrome Extension Manifest V3 & On-Device ZIP Packaging
+console.log("\n--- Audit 15: Chrome Extension Package (Manifest V3) ---");
+try {
+  const manifestPath = './extension/manifest.json';
+  const popupHtmlPath = './extension/popup.html';
+  const popupJsPath = './extension/popup.js';
+  const popupCssPath = './extension/popup.css';
+  const contentJsPath = './extension/content.js';
+  const readmePath = './extension/README.md';
+
+  assert(`Extension manifest.json exists`, fs.existsSync(manifestPath));
+  assert(`Extension popup.html exists`, fs.existsSync(popupHtmlPath));
+  assert(`Extension popup.js exists`, fs.existsSync(popupJsPath));
+  assert(`Extension popup.css exists`, fs.existsSync(popupCssPath));
+  assert(`Extension content.js exists`, fs.existsSync(contentJsPath));
+  assert(`Extension README.md exists`, fs.existsSync(readmePath));
+
+  // Validate Manifest JSON structure
+  const manifestRaw = fs.readFileSync(manifestPath, 'utf8');
+  const manifest = JSON.parse(manifestRaw);
+  assert(`Manifest version is 3`, manifest.manifest_version === 3);
+  assert(`Manifest has host_permissions for Gmail & Outlook Web`, manifest.host_permissions.some(p => p.includes('mail.google.com')) && manifest.host_permissions.some(p => p.includes('outlook')));
+  assert(`Manifest declares content_scripts targeting mail clients`, Array.isArray(manifest.content_scripts) && manifest.content_scripts[0].matches.some(m => m.includes('mail.google.com')));
+
+  // Test AdminTools Chrome Extension ZIP Generator
+  assert(`AdminTools.downloadChromeExtensionZip function exists`, typeof AdminTools.downloadChromeExtensionZip === 'function');
+  assert(`downloadExtensionZipBtn button exists in Admin Deploy modal`, !!document.getElementById('downloadExtensionZipBtn'));
+
+} catch (e) {
+  assert(`Chrome Extension Package tests execute cleanly`, false, e);
+}
+
 console.log("\n=================================================");
 console.log(`Audit Finished: ${passed} passed, ${failed} failed.`);
 console.log("=================================================");
+
 

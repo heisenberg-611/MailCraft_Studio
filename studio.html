@@ -826,6 +826,86 @@
               <input type="range" id="dividerSpacing" class="custom-range" min="4" max="24" value="14">
             </div>
           </div>
+
+          <!-- Section 5: Modular Block Re-ordering -->
+          <div class="control-section">
+            <div class="sahinur-section-header">
+              <span class="sahinur-eyebrow">// 05. MODULAR BLOCK ORDER</span>
+            </div>
+            <p style="font-size: 11px; color: var(--sahinur-text-dim); margin-bottom: 10px; line-height: 1.4;">
+              Drag &amp; drop or use arrow buttons to customize vertical signature hierarchy:
+            </p>
+            <div class="block-organizer-list" id="blockOrganizerList">
+              <div class="block-item" data-block="identity" draggable="true">
+                <div class="block-item-left">
+                  <span class="drag-handle" title="Drag to reorder">&#x2630;</span>
+                  <span class="block-name">[01] Identity &amp; Title</span>
+                </div>
+                <div class="block-item-actions">
+                  <button type="button" class="block-btn-up" title="Move Up" aria-label="Move Up">&#x25B2;</button>
+                  <button type="button" class="block-btn-down" title="Move Down" aria-label="Move Down">&#x25BC;</button>
+                </div>
+              </div>
+
+              <div class="block-item" data-block="contact" draggable="true">
+                <div class="block-item-left">
+                  <span class="drag-handle" title="Drag to reorder">&#x2630;</span>
+                  <span class="block-name">[02] Contact Channels</span>
+                </div>
+                <div class="block-item-actions">
+                  <button type="button" class="block-btn-up" title="Move Up" aria-label="Move Up">&#x25B2;</button>
+                  <button type="button" class="block-btn-down" title="Move Down" aria-label="Move Down">&#x25BC;</button>
+                </div>
+              </div>
+
+              <div class="block-item" data-block="socials" draggable="true">
+                <div class="block-item-left">
+                  <span class="drag-handle" title="Drag to reorder">&#x2630;</span>
+                  <span class="block-name">[03] Social Links</span>
+                </div>
+                <div class="block-item-actions">
+                  <button type="button" class="block-btn-up" title="Move Up" aria-label="Move Up">&#x25B2;</button>
+                  <button type="button" class="block-btn-down" title="Move Down" aria-label="Move Down">&#x25BC;</button>
+                </div>
+              </div>
+
+              <div class="block-item" data-block="badges" draggable="true">
+                <div class="block-item-left">
+                  <span class="drag-handle" title="Drag to reorder">&#x2630;</span>
+                  <span class="block-name">[04] Badges &amp; Booking</span>
+                </div>
+                <div class="block-item-actions">
+                  <button type="button" class="block-btn-up" title="Move Up" aria-label="Move Up">&#x25B2;</button>
+                  <button type="button" class="block-btn-down" title="Move Down" aria-label="Move Down">&#x25BC;</button>
+                </div>
+              </div>
+
+              <div class="block-item" data-block="banner" draggable="true">
+                <div class="block-item-left">
+                  <span class="drag-handle" title="Drag to reorder">&#x2630;</span>
+                  <span class="block-name">[05] Promo Banner &amp; CTA</span>
+                </div>
+                <div class="block-item-actions">
+                  <button type="button" class="block-btn-up" title="Move Up" aria-label="Move Up">&#x25B2;</button>
+                  <button type="button" class="block-btn-down" title="Move Down" aria-label="Move Down">&#x25BC;</button>
+                </div>
+              </div>
+
+              <div class="block-item" data-block="footer" draggable="true">
+                <div class="block-item-left">
+                  <span class="drag-handle" title="Drag to reorder">&#x2630;</span>
+                  <span class="block-name">[06] Signoff &amp; Legal</span>
+                </div>
+                <div class="block-item-actions">
+                  <button type="button" class="block-btn-up" title="Move Up" aria-label="Move Up">&#x25B2;</button>
+                  <button type="button" class="block-btn-down" title="Move Down" aria-label="Move Down">&#x25BC;</button>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top: 8px; display: flex; justify-content: flex-end;">
+              <button type="button" class="btn-secondary" id="resetBlockOrderBtn" style="font-size: 10.5px; padding: 4px 8px;">Reset Default Order</button>
+            </div>
+          </div>
         </div>
 
         <!-- Tab 4: Social Media Icons -->
@@ -1471,6 +1551,9 @@
         </div>
 
         <div class="toolbar-group">
+          <span class="wysiwyg-badge-indicator" id="wysiwygIndicator" title="Direct inline canvas editing active: click any text in preview to edit inline">
+            <span class="wysiwyg-badge-dot"></span> LIVE WYSIWYG
+          </span>
           <button class="toolbar-btn active" id="themeLightBtn">Light Inbox</button>
           <button class="toolbar-btn" id="themeDarkBtn">Dark Inbox</button>
 
@@ -1845,6 +1928,21 @@
         <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
           <button class="btn-secondary" id="downloadAdminScriptFileBtn">Download Script File</button>
           <button class="btn-primary" id="copyAdminScriptBtn">Copy Script Code</button>
+        </div>
+
+        <!-- Chrome Extension Package Export -->
+        <div class="admin-extension-deploy-card" style="margin-top: 16px; padding: 12px 14px; background: var(--sahinur-surface-2); border: 1px solid var(--sahinur-border-strong); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; gap: 14px;">
+          <div>
+            <div style="font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; color: var(--sahinur-text); margin-bottom: 3px;">
+              // CHROME EXTENSION DEPLOYMENT PACKAGE (MANIFEST V3)
+            </div>
+            <div style="font-size: 11px; color: var(--sahinur-text-dim); line-height: 1.4;">
+              Export a standalone, pre-bundled Chrome Extension (.zip) with active profile for 1-click injection in Gmail &amp; Outlook Web.
+            </div>
+          </div>
+          <button class="btn-primary" id="downloadExtensionZipBtn" style="white-space: nowrap; padding: 8px 14px; font-size: 11px; display: flex; align-items: center; gap: 6px;">
+            <span>📦</span> Download Extension (.zip)
+          </button>
         </div>
       </div>
     </div>
