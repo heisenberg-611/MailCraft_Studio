@@ -10,16 +10,16 @@
  |_|  |_|\__,_|_|_|\____|_|  \__,_|_|  \__| |____/ \__|\__,_|\__,_|_|\___/ 
 ```
 
-**The Definitive High-Definition Email Signature & Architecture Studio**
+**The Definitive High-Definition Email Signature & Responsive Email Architecture Studio**
 
-[![Version](https://img.shields.io/badge/version-1.2.0-00DC82.svg?style=flat-square)](https://github.com/heisenberg-611/MailCraft_Studio/releases/tag/v1.2)
+[![Version](https://img.shields.io/badge/version-2.0.0-00DC82.svg?style=flat-square)](https://github.com/heisenberg-611/MailCraft_Studio/releases/tag/v2.0.0)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Client-Side](https://img.shields.io/badge/architecture-100%25%20Client--Side-brightgreen.svg?style=flat-square)](#architecture)
 [![Zero-Dependencies](https://img.shields.io/badge/dependencies-0%20(Vanilla%20JS)-orange.svg?style=flat-square)](#technology-stack)
 [![Retina HD](https://img.shields.io/badge/DPI-1x%20%7C%202x%20%7C%203x%20%7C%204x-blueviolet.svg?style=flat-square)](#core-features)
 [![Deploy with Vercel](https://img.shields.io/badge/deploy-Vercel-black.svg?style=flat-square&logo=vercel)](https://vercel.com/new)
 
-[Overview](#overview) • [Key Features](#key-features) • [Quick Start](#quick-start) • [Email Client Setup](#email-client-setup) • [Architecture](#architecture) • [Deployment](#deployment) • [Author](#author)
+[Overview](#overview) • [What's New in v2.0](#whats-new-in-v20) • [Key Features](#key-features) • [Chrome Extension](#chrome-extension) • [Quick Start](#quick-start) • [Email Client Setup](#email-client-setup) • [Architecture](#architecture) • [Deployment](#deployment) • [Author](#author)
 
 </div>
 
@@ -27,9 +27,24 @@
 
 ## Overview
 
-**MailCraft Studio** is an open-source, high-performance, 100% client-side web application designed for developers, researchers, executives, academics, and creative professionals who demand pixel-perfect, typography-disciplined email signatures and HTML email communications.
+**MailCraft Studio** is an open-source, high-performance, 100% client-side web application designed for developers, researchers, executives, academics, and creative professionals who demand pixel-perfect, typography-disciplined email signatures and responsive HTML email communications.
 
-Unlike typical cloud-based signature generators that charge monthly subscriptions, inject tracking pixels, or store your personal address book on third-party servers, MailCraft Studio runs **entirely inside your web browser**. Every HTML compilation, 4x Retina canvas rasterization, quotes shuffle, CSV roster parse, and ZIP export happens on your device with **zero telemetry and zero server dependencies**.
+Unlike typical cloud-based signature generators that charge monthly subscriptions, inject tracking pixels, or store your personal address book on third-party servers, MailCraft Studio runs **entirely inside your web browser**. Every HTML compilation, 4x Retina canvas rasterization, QR matrix generation, quote shuffle, CSV roster parse, and enterprise deployment package creation happens on your device with **zero telemetry and zero server dependencies**.
+
+---
+
+## 🚀 What's New in v2.0
+
+MailCraft Studio v2.0 is a milestone release delivering enterprise-grade layout engines, real-time visual editing, browser extension workflows, and deep compatibility tooling:
+
+- **10 Architectural Layout Blueprints**: Added *Header Brand Banner*, *Academic Multi-Affiliation*, *Micro Thread Quick Reply*, and *ASCII Terminal Obsidian* layouts to the core signature engine.
+- **Direct WYSIWYG Inline Live Editing**: Click directly on any signature element in the live preview canvas (Name, Title, Department, Phone, Email, Bio, Quote) to edit in place with automatic 2-way synchronization to sidebar form controls.
+- **Universal Modular Block Re-ordering**: Customize the visual order of identity blocks (Name/Title, Photo/Logo, Contact Rows, Social Badges, Calendar/CTA buttons, Quotes, Promo Banners, Disclaimers) across all 10 layout templates.
+- **Official Manifest V3 Chrome Extension**: Bundled browser extension with 1-click Gmail and Outlook Web compose box injection, multi-profile switcher, and rich signature clipboard copy.
+- **Preheader Preview & Inbox Envelope Simulator**: Visual preview of inbox envelope metadata (Sender, Subject, Preheader Preview Text) with automatic anti-leak zero-width whitespace padding to protect email bodies from appearing in email client preview snippets.
+- **Outlook Desktop MSO / VML Vector Buttons**: Bulletproof cross-platform Call-to-Action and Calendar booking buttons with native Vector Markup Language (`<!--[if mso]>`) fallbacks for Microsoft Outlook 2016–365.
+- **Enterprise Multi-Platform Deployment Exporter**: 1-click generators for Google Workspace Admin (Google Apps Script `.gs`), Microsoft 365 Exchange Online (PowerShell `.ps1`), macOS Apple Mail (`.mailsignature`), and Windows Outlook (`.htm`).
+- **Real-Time Compatibility & Size Linter**: Visual payload safety gauge and instant compatibility audit checklist against Gmail's 102KB clipping threshold.
 
 ---
 
@@ -37,56 +52,91 @@ Unlike typical cloud-based signature generators that charge monthly subscription
 
 ### 📐 1. Robust HTML Signature Engine (`SignatureEngine`)
 - **Strict Table Architecture**: Conforms to W3C HTML 4.01 / XHTML Transitional standards using nested tables with inline styles to guarantee seamless rendering across legacy and modern mail clients (Gmail, Apple Mail, Outlook Desktop, Outlook 365, Thunderbird, Yahoo, and iOS Mail).
-- **6 Signature Blueprints**:
+- **10 Signature Blueprints**:
   1. `Vertical Divider`: High-contrast dual-column layout with an accent colored vertical separator.
   2. `Horizontal Bar`: Sleek header identity bar with bottom contact rows.
   3. `Two-Column Grid`: Balanced identity on the left, social and contact rows on the right.
   4. `Modern Card`: Encapsulated card aesthetic with accent border accents.
-  5. `Minimal Left`: Crisp left-accent border with minimalist typography.
-  6. `Compact Inline`: Single-line horizontal flow for ultra-clean daily correspondence.
+  5. `Header Banner`: Top hero brand banner bar layout.
+  6. `Academic Multi-Affiliation`: Editorial faculty & laboratory multi-affiliation layout.
+  7. `Micro Thread Quick Reply`: Ultra-minimal single-row quick reply signature.
+  8. `ASCII Terminal Obsidian`: Monospace hacker terminal with command prompt prefixes.
+  9. `Minimal Left`: Crisp left-accent border with minimalist typography.
+  10. `Compact Inline`: Single-line horizontal flow for ultra-clean daily correspondence.
 
-### 🖼️ 2. High-DPI Avatar & Image Processing Engine (`ImageProcessor`)
+### ✏️ 2. Direct WYSIWYG Inline Live Editing
+- **Click-and-Type Canvas**: Edit your name, role, organization, phone, email, bio, or quote directly inside the live email client preview stage.
+- **Two-Way Synchronization**: Edits in the canvas immediately update the sidebar input fields and trigger automatic state persistence.
+- **Link Interception**: Prevents accidental navigation during design and editing sessions.
+
+### 🧩 3. Universal Modular Block Organizer
+- **Customizable Block Order**: Re-order identity rows with 1-click Move Up / Move Down controls:
+  - `Name & Title`
+  - `Avatar / Logo`
+  - `Contact Rows`
+  - `Social Badges`
+  - `Badges & CTA Buttons`
+  - `Quotes Block`
+  - `Promo Banner`
+  - `Legal Disclaimer`
+- **Universal Engine Support**: Works consistently across all 10 architectural templates.
+
+### 🖼️ 4. High-DPI Avatar & Image Processing Engine (`ImageProcessor`)
 - **Retina 2x/3x/4x DPI Scaling**: Eliminates blurry avatars on 4K/5K displays and smartphone screens by rasterizing photos at high pixel densities with explicit HTML display constraints.
 - **Dynamic Framing & Shapes**: Full-bleed square, circle (`50%`), squircle (`22%`), and rounded rectangle (`10px`) clipping.
 - **In-Browser Image Controls**: Real-time zoom/crop slider, brightness, contrast, and saturation adjustments using HTML5 Canvas.
 - **Independent Logo System**: Secondary company / brand logo with distinct shape, scale, and positioning options.
 
-### 🎨 3. Granular 16-Color Palette Engine
+### 📱 5. QR Code Matrix & RFC 2426 vCard 3.0 Engine (`qr-vcard-engine.js`)
+- **Galois Field GF(256) Reed-Solomon Encoding**: Pure JavaScript QR matrix generator rendering high-resolution scannable contact badges directly to SVG and Canvas.
+- **RFC 2426 vCard Compiler**: In-browser `.vcf` contact card generator with instant download and direct signature embedding.
+
+### 🎨 6. Granular 16-Color Palette Engine
 - Complete color customization across both signature and full email template elements:
   - **Signature**: Full Name, Job Title, Body Text, Labels, Links, Dividers, Quote Text, and Disclaimers.
-  - **Email Template**: Header Text, Header Background, Greeting, Paragraphs, Highlight Box (Title, Text, Background), CTA Button, and Footer Text.
+  - **Email Template**: Header Text, Header Background, Greeting, Paragraphs, Highlight Box, CTA Button, and Footer Text.
 - Synchronized color pickers with bidirectional Hex input fields.
 
-### 💾 4. Production Presets & Custom Preset Manager (`PresetManager`)
-- **9 Curated Presets**:
-  - `Developer / Terminal`: Neon emerald on obsidian dark.
-  - `Academic Scholar`: Deep navy with ORCID, Google Scholar, and ResearchGate identifiers.
-  - `Corporate Executive`: Refined slate and graphite typography.
-  - `Creative Agency`: Vibrant electric violet with promo banner integration.
-  - `Minimalist One-Liner`: Compact horizontal layout.
-  - `Marketing & Promo`: High-conversion CTA banner layout.
-  - `Silicon Valley`: Crisp modern blue.
-  - `Nordic Clean`: Understated minimalist design.
+### 💾 7. Production Presets & Custom Preset Manager (`PresetManager`)
+- **12+ Curated Presets**: Developer / Terminal, Academic Scholar, Corporate Executive, Creative Agency, Minimalist One-Liner, Marketing & Promo, Silicon Valley, Nordic Clean, Cyberpunk Neon, and more.
 - **Preset CRUD & Backup**: Save named custom presets to `localStorage`, clone presets, export full library as JSON, and import backups with 1 click.
 
-### 👥 5. Team & Organization CSV Batch Generator (`TeamEngine`)
+### 👥 8. Team & Organization CSV Batch Generator (`TeamEngine`)
 - **Instant CSV Roster Parsing**: Upload any company CSV file with standard headers (`Full Name`, `Job Title`, `Email`, `Phone`, `Department`, `Avatar URL`, etc.).
 - **Batch ZIP Generator**: Compiles individual `.html` signatures for every team member into a single downloadable `.zip` file entirely in-browser using [`ZipBuilder`](file:///Users/dhrubojyoti/Projects/portfolio/email_signature/js/zip-builder.js).
 
-### 💬 6. Academic, Tech & Philosophy Quotes Engine (`Quotes`)
+### 💬 9. Academic, Tech & Philosophy Quotes Engine (`Quotes`)
 - **160+ Curated Quotes**: Computer science, physics, philosophy, and mathematics quotes (Turing, Knuth, Dijkstra, Feynman, Einstein, Marcus Aurelius, etc.).
 - **Dynamic Quote Rolling**: 1-click quote shuffler and optional auto-shuffle on every clipboard copy.
 
-### 📋 7. Zero-Data-Loss Multi-MIME Clipboard API (`ClipboardManager`)
+### 📋 10. Zero-Data-Loss Multi-MIME Clipboard API (`ClipboardManager`)
 - Writes both `text/html` (rich rendered tables with inline CSS) and `text/plain` fallback payloads using the modern `navigator.clipboard.write([new ClipboardItem(...)])` API.
 - Native fallback via DOM Range Selection and `document.execCommand('copy')`.
 
-### 📸 8. Lossless 3x Super HD PNG Export
+### 📸 11. Lossless Super HD PNG Export
 - Instant 1-click PNG rasterization for social media headers, forum profiles, and graphics applications.
 
-### 🌓 9. Email Client Chrome & Dark Mode Simulation
+### 🌓 12. Email Client Chrome & Dark Mode Simulation
 - Live preview switches between **Gmail Web**, **Apple Mail**, and **Outlook Desktop** client chrome.
 - Dynamic dark mode simulation testing dark theme contrast and invert filters.
+
+---
+
+## 🧩 Chrome Extension (Manifest V3)
+
+MailCraft Studio includes an official browser extension for Google Chrome, Brave, Microsoft Edge, and Chromium browsers:
+
+### Features
+- **1-Click Gmail & Outlook Injection**: Directly inject your active signature into any open compose window.
+- **Live Profile Switcher**: Toggle effortlessly between *Developer*, *Academic*, *Corporate*, and *Custom* identities.
+- **Rich-Text Clipboard Copy**: Copy formatted HTML signatures for any client in one click.
+- **100% Offline & Private**: Zero external network requests or tracking.
+
+### Installation
+1. Navigate to `chrome://extensions/` in your browser.
+2. Enable **"Developer mode"** in the top-right corner.
+3. Click **"Load unpacked"** and select the [`extension/`](file:///Users/dhrubojyoti/Projects/portfolio/email_signature/extension/) directory.
+4. You can also export a ready-to-load Extension ZIP directly from the studio under **Admin Tools > Download Chrome Extension ZIP**.
 
 ---
 
@@ -130,7 +180,7 @@ Open `http://localhost:8080` in your browser.
 7. Scroll down to the bottom and click **Save Changes**.
 
 ### 🍏 Apple Mail (macOS)
-1. In MailCraft Studio, click **`[Copy Signature]`**.
+1. In MailCraft Studio, click **`[Copy Signature]`** (or export `.mailsignature` in Admin Tools).
 2. Open Apple Mail > **Settings** (or **Preferences**) > **Signatures** tab.
 3. Select your mail account and click **`+`** to add a new signature.
 4. **Important**: Uncheck *"Always match my default message font"*.
@@ -157,38 +207,52 @@ Open `http://localhost:8080` in your browser.
 
 ```
 MailCraft_Studio/
-├── index.html                   # Landing page, feature overview, setup docs, legal modals
-├── studio.html                  # Core interactive signature & email builder studio
-├── vercel.json                  # Vercel zero-config static hosting & security headers
-├── site.webmanifest             # PWA web manifest & theme configurations
-├── favicon.ico / favicon.svg    # Tab bar branding & scalable vector icons
+├── index.html                   # Showcase landing page, feature index, legal policies
+├── studio.html                  # Master Studio IDE & live preview environment
+├── vercel.json                  # Zero-config static deployment & security headers
+├── site.webmanifest             # PWA manifest & application icons
+├── sw.js                        # Offline PWA Stale-While-Revalidate service worker
+├── favicon.ico / favicon.svg    # Tab bar branding & vector favicons
 ├── assets/
-│   ├── favicon.svg              # Scalable emerald obsidian SVG favicon
+│   ├── favicon.svg              # Scalable emerald SVG favicon
 │   ├── favicon-32x32.png        # 32x32 raster favicon
 │   ├── favicon-16x16.png        # 16x16 raster favicon
 │   ├── apple-touch-icon.png     # 180x180 iOS touch icon
 │   ├── icon-192.png / 512.png   # PWA application icons
-│   ├── default-avatar.jpg       # Master high-resolution avatar image
-│   └── default-avatar.js        # Offline base64 data URI avatar bundle
+│   ├── default-avatar.jpg       # High-resolution photo asset
+│   └── default-avatar.js        # Offline Base64 embedded avatar module
 ├── css/
-│   ├── studio.css               # Obsidian terminal design system & typography
-│   ├── components.css           # UI components (toggles, color pickers, modals, sliders)
+│   ├── studio.css               # Obsidian dark terminal UI design system & typography
+│   ├── components.css           # UI components (sliders, chips, toggles, color pickers, modals)
 │   └── email-preview.css        # Client chrome simulators (Gmail, Apple Mail, Outlook)
 ├── js/
-│   ├── app.js                   # State manager & event coordinator
-│   ├── signature-engine.js      # W3C table-layout HTML signature generator
-│   ├── image-processor.js       # HTML5 Canvas High-DPI rasterizer & filter pipeline
-│   ├── presets.js               # Built-in curated style presets
+│   ├── app.js                   # Application coordinator & state persistence
+│   ├── signature-engine.js      # W3C table-layout HTML signature engine (10 Blueprints)
+│   ├── email-template-engine.js # Responsive HTML email newsletter / outreach builder
+│   ├── image-processor.js       # HTML5 Canvas High-DPI rasterizer & filter engine
+│   ├── qr-vcard-engine.js       # Zero-dependency Reed-Solomon QR & RFC 2426 vCard 3.0 engine
+│   ├── banner-builder.js        # HTML5 Canvas 2x Retina promotional banner designer
+│   ├── admin-tools.js           # Multi-platform deployment generator (.mailsignature, .htm, .gs, .ps1, extension zip)
+│   ├── linter.js                # Real-time email size & Gmail 102KB clipping safety auditor
+│   ├── presets.js               # Built-in aesthetic presets & template definitions
 │   ├── preset-manager.js        # LocalStorage custom preset manager (CRUD + JSON IO)
-│   ├── team-engine.js           # CSV roster parser & bulk signature compiler
+│   ├── team-engine.js           # Batch CSV parsing, team roster management & Zip export
 │   ├── zip-builder.js           # In-browser binary ZIP archive packager
 │   ├── quotes.js                # 160+ curated philosophy & tech quotes library
-│   ├── icons.js                 # High-resolution social, contact & academic SVG vectors
-│   └── dot-matrix.js            # Interactive ambient dot-matrix canvas animation
+│   ├── icons.js                 # High-definition SVG icons with XML namespace
+│   ├── guides.js                # Interactive email client setup modal guides
+│   └── dot-matrix.js            # Ambient dot-matrix canvas animation
+├── extension/                   # Manifest V3 Chrome Extension
+│   ├── manifest.json            # Extension manifest v3 configuration
+│   ├── popup.html               # Extension interactive popup UI
+│   ├── popup.css                # Extension popup styling
+│   ├── popup.js                 # Signature switcher & 1-click compose injector logic
+│   ├── content.js               # Content script for Gmail & Outlook Web DOM injection
+│   └── README.md                # Chrome extension loading handbook
 └── docs/
     ├── ARCHITECTURE.md          # Technical engine specifications
     ├── USER_GUIDE.md            # User manual & installation instructions
-    └── IMPROVEMENT_PLAN.md      # Engineering roadmap
+    └── IMPROVEMENT_PLAN.md      # Feature roadmap & implementation history
 ```
 
 ---
@@ -198,7 +262,7 @@ MailCraft_Studio/
 - **Core**: Vanilla HTML5, Modern ECMAScript (ES6+), Vanilla CSS3.
 - **Design System**: Obsidian Dark Terminal aesthetic with emerald green neon accents (`#00DC82`), custom glassmorphic modals, and interactive dot matrix canvas.
 - **Typography**: Google Fonts ([`JetBrains Mono`](https://fonts.google.com/specimen/JetBrains+Mono), [`Geist`](https://fonts.google.com/specimen/Geist), and [`Inter`](https://fonts.google.com/specimen/Inter)).
-- **Email Compatibility**: Inline CSS, nested `<table>` layout, `mso-table-lspace/rspace` optimizations, and explicit image dimensions.
+- **Email Compatibility**: Inline CSS, nested `<table>` layout, `mso-table-lspace/rspace` optimizations, MSO VML vector roundrect buttons, and explicit image dimensions.
 
 ---
 

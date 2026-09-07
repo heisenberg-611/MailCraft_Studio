@@ -3,7 +3,7 @@
  * High-reliability caching with Network-First navigation & Stale-While-Revalidate assets
  */
 
-const CACHE_NAME = 'mailcraft-v1.2.0';
+const CACHE_NAME = 'mailcraft-v2.0.0';
 
 const ASSETS_TO_CACHE = [
   '/',

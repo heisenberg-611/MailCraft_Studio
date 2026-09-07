@@ -1,4 +1,4 @@
-# MailCraft Studio Architecture & System Design
+# MailCraft Studio Architecture & System Design (v2.0)
 
 ## Overview
 MailCraft Studio is a 100% client-side, zero-backend enterprise web application engineered to generate pixel-perfect, High-Definition (Retina 2x/3x/4x) email signatures, responsive HTML email templates, and enterprise deployment packages.
@@ -23,7 +23,7 @@ email_signature/
 ├── js/
 │   ├── qr-vcard-engine.js       # Zero-dependency Reed-Solomon QR & RFC 2426 vCard 3.0 engine
 │   ├── banner-builder.js        # HTML5 Canvas 2x Retina promotional banner designer
-│   ├── admin-tools.js           # Desktop files (.mailsignature, .htm) & Admin deployers (.gs, .ps1)
+│   ├── admin-tools.js           # Desktop files (.mailsignature, .htm) & Admin deployers (.gs, .ps1, extension zip)
 │   ├── linter.js                # Real-time email size & Gmail 102KB clipping safety auditor
 │   ├── icons.js                 # High-definition SVG icons with XML namespace
 │   ├── quotes.js                # Curated inspirational quote shuffler
@@ -32,11 +32,18 @@ email_signature/
 │   ├── team-engine.js           # Batch CSV parsing, team roster management & 1-click Zip exporter
 │   ├── image-processor.js       # HTML5 Canvas High-DPI scaler & filter engine
 │   ├── signature-engine.js      # Email-safe nested table HTML generator (10 Blueprints)
-│   ├── email-template-engine.js # Responsive full email builder
+│   ├── email-template-engine.js # Responsive full email builder with preheader anti-leak engine
 │   ├── clipboard.js             # Modern rich-text HTML clipboard writer
 │   ├── guides.js                # Email client setup modal guides
 │   ├── dot-matrix.js            # Ambient canvas background visualizer
-│   └── app.js                   # Application coordinator & state manager
+│   └── app.js                   # Application coordinator, WYSIWYG sync & state manager
+├── extension/                   # Manifest V3 Chrome Extension
+│   ├── manifest.json            # Extension manifest v3 configuration (v2.0.0)
+│   ├── popup.html               # Extension interactive popup UI
+│   ├── popup.css                # Extension popup styling
+│   ├── popup.js                 # Signature switcher & 1-click compose injector logic
+│   ├── content.js               # Content script for Gmail & Outlook Web DOM injection
+│   └── README.md                # Chrome extension loading handbook
 └── docs/
     ├── IMPROVEMENT_PLAN.md      # Comprehensive feature & evolution roadmap
     ├── ARCHITECTURE.md          # System architecture & engine specs
@@ -75,6 +82,7 @@ email_signature/
 - **Mozilla Thunderbird**: Generates clean HTML snippets.
 - **Google Workspace Admin Deployer**: Generates ready-to-run Google Apps Script (`.gs`) using Gmail and Admin Directory APIs for single-user or domain-wide batch deployment.
 - **Microsoft 365 Exchange Online Deployer**: Generates PowerShell (`.ps1`) scripts utilizing `Set-MailboxMessageConfiguration` with Base64 payload transport.
+- **Chrome Extension ZIP Exporter**: Bundles and downloads a self-contained Manifest V3 extension archive on demand.
 
 ### 6. Email-Safe HTML Generation Engine (`signature-engine.js`)
 - **10 Architectural Layout Blueprints**:
@@ -88,7 +96,14 @@ email_signature/
   8. `ascii-terminal` - Monospace hacker terminal with prompt prefixes.
   9. `minimal-left` - Left-aligned clean minimalist layout.
   10. `compact-inline` - Single-line ultra-compact signature.
-- **Add-on Injection**: Renders Calendar booking badges (VML-safe bulletproof buttons), live dynamic status indicators, QR badges, and dynamic custom key-value rows.
+- **Universal Modular Block Re-ordering**: Supports dynamic reordering of identity, contact, social, action, quote, banner, and disclaimer sections across all 10 templates.
+- **WYSIWYG Editable Markup**: Injects `data-field` attributes into preview HTML for real-time two-way contenteditable synchronization.
+- **MSO VML Vector Buttons**: Renders Microsoft Office Vector Markup Language rounded rectangles for Outlook desktop compatibility.
 
-### 7. Offline Progressive Web App (`sw.js`)
+### 7. Chrome Extension Engine (`extension/`)
+- **Manifest V3 Architecture**: Lightweight, high-performance extension for Chrome, Brave, and Edge.
+- **1-Click Compose Injection**: Content script detects active Gmail and Outlook Web compose editors and inserts rich HTML signatures at cursor position.
+- **Multi-Profile Switcher**: Instant switching between presets and customized user profiles.
+
+### 8. Offline Progressive Web App (`sw.js`)
 - Stale-While-Revalidate caching strategy for instant offline studio access.

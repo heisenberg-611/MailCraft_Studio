@@ -1,4 +1,4 @@
-# MailCraft Studio - Chrome Extension (Manifest V3)
+# MailCraft Studio - Chrome Extension (Manifest V3 - v2.0.0)
 
 1-Click Signature Switcher and Direct Injector for Gmail & Outlook Web.
 
