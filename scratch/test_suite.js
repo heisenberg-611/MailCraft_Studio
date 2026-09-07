@@ -296,6 +296,126 @@ it('ImageProcessor: Calculates correct High-DPI physical resolution and optimize
   assert.strictEqual(px2, 170, '2x Retina DPI must preserve full 170x170 physical resolution');
 });
 
+// 8. Test Dual-Mode Color Architecture (Master Accent Propagation vs Granular Manual Overrides)
+it('Color Matrix: Master Accent color propagates to all accent-driven elements when not overridden', () => {
+  const mockData = {
+    fullName: 'Dhrubojyoti Saha',
+    jobTitle: 'Software Architect',
+    company: 'MailCraft',
+    email: 'test@example.com',
+    phone: '+1234567890',
+    website: 'https://example.com',
+    badgeText: 'Architect'
+  };
+
+  const violetAccent = '#8B5CF6';
+  const settings = {
+    template: 'vertical-divider',
+    accentColor: violetAccent,
+    nameColor: '#0A0A0A',
+    bodyColor: '#242424',
+    showBadges: true,
+    nameTag: 'PRO'
+  };
+
+  const html = SignatureEngine.generateHtml(mockData, settings, false, true);
+
+  // Check that divider inherits accent color
+  assert.ok(html.includes(violetAccent), 'Rendered HTML must include master accent color #8B5CF6');
+  assert.ok(html.includes(`solid ${violetAccent}`), 'Vertical divider border must use #8B5CF6');
+  assert.ok(html.includes(`color: ${violetAccent}`), 'Links and titles must resolve to #8B5CF6');
+});
+
+it('Color Matrix: Granular Manual Overrides take precedence over Master Accent', () => {
+  const mockData = {
+    fullName: 'Dhrubojyoti Saha',
+    jobTitle: 'Software Architect',
+    company: 'MailCraft',
+    email: 'test@example.com',
+    phone: '+1234567890',
+    website: 'https://example.com'
+  };
+
+  const violetAccent = '#8B5CF6';
+  const customDivider = '#EF4444'; // Neon Crimson
+  const customTitle = '#F59E0B';   // Amber Gold
+  const customLink = '#06B6D4';    // Cyan
+
+  const settings = {
+    template: 'vertical-divider',
+    accentColor: violetAccent,
+    dividerColor: customDivider,
+    titleColor: customTitle,
+    linkColor: customLink,
+    nameColor: '#0A0A0A',
+    bodyColor: '#242424'
+  };
+
+  const html = SignatureEngine.generateHtml(mockData, settings, false, true);
+
+  // Check that manual overrides are applied
+  assert.ok(html.includes(`solid ${customDivider}`), 'Divider must use manual override color #EF4444');
+  assert.ok(html.includes(`color: ${customTitle}`), 'Title must use manual override color #F59E0B');
+  assert.ok(html.includes(`color: ${customLink}`), 'Link must use manual override color #06B6D4');
+});
+
+it('Color Matrix: adjustColorForDark converts both master accent and custom colors with high contrast', () => {
+  const brightGreen = '#00DC82';
+  const darkAdjusted = SignatureEngine.adjustColorForDark(brightGreen, 'accent');
+  assert.ok(darkAdjusted && darkAdjusted.startsWith('#'), 'Adjusted dark color must be a valid hex');
+
+  const customDarkNavy = '#1E3A8A';
+  const navyAdjusted = SignatureEngine.adjustColorForDark(customDarkNavy, 'title');
+  assert.ok(navyAdjusted && navyAdjusted !== customDarkNavy, 'Dark navy must be brightened for dark mode legibility');
+});
+
+// 8. Test Divider Spacing
+it('SignatureEngine: Dynamically applies dividerSpacing slider value across templates', () => {
+  const mockData = {
+    ...Presets.defaultData,
+    avatarUrl: 'https://example.com/avatar.jpg'
+  };
+
+  // Test vertical-divider template with 13px (from user screenshot)
+  const htmlVertical13 = SignatureEngine.generateHtml(mockData, {
+    template: 'vertical-divider',
+    dividerSpacing: 13
+  }, false, true);
+  assert.ok(htmlVertical13.includes('padding-right: 13px;'), 'vertical-divider must have padding-right: 13px');
+  assert.ok(htmlVertical13.includes('padding-left: 13px;'), 'vertical-divider must have padding-left: 13px');
+
+  // Test vertical-divider with 22px
+  const htmlVertical22 = SignatureEngine.generateHtml(mockData, {
+    template: 'vertical-divider',
+    dividerSpacing: 22
+  }, false, true);
+  assert.ok(htmlVertical22.includes('padding-right: 22px;'), 'vertical-divider must have padding-right: 22px');
+  assert.ok(htmlVertical22.includes('padding-left: 22px;'), 'vertical-divider must have padding-left: 22px');
+
+  // Test two-column with 20px
+  const htmlTwoCol = SignatureEngine.generateHtml(mockData, {
+    template: 'two-column',
+    dividerSpacing: 20
+  }, false, true);
+  assert.ok(htmlTwoCol.includes('padding-right: 20px;'), 'two-column must have padding-right: 20px');
+  assert.ok(htmlTwoCol.includes('padding-left: 20px;'), 'two-column must have padding-left: 20px');
+
+  // Test horizontal-bar with 15px
+  const htmlHorizontal = SignatureEngine.generateHtml(mockData, {
+    template: 'horizontal-bar',
+    dividerSpacing: 15
+  }, false, true);
+  assert.ok(htmlHorizontal.includes('margin: 15px 0;'), 'horizontal-bar must have margin: 15px 0');
+
+  // Test academic-affil with 18px
+  const htmlAcademic = SignatureEngine.generateHtml(mockData, {
+    template: 'academic-affil',
+    dividerSpacing: 18
+  }, false, true);
+  assert.ok(htmlAcademic.includes('padding-right: 18px;'), 'academic-affil must have padding-right: 18px');
+  assert.ok(htmlAcademic.includes('padding-left: 18px;'), 'academic-affil must have padding-left: 18px');
+});
+
 console.log('\n----------------------------------------------------');
 console.log(`🎉 Results: ${passedTests} / ${totalTests} tests passed successfully!`);
 console.log('----------------------------------------------------\n');

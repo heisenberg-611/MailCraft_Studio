@@ -215,6 +215,36 @@
   box-shadow: 0 0 8px currentColor;
 }
 
+.color-swatch.active {
+  transform: scale(1.15);
+  border-color: #FFFFFF;
+  box-shadow: 0 0 10px currentColor;
+  outline: 1.5px solid #FFFFFF;
+  outline-offset: 1px;
+}
+
+.color-sync-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--sahinur-border);
+  color: var(--sahinur-text-dim);
+  font-family: var(--sahinur-font-mono, monospace);
+  font-size: 9.5px;
+  padding: 2px 6px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.color-sync-btn:hover {
+  background: rgba(0, 220, 130, 0.12);
+  border-color: var(--sahinur-accent);
+  color: var(--sahinur-accent);
+}
+
 /* Custom Squarish Toggle Switch */
 .toggle-row {
   display: flex;

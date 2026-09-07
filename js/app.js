@@ -599,6 +599,14 @@ const App = {
     syncColorPair('dividerColor', s.dividerColor || s.accentColor || '#00DC82');
     syncColorPair('quoteColor', s.quoteColor || '#475569');
     syncColorPair('disclaimerColor', s.disclaimerColor || '#94A3B8');
+    syncColorPair('avatarBorderColor', s.avatarBorderColor || s.accentColor || '#00DC82');
+
+    // Synchronize active quick swatch
+    const activeColorHex = (s.accentColor || '#00DC82').toLowerCase();
+    document.querySelectorAll('.color-swatch[data-color]').forEach(swatch => {
+      const swatchColor = (swatch.dataset.color || '').toLowerCase();
+      swatch.classList.toggle('active', swatchColor === activeColorHex);
+    });
 
     // Email Template Colors
     const td = this.state.templateData;
@@ -606,11 +614,11 @@ const App = {
     syncColorPair('tplHeaderBgColor', td.headerBgColor || '#0F172A');
     syncColorPair('tplGreetingColor', td.greetingColor || '#0F172A');
     syncColorPair('tplBodyColor', td.bodyColor || '#334155');
-    syncColorPair('tplHighlightTitleColor', td.highlightTitleColor || '#00DC82');
+    syncColorPair('tplHighlightTitleColor', td.highlightTitleColor || s.accentColor || '#00DC82');
     syncColorPair('tplHighlightTextColor', td.highlightTextColor || '#334155');
     syncColorPair('tplHighlightBgColor', td.highlightBgColor || '#F8FAFC');
     syncColorPair('tplCtaTextColor', td.ctaTextColor || '#0F172A');
-    syncColorPair('tplCtaBgColor', td.ctaBgColor || '#00DC82');
+    syncColorPair('tplCtaBgColor', td.ctaBgColor || s.accentColor || '#00DC82');
     syncColorPair('tplClosingColor', td.closingColor || '#64748B');
     syncColorPair('tplFooterColor', td.footerTextColor || '#64748B');
     setVal('tplHeaderTag', td.headerTag || '');
@@ -3285,23 +3293,6 @@ const App = {
       });
     }
 
-    const avatarBorderColor = document.getElementById('avatarBorderColor');
-    const avatarBorderColorHex = document.getElementById('avatarBorderColorHex');
-    if (avatarBorderColor && avatarBorderColorHex) {
-      avatarBorderColor.addEventListener('input', (e) => {
-        avatarBorderColorHex.value = e.target.value;
-        this.state.settings.avatarBorderColor = e.target.value;
-        this.updateLivePreview();
-      });
-      avatarBorderColorHex.addEventListener('input', (e) => {
-        if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
-          avatarBorderColor.value = e.target.value;
-          this.state.settings.avatarBorderColor = e.target.value;
-          this.updateLivePreview();
-        }
-      });
-    }
-
     // Filters (Brightness, Contrast, Saturation)
     const bindFilter = (id, prop, badgeId) => {
       const el = document.getElementById(id);
@@ -3357,32 +3348,123 @@ const App = {
       }
     };
 
-    // Accent Color & Quick Swatches
+    // Helper: Synchronize Color Picker and Hex Input Pair
+    const syncColorInput = (id, val) => {
+      const p = document.getElementById(id);
+      const h = document.getElementById(id + 'Hex');
+      if (p && val) p.value = val;
+      if (h && val) h.value = val;
+    };
+
+    // Master Accent Color & Quick Swatches Controller
     const accentColor = document.getElementById('accentColor');
     const accentColorHex = document.getElementById('accentColorHex');
 
-    const setAccentColor = (val) => {
+    const setAccentColor = (val, cascade = true) => {
+      if (!val) return;
+
+      // 1. Update master accent in settings and DOM
+      this.state.settings.accentColor = val;
       if (accentColor) accentColor.value = val;
       if (accentColorHex) accentColorHex.value = val;
-      this.state.settings.accentColor = val;
+
+      if (cascade) {
+        // 2. Cascade master accent to design system elements
+        this.state.settings.dividerColor = val;
+        this.state.settings.titleColor = val;
+        this.state.settings.labelColor = val;
+        this.state.settings.linkColor = val;
+        this.state.settings.avatarBorderColor = val;
+
+        // Cascade to Email Template highlights & CTA
+        if (this.state.templateData) {
+          this.state.templateData.highlightTitleColor = val;
+          this.state.templateData.ctaBgColor = val;
+        }
+
+        // 3. Synchronize all UI inputs in the DOM
+        syncColorInput('dividerColor', val);
+        syncColorInput('titleColor', val);
+        syncColorInput('labelColor', val);
+        syncColorInput('linkColor', val);
+        syncColorInput('avatarBorderColor', val);
+        syncColorInput('tplHighlightTitleColor', val);
+        syncColorInput('tplCtaBgColor', val);
+
+        // 4. Update ImageProcessor border color if active
+        if (typeof ImageProcessor !== 'undefined') {
+          ImageProcessor.config.borderColor = val;
+          if (ImageProcessor.rawSourceImage) {
+            ImageProcessor.process((dataUrl) => {
+              this.state.data.avatarUrl = dataUrl;
+              this.updateLivePreview();
+            });
+          }
+        }
+      }
+
+      // 5. Update active swatch indicator in the palette
+      const valLower = val.toLowerCase();
+      document.querySelectorAll('.color-swatch[data-color]').forEach(swatch => {
+        const swatchColor = (swatch.dataset.color || '').toLowerCase();
+        swatch.classList.toggle('active', swatchColor === valLower);
+      });
+
+      // 6. Refresh live previews
       this.updateLivePreview();
     };
 
-    if (accentColor) accentColor.addEventListener('input', (e) => setAccentColor(e.target.value));
+    // Expose setAccentColor on App instance for programmatic & preset control
+    this.setAccentColor = setAccentColor;
+
+    if (accentColor) {
+      accentColor.addEventListener('input', (e) => setAccentColor(e.target.value, true));
+    }
     if (accentColorHex) {
       accentColorHex.addEventListener('input', (e) => {
-        if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) setAccentColor(e.target.value);
+        if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
+          setAccentColor(e.target.value, true);
+        }
       });
     }
 
-    document.querySelectorAll('.color-swatch').forEach(swatch => {
+    document.querySelectorAll('.color-swatch[data-color]').forEach(swatch => {
       swatch.addEventListener('click', () => {
         const color = swatch.dataset.color;
-        if (color) setAccentColor(color);
+        if (color) setAccentColor(color, true);
       });
     });
 
-    // Granular Signature Text & Element Colors
+    // "Sync All to Accent" button in Section 02
+    const btnSyncAllAccent = document.getElementById('btnSyncAllAccent');
+    if (btnSyncAllAccent) {
+      btnSyncAllAccent.addEventListener('click', () => {
+        const currentAccent = this.state.settings.accentColor || '#00DC82';
+        setAccentColor(currentAccent, true);
+        if (typeof this.showToast === 'function') {
+          this.showToast('Synchronized all accent elements with Master Accent', 'success');
+        }
+      });
+    }
+
+    // Per-field "Match Accent" buttons
+    document.querySelectorAll('.btn-match-accent').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetField = btn.dataset.syncTarget;
+        const currentAccent = this.state.settings.accentColor || '#00DC82';
+        if (targetField && this.state.settings) {
+          this.state.settings[targetField] = currentAccent;
+          syncColorInput(targetField, currentAccent);
+          this.updateLivePreview();
+          if (typeof this.showToast === 'function') {
+            this.showToast(`Matched ${targetField} with Master Accent`, 'info');
+          }
+        }
+      });
+    });
+
+    // Granular Signature Text & Element Colors (Manual Overrides)
     bindColorPair('nameColor', (v) => { this.state.settings.nameColor = v; });
     bindColorPair('titleColor', (v) => { this.state.settings.titleColor = v; });
     bindColorPair('bodyColor', (v) => { this.state.settings.bodyColor = v; });
@@ -3391,6 +3473,18 @@ const App = {
     bindColorPair('dividerColor', (v) => { this.state.settings.dividerColor = v; });
     bindColorPair('quoteColor', (v) => { this.state.settings.quoteColor = v; });
     bindColorPair('disclaimerColor', (v) => { this.state.settings.disclaimerColor = v; });
+    bindColorPair('avatarBorderColor', (v) => {
+      this.state.settings.avatarBorderColor = v;
+      if (typeof ImageProcessor !== 'undefined') {
+        ImageProcessor.config.borderColor = v;
+        if (ImageProcessor.rawSourceImage) {
+          ImageProcessor.process((dataUrl) => {
+            this.state.data.avatarUrl = dataUrl;
+            this.updateLivePreview();
+          });
+        }
+      }
+    });
 
     // Granular Email Message Text & Theme Colors
     bindColorPair('tplHeaderColor', (v) => { this.state.templateData.headerTextColor = v; });

@@ -552,8 +552,12 @@
           </div>
 
           <div class="control-section">
-            <div class="section-title">
+            <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
               <span class="sahinur-eyebrow">// 02. COLOR MATRIX</span>
+              <button type="button" id="btnSyncAllAccent" class="color-sync-btn" title="Sync all accent elements (dividers, role, links, labels, borders) with Master Accent Color">
+                <i data-lucide="refresh-cw" style="width: 10px; height: 10px;"></i>
+                <span>Sync All to Accent</span>
+              </button>
             </div>
             
             <div class="form-group">
@@ -565,7 +569,7 @@
                 <input type="text" id="accentColorHex" class="form-input color-hex-input" value="#00DC82">
               </div>
               <div class="quick-swatches">
-                <div class="color-swatch" style="background: #00DC82; color: #00DC82;" data-color="#00DC82" title="Emerald Matrix"></div>
+                <div class="color-swatch active" style="background: #00DC82; color: #00DC82;" data-color="#00DC82" title="Emerald Matrix"></div>
                 <div class="color-swatch" style="background: #2563EB; color: #2563EB;" data-color="#2563EB" title="Electric Blue"></div>
                 <div class="color-swatch" style="background: #10B981; color: #10B981;" data-color="#10B981" title="Emerald Green"></div>
                 <div class="color-swatch" style="background: #8B5CF6; color: #8B5CF6;" data-color="#8B5CF6" title="Cyber Violet"></div>
@@ -586,7 +590,10 @@
                 </div>
               </div>
               <div class="form-group">
-                <label class="form-label" for="titleColor">Title &amp; Role Color</label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <label class="form-label" for="titleColor" style="margin-bottom: 0;">Title &amp; Role Color</label>
+                  <button type="button" class="color-sync-btn btn-match-accent" data-sync-target="titleColor" title="Match Master Accent">Match Accent</button>
+                </div>
                 <div class="color-picker-row">
                   <div class="color-input-wrapper">
                     <input type="color" id="titleColor" class="color-input" value="#00DC82">
@@ -607,7 +614,10 @@
                 </div>
               </div>
               <div class="form-group">
-                <label class="form-label" for="labelColor">Prefix Labels Color</label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <label class="form-label" for="labelColor" style="margin-bottom: 0;">Prefix Labels Color</label>
+                  <button type="button" class="color-sync-btn btn-match-accent" data-sync-target="labelColor" title="Match Master Accent">Match Accent</button>
+                </div>
                 <div class="color-picker-row">
                   <div class="color-input-wrapper">
                     <input type="color" id="labelColor" class="color-input" value="#00DC82">
@@ -619,7 +629,10 @@
 
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label" for="linkColor">Links &amp; URLs Color</label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <label class="form-label" for="linkColor" style="margin-bottom: 0;">Links &amp; URLs Color</label>
+                  <button type="button" class="color-sync-btn btn-match-accent" data-sync-target="linkColor" title="Match Master Accent">Match Accent</button>
+                </div>
                 <div class="color-picker-row">
                   <div class="color-input-wrapper">
                     <input type="color" id="linkColor" class="color-input" value="#00DC82">
@@ -628,7 +641,10 @@
                 </div>
               </div>
               <div class="form-group">
-                <label class="form-label" for="dividerColor">Divider Line Color</label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <label class="form-label" for="dividerColor" style="margin-bottom: 0;">Divider Line Color</label>
+                  <button type="button" class="color-sync-btn btn-match-accent" data-sync-target="dividerColor" title="Match Master Accent">Match Accent</button>
+                </div>
                 <div class="color-picker-row">
                   <div class="color-input-wrapper">
                     <input type="color" id="dividerColor" class="color-input" value="#00DC82">
