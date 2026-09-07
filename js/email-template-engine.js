@@ -161,9 +161,10 @@ const EmailTemplateEngine = {
 </head>
 <body style="margin: 0; padding: 0; background-color: ${bodyBg}; font-family: ${fontFamily}; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
   
-  <!-- Preheader text -->
-  <div style="display: none; max-height: 0px; overflow: hidden;">
+  <!-- Preheader text with anti-leak whitespace padding -->
+  <div style="display: none; max-height: 0px; overflow: hidden; mso-hide: all; font-size: 1px; line-height: 1px; max-width: 0px; opacity: 0;">
     ${t.preheader || ''}
+    ${t.antiLeakPadding !== false ? '&#847; &zwnj; &nbsp; '.repeat(35) : ''}
   </div>
 
   <!-- Email Wrapper Container -->

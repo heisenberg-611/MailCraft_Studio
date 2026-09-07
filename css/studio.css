@@ -2560,4 +2560,463 @@ select option {
   }
 }
 
+/* ==========================================================================
+   Preheader Preview & Inbox Snippet Simulator Widget
+   ========================================================================== */
+.label-with-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.label-with-badge .form-label {
+  margin-bottom: 0;
+}
+
+.badge-subtle {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: var(--sahinur-accent-dim);
+  color: var(--sahinur-accent);
+  border: 1px solid var(--sahinur-border-accent);
+  letter-spacing: 0.3px;
+}
+
+.badge-subtle.badge-short {
+  background: rgba(255, 189, 46, 0.12);
+  color: #ffbd2e;
+  border-color: rgba(255, 189, 46, 0.3);
+}
+
+.badge-subtle.badge-long {
+  background: rgba(255, 95, 86, 0.12);
+  color: #ff5f56;
+  border-color: rgba(255, 95, 86, 0.3);
+}
+
+.preheader-preview-widget {
+  background: #0d0f12;
+  border: 1px solid var(--sahinur-border);
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 8px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.preheader-widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 8px;
+}
+
+.preheader-widget-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--sahinur-accent);
+  letter-spacing: 0.8px;
+}
+
+.status-indicator-dot.online {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sahinur-accent);
+  box-shadow: 0 0 6px var(--sahinur-accent);
+}
+
+.preheader-client-tabs {
+  display: inline-flex;
+  background: #15181e;
+  padding: 2px;
+  border-radius: 4px;
+  border: 1px solid #232730;
+  gap: 2px;
+}
+
+.preheader-tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--sahinur-text-dim);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.preheader-tab-btn:hover {
+  color: #FFFFFF;
+}
+
+.preheader-tab-btn.active {
+  background: var(--sahinur-accent);
+  color: #001a0e;
+  font-weight: 700;
+  box-shadow: 0 0 8px rgba(0, 220, 130, 0.25);
+}
+
+/* Preheader Snippet Canvas */
+.preheader-snippet-canvas {
+  background: #181b22;
+  border: 1px solid #282d38;
+  border-radius: 5px;
+  padding: 10px 12px;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+/* Gmail Snippet Layout */
+.snippet-gmail-box {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  font-size: 12.5px;
+  color: #d1d5db;
+}
+
+.snippet-gmail-star {
+  color: #6b7280;
+  font-size: 14px;
+  user-select: none;
+}
+
+.snippet-gmail-sender {
+  font-weight: 700;
+  color: #f3f4f6;
+  white-space: nowrap;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.snippet-gmail-content {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.snippet-gmail-subject {
+  font-weight: 600;
+  color: #f9fafb;
+}
+
+.snippet-gmail-sep {
+  color: #6b7280;
+  margin: 0 4px;
+}
+
+.snippet-gmail-preheader {
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.snippet-gmail-time {
+  font-size: 11px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+/* Apple Mail Snippet Layout */
+.snippet-apple-box {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  font-size: 12px;
+}
+
+.snippet-apple-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.snippet-apple-sender-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.snippet-apple-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #007aff;
+  box-shadow: 0 0 6px rgba(0, 122, 255, 0.4);
+}
+
+.snippet-apple-sender {
+  font-weight: 700;
+  color: #FFFFFF;
+  font-size: 13px;
+}
+
+.snippet-apple-time {
+  font-size: 11px;
+  color: #8e8e93;
+}
+
+.snippet-apple-subject {
+  font-weight: 600;
+  color: #e5e5ea;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.snippet-apple-preheader {
+  color: #98989d;
+  font-size: 11.5px;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* iOS Push Notification Card */
+.snippet-ios-box {
+  width: 100%;
+  background: rgba(30, 33, 40, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 9px 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.snippet-ios-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.snippet-ios-app {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.snippet-ios-icon {
+  width: 15px;
+  height: 15px;
+  border-radius: 3.5px;
+  background: linear-gradient(135deg, #007aff, #0051a8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  color: #ffffff;
+}
+
+.snippet-ios-app-name {
+  font-size: 10px;
+  font-weight: 600;
+  color: #8e8e93;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.snippet-ios-time {
+  font-size: 10px;
+  color: #8e8e93;
+}
+
+.snippet-ios-sender {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.snippet-ios-subject {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e5e5ea;
+  line-height: 1.25;
+}
+
+.snippet-ios-preheader {
+  font-size: 11.5px;
+  color: #a1a1a6;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Outlook Snippet Layout */
+.snippet-outlook-box {
+  width: 100%;
+  border-left: 3px solid #0078d4;
+  padding-left: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+  font-size: 12px;
+}
+
+.snippet-outlook-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.snippet-outlook-sender {
+  font-weight: 700;
+  color: #ffffff;
+  font-size: 12.5px;
+}
+
+.snippet-outlook-time {
+  font-size: 11px;
+  color: #8a8886;
+}
+
+.snippet-outlook-subject {
+  font-weight: 600;
+  color: #0078d4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.snippet-outlook-preheader {
+  color: #a19f9d;
+  font-size: 11.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Diagnostic Meter Bar */
+.preheader-meter-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.preheader-meter-bar {
+  width: 100%;
+  height: 4px;
+  background: #1f232b;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.preheader-meter-fill {
+  height: 100%;
+  background: var(--sahinur-accent);
+  border-radius: 2px;
+  transition: width 0.25s ease, background-color 0.25s ease;
+}
+
+.preheader-meter-fill.meter-short {
+  background: #ffbd2e;
+}
+
+.preheader-meter-fill.meter-optimal {
+  background: var(--sahinur-accent);
+}
+
+.preheader-meter-fill.meter-long {
+  background: #ff5f56;
+}
+
+.preheader-meter-labels {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+}
+
+#preheaderCharCountText {
+  color: var(--sahinur-text-dim);
+}
+
+.advice-optimal {
+  color: var(--sahinur-accent);
+  font-weight: 600;
+}
+
+.advice-short {
+  color: #ffbd2e;
+  font-weight: 500;
+}
+
+.advice-warning {
+  color: #ff5f56;
+  font-weight: 500;
+}
+
+/* Anti-Leak Toggle */
+.preheader-anti-leak-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.anti-leak-label {
+  font-size: 11px;
+  color: var(--sahinur-text-dim);
+}
+
+.anti-leak-label strong {
+  color: var(--sahinur-text);
+}
+
+.switch-track.mini {
+  width: 28px;
+  height: 16px;
+  min-width: 28px;
+  border-radius: 10px;
+}
+
+.switch-thumb.mini {
+  width: 12px;
+  height: 12px;
+  top: 2px;
+  left: 2px;
+}
+
+.switch-input:checked + .switch-track.mini .switch-thumb.mini {
+  transform: translateX(12px);
+}
+
+
 

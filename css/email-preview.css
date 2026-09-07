@@ -1264,3 +1264,210 @@
   background-color: #0D0D0D !important;
   border-color: #242424 !important;
 }
+
+/* ==========================================================================
+   Full Simulator Inbox Snippet & List View Mode
+   ========================================================================== */
+.simulator-inbox-view {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #FFFFFF;
+  color: #1F2937;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: 480px;
+}
+
+.client-window.dark-inbox .simulator-inbox-view {
+  background-color: #111317;
+  color: #E2E8F0;
+}
+
+/* Inbox Simulator Top Bar / Search */
+.inbox-sim-searchbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  background-color: #F6F8FC;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.client-window.dark-inbox .inbox-sim-searchbar {
+  background-color: #1A1C23;
+  border-bottom-color: #282D38;
+}
+
+.inbox-sim-search-input {
+  flex: 1;
+  background-color: #FFFFFF;
+  border: 1px solid #D1D5DB;
+  border-radius: 20px;
+  padding: 7px 16px;
+  font-size: 13px;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.client-window.dark-inbox .inbox-sim-search-input {
+  background-color: #111317;
+  border-color: #374151;
+  color: #9CA3AF;
+}
+
+.inbox-sim-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 16px;
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.client-window.dark-inbox .inbox-sim-tabs {
+  background-color: #111317;
+  border-bottom-color: #242830;
+}
+
+.inbox-sim-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6B7280;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  user-select: none;
+}
+
+.inbox-sim-tab.active {
+  color: #1A73E8;
+  border-bottom-color: #1A73E8;
+  font-weight: 600;
+}
+
+.client-window.dark-inbox .inbox-sim-tab.active {
+  color: #00DC82;
+  border-bottom-color: #00DC82;
+}
+
+/* Inbox Rows List */
+.inbox-sim-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.inbox-sim-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 18px;
+  border-bottom: 1px solid #F3F4F6;
+  font-size: 13px;
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+}
+
+.client-window.dark-inbox .inbox-sim-row {
+  border-bottom-color: #1F242E;
+}
+
+.inbox-sim-row:hover {
+  background-color: #F8FAFC;
+  box-shadow: inset 1px 0 0 #DADCE0, inset -1px 0 0 #DADCE0, 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+  z-index: 2;
+}
+
+.client-window.dark-inbox .inbox-sim-row:hover {
+  background-color: #181B22;
+}
+
+.inbox-sim-row.active-sim-item {
+  background-color: #F0FDF4;
+  border-left: 3px solid #00DC82;
+  font-weight: 600;
+}
+
+.client-window.dark-inbox .inbox-sim-row.active-sim-item {
+  background-color: rgba(0, 220, 130, 0.08);
+  border-left-color: #00DC82;
+}
+
+.inbox-sim-checkbox {
+  color: #9CA3AF;
+  font-size: 14px;
+}
+
+.inbox-sim-star {
+  color: #D1D5DB;
+  font-size: 14px;
+}
+
+.inbox-sim-star.starred {
+  color: #F59E0B;
+}
+
+.inbox-sim-sender {
+  min-width: 150px;
+  max-width: 170px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 700;
+  color: #111827;
+}
+
+.client-window.dark-inbox .inbox-sim-sender {
+  color: #F3F4F6;
+}
+
+.inbox-sim-body-wrap {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inbox-sim-subject {
+  color: #111827;
+  font-weight: 600;
+}
+
+.client-window.dark-inbox .inbox-sim-subject {
+  color: #F3F4F6;
+}
+
+.inbox-sim-preheader {
+  color: #6B7280;
+  font-weight: 400;
+}
+
+.client-window.dark-inbox .inbox-sim-preheader {
+  color: #9CA3AF;
+}
+
+.inbox-sim-time {
+  white-space: nowrap;
+  font-size: 12px;
+  color: #6B7280;
+  font-weight: 500;
+}
+
+.inbox-sim-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background-color: #E0E7FF;
+  color: #3730A3;
+  font-weight: 600;
+}
+
+.client-window.dark-inbox .inbox-sim-badge {
+  background-color: #312E81;
+  color: #C7D2FE;
+}
+

@@ -6,8 +6,10 @@
 
 const App = {
   mode: 'signature', // 'signature' | 'team' | 'template'
-  clientView: 'gmail', // 'gmail' | 'apple' | 'outlook'
+  clientView: 'gmail', // 'gmail' | 'apple' | 'outlook' | 'yahoo'
   inboxTheme: 'light', // 'light' | 'dark'
+  canvasViewMode: 'compose', // 'compose' | 'inbox'
+  preheaderPreviewClient: 'gmail', // 'gmail' | 'apple' | 'ios' | 'outlook'
   zoom: 1.0,
 
   // App State
@@ -17,6 +19,7 @@ const App = {
     templateData: {
       title: 'Project Update',
       preheader: 'Important updates and technical collaboration overview',
+      antiLeakPadding: true,
       headerLogoText: 'DHRUBOJYOTI SAHA \u2022 PORTFOLIO',
       headerTag: '',
       headerTextColor: '#FFFFFF',
@@ -764,6 +767,7 @@ const App = {
 
     this.state.templateData.title = getVal('tplSubject', 'Project Update');
     this.state.templateData.preheader = getVal('tplPreheader', 'Important updates and technical roadmap');
+    this.state.templateData.antiLeakPadding = getChecked('tplAntiLeakPadding');
     this.state.templateData.headerLogoText = getVal('tplHeaderLogoText', 'DHRUBOJYOTI SAHA \u2022 PORTFOLIO');
     this.state.templateData.headerTag = getVal('tplHeaderTag', '');
     this.state.templateData.greeting = getVal('tplGreeting', 'Dear Colleague,');
@@ -804,6 +808,244 @@ const App = {
         subjectDisplay.textContent = title;
       }
     }
+
+    this.updatePreheaderPreview();
+  },
+
+  /**
+   * Updates the in-sidebar Preheader Live Preview Widget and Diagnostic Bar
+   */
+  updatePreheaderPreview() {
+    const canvas = document.getElementById('preheaderSnippetCanvas');
+    const badge = document.getElementById('preheaderLengthBadge');
+    const meterFill = document.getElementById('preheaderMeterFill');
+    const countText = document.getElementById('preheaderCharCountText');
+    const adviceText = document.getElementById('preheaderAdviceText');
+
+    const preheaderInput = document.getElementById('tplPreheader');
+    const preheader = (preheaderInput && preheaderInput.value !== undefined)
+      ? preheaderInput.value
+      : ((this.state && this.state.templateData && this.state.templateData.preheader !== undefined)
+        ? this.state.templateData.preheader
+        : '');
+
+    const subjectInput = document.getElementById('tplSubject');
+    const subject = (subjectInput && subjectInput.value !== undefined)
+      ? subjectInput.value
+      : ((this.state && this.state.templateData && this.state.templateData.title)
+        ? this.state.templateData.title
+        : 'Introduction & Project Collaboration');
+
+    const fullName = (this.state && this.state.data && this.state.data.fullName)
+      ? this.state.data.fullName
+      : 'Dhrubojyoti Saha';
+
+    const charCount = preheader.length;
+    const maxRecommended = 90;
+    const percentage = Math.min(100, Math.max(5, Math.round((charCount / maxRecommended) * 100)));
+
+    if (meterFill) {
+      meterFill.style.width = `${percentage}%`;
+      meterFill.classList.remove('meter-short', 'meter-optimal', 'meter-long');
+      if (charCount < 40) {
+        meterFill.classList.add('meter-short');
+      } else if (charCount <= 90) {
+        meterFill.classList.add('meter-optimal');
+      } else {
+        meterFill.classList.add('meter-long');
+      }
+    }
+
+    if (countText) {
+      countText.textContent = `${charCount} / ${maxRecommended} chars (Preheader)`;
+    }
+
+    if (badge) {
+      badge.classList.remove('badge-short', 'badge-long');
+      if (charCount === 0) {
+        badge.textContent = 'Empty snippet';
+        badge.classList.add('badge-short');
+      } else if (charCount < 40) {
+        badge.textContent = `${charCount} chars • Short snippet`;
+        badge.classList.add('badge-short');
+      } else if (charCount <= 90) {
+        badge.textContent = `${charCount} chars • Optimal`;
+      } else {
+        badge.textContent = `${charCount} chars • May truncate`;
+        badge.classList.add('badge-long');
+      }
+    }
+
+    if (adviceText) {
+      adviceText.className = '';
+      if (charCount === 0) {
+        adviceText.className = 'advice-short';
+        adviceText.innerHTML = '&#9888; No preheader set &mdash; email clients will pull random body text';
+      } else if (charCount < 40) {
+        adviceText.className = 'advice-short';
+        adviceText.innerHTML = '&#8505; Short snippet &mdash; Anti-leak padding recommended to prevent body bleed';
+      } else if (charCount <= 90) {
+        adviceText.className = 'advice-optimal';
+        adviceText.innerHTML = '&check; Perfect length for mobile notifications &amp; desktop inboxes';
+      } else {
+        adviceText.className = 'advice-warning';
+        adviceText.innerHTML = '&#9888; May be clipped on small smartphone screens (40&ndash;70 chars visible)';
+      }
+    }
+
+    if (!canvas) return;
+
+    const client = this.preheaderPreviewClient || 'gmail';
+    const displaySnippet = preheader.trim() || 'No preheader text entered yet...';
+    const displaySubject = subject.trim() || 'No Subject';
+
+    if (client === 'gmail') {
+      canvas.innerHTML = `
+        <div class="snippet-gmail-box">
+          <span class="snippet-gmail-star">&#9734;</span>
+          <span class="snippet-gmail-sender">${fullName}</span>
+          <div class="snippet-gmail-content">
+            <span class="snippet-gmail-subject">${displaySubject}</span>
+            <span class="snippet-gmail-sep">&ndash;</span>
+            <span class="snippet-gmail-preheader">${displaySnippet}</span>
+          </div>
+          <span class="snippet-gmail-time">10:42 AM</span>
+        </div>
+      `;
+    } else if (client === 'apple') {
+      canvas.innerHTML = `
+        <div class="snippet-apple-box">
+          <div class="snippet-apple-top">
+            <div class="snippet-apple-sender-wrap">
+              <span class="snippet-apple-dot"></span>
+              <span class="snippet-apple-sender">${fullName}</span>
+            </div>
+            <span class="snippet-apple-time">10:42 AM</span>
+          </div>
+          <div class="snippet-apple-subject">${displaySubject}</div>
+          <div class="snippet-apple-preheader">${displaySnippet}</div>
+        </div>
+      `;
+    } else if (client === 'ios') {
+      canvas.innerHTML = `
+        <div class="snippet-ios-box">
+          <div class="snippet-ios-header">
+            <div class="snippet-ios-app">
+              <div class="snippet-ios-icon">&#9993;</div>
+              <span class="snippet-ios-app-name">Mail</span>
+            </div>
+            <span class="snippet-ios-time">now</span>
+          </div>
+          <div class="snippet-ios-sender">${fullName}</div>
+          <div class="snippet-ios-subject">${displaySubject}</div>
+          <div class="snippet-ios-preheader">${displaySnippet}</div>
+        </div>
+      `;
+    } else { // outlook
+      canvas.innerHTML = `
+        <div class="snippet-outlook-box">
+          <div class="snippet-outlook-top">
+            <span class="snippet-outlook-sender">${fullName}</span>
+            <span class="snippet-outlook-time">10:42 AM</span>
+          </div>
+          <div class="snippet-outlook-subject">${displaySubject}</div>
+          <div class="snippet-outlook-preheader">${displaySnippet}</div>
+        </div>
+      `;
+    }
+  },
+
+  /**
+   * Renders the authentic inbox list view simulator in the canvas
+   */
+  renderSimulatorInboxView() {
+    const inboxView = document.getElementById('simulatorInboxView');
+    if (!inboxView) return;
+
+    const preheaderInput = document.getElementById('tplPreheader');
+    const preheader = (preheaderInput && preheaderInput.value !== undefined)
+      ? preheaderInput.value
+      : ((this.state && this.state.templateData && this.state.templateData.preheader !== undefined)
+        ? this.state.templateData.preheader
+        : 'Brief overview and technical roadmap specifications.');
+
+    const subjectInput = document.getElementById('tplSubject');
+    const subject = (subjectInput && subjectInput.value !== undefined)
+      ? subjectInput.value
+      : ((this.state && this.state.templateData && this.state.templateData.title)
+        ? this.state.templateData.title
+        : 'Introduction & Project Collaboration');
+
+    const fullName = (this.state && this.state.data && this.state.data.fullName)
+      ? this.state.data.fullName
+      : 'Dhrubojyoti Saha';
+
+    const client = this.clientView || 'gmail';
+
+    let searchPlaceholder = 'Search in mail';
+    let tab1 = 'Primary', tab2 = 'Promotions', tab3 = 'Social';
+    if (client === 'apple') {
+      searchPlaceholder = 'Search All Inboxes';
+      tab1 = 'All Inboxes'; tab2 = 'VIP'; tab3 = 'Flagged';
+    } else if (client === 'outlook') {
+      searchPlaceholder = 'Search Microsoft 365';
+      tab1 = 'Focused'; tab2 = 'Other'; tab3 = 'Sent';
+    } else if (client === 'yahoo') {
+      searchPlaceholder = 'Search Yahoo Mail';
+      tab1 = 'Inbox'; tab2 = 'Unread'; tab3 = 'Starred';
+    }
+
+    inboxView.innerHTML = `
+      <div class="inbox-sim-searchbar">
+        <div class="inbox-sim-search-input">
+          <span>&#128269;</span>
+          <span>${searchPlaceholder}</span>
+        </div>
+        <span class="inbox-sim-badge">LIVE SIMULATOR</span>
+      </div>
+      <div class="inbox-sim-tabs">
+        <div class="inbox-sim-tab active">&#9993; ${tab1}</div>
+        <div class="inbox-sim-tab">&#127991; ${tab2}</div>
+        <div class="inbox-sim-tab">&#128101; ${tab3}</div>
+      </div>
+      <div class="inbox-sim-list">
+        <!-- The User's Active Email -->
+        <div class="inbox-sim-row active-sim-item">
+          <span class="inbox-sim-checkbox">&#9634;</span>
+          <span class="inbox-sim-star starred">&#9733;</span>
+          <span class="inbox-sim-sender">${fullName}</span>
+          <div class="inbox-sim-body-wrap">
+            <span class="inbox-sim-subject">${subject}</span>
+            <span class="snippet-gmail-sep">&ndash;</span>
+            <span class="inbox-sim-preheader">${preheader}</span>
+          </div>
+          <span class="inbox-sim-time">Just now</span>
+        </div>
+        <!-- Dummy context emails -->
+        <div class="inbox-sim-row">
+          <span class="inbox-sim-checkbox">&#9634;</span>
+          <span class="inbox-sim-star">&#9734;</span>
+          <span class="inbox-sim-sender">GitHub Notifications</span>
+          <div class="inbox-sim-body-wrap">
+            <span class="inbox-sim-subject">[heisenberg-611/portfolio] Pull request #42 merged</span>
+            <span class="snippet-gmail-sep">&ndash;</span>
+            <span class="inbox-sim-preheader">Automated CI/CD pipeline succeeded for main branch deployment.</span>
+          </div>
+          <span class="inbox-sim-time">09:15 AM</span>
+        </div>
+        <div class="inbox-sim-row">
+          <span class="inbox-sim-checkbox">&#9634;</span>
+          <span class="inbox-sim-star">&#9734;</span>
+          <span class="inbox-sim-sender">Google Calendar</span>
+          <div class="inbox-sim-body-wrap">
+            <span class="inbox-sim-subject">Invitation: Architecture Review @ 2:00 PM</span>
+            <span class="snippet-gmail-sep">&ndash;</span>
+            <span class="inbox-sim-preheader">You have been invited to Architecture &amp; System Design Sync.</span>
+          </div>
+          <span class="inbox-sim-time">Yesterday</span>
+        </div>
+      </div>
+    `;
   },
 
   /**
@@ -868,6 +1110,12 @@ const App = {
           true
         );
       }
+    }
+
+    // Update Preheader Sidebar Widget & Simulator Inbox View
+    this.updatePreheaderPreview();
+    if (this.canvasViewMode === 'inbox') {
+      this.renderSimulatorInboxView();
     }
 
     // Real-Time Email Compatibility & Size Linter Audit
@@ -1644,6 +1892,50 @@ const App = {
     if (appleBtn) appleBtn.addEventListener('click', () => setClient('apple', appleBtn));
     if (outlookBtn) outlookBtn.addEventListener('click', () => setClient('outlook', outlookBtn));
     if (yahooBtn) yahooBtn.addEventListener('click', () => setClient('yahoo', yahooBtn));
+
+    // Canvas View Mode (Compose View vs Inbox Snippet View)
+    const viewComposeBtn = document.getElementById('viewComposeBtn');
+    const viewInboxBtn = document.getElementById('viewInboxBtn');
+    const simulatorComposeView = document.getElementById('simulatorComposeView');
+    const simulatorInboxView = document.getElementById('simulatorInboxView');
+
+    const setCanvasViewMode = (mode) => {
+      this.canvasViewMode = mode;
+      if (mode === 'compose') {
+        if (viewComposeBtn) viewComposeBtn.classList.add('active');
+        if (viewInboxBtn) viewInboxBtn.classList.remove('active');
+        if (simulatorComposeView) simulatorComposeView.style.display = 'block';
+        if (simulatorInboxView) simulatorInboxView.style.display = 'none';
+      } else {
+        if (viewInboxBtn) viewInboxBtn.classList.add('active');
+        if (viewComposeBtn) viewComposeBtn.classList.remove('active');
+        if (simulatorComposeView) simulatorComposeView.style.display = 'none';
+        if (simulatorInboxView) simulatorInboxView.style.display = 'flex';
+        this.renderSimulatorInboxView();
+      }
+    };
+
+    if (viewComposeBtn) viewComposeBtn.addEventListener('click', () => setCanvasViewMode('compose'));
+    if (viewInboxBtn) viewInboxBtn.addEventListener('click', () => setCanvasViewMode('inbox'));
+
+    // Sidebar Preheader Client Switchers
+    document.querySelectorAll('.preheader-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.preheader-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.preheaderPreviewClient = btn.dataset.preheaderClient || 'gmail';
+        this.updatePreheaderPreview();
+      });
+    });
+
+    // Preheader Anti-Leak Padding Toggle
+    const antiLeakInput = document.getElementById('tplAntiLeakPadding');
+    if (antiLeakInput) {
+      antiLeakInput.addEventListener('change', () => {
+        this.syncEmailTemplateFromDom();
+        this.updateLivePreview();
+      });
+    }
 
     // Inbox Day/Night Switchers
     const themeLightBtn = document.getElementById('themeLightBtn');

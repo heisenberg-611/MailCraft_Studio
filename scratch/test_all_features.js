@@ -555,6 +555,65 @@ try {
   assert(`Mobile responsive navigation tests execute cleanly`, false, e);
 }
 
+// 12. Preheader Preview & Inbox Simulator
+console.log("\n--- Audit 11: Preheader Preview & Inbox Simulator ---");
+try {
+  const preheaderInput = document.getElementById('tplPreheader');
+  const snippetCanvas = document.getElementById('preheaderSnippetCanvas');
+  const lengthBadge = document.getElementById('preheaderLengthBadge');
+  const antiLeakToggle = document.getElementById('tplAntiLeakPadding');
+  const viewComposeBtn = document.getElementById('viewComposeBtn');
+  const viewInboxBtn = document.getElementById('viewInboxBtn');
+  const simulatorInboxView = document.getElementById('simulatorInboxView');
+
+  assert(`Preheader DOM elements exist`, !!preheaderInput && !!snippetCanvas && !!lengthBadge && !!antiLeakToggle);
+
+  // Test Preheader dynamic updates
+  if (preheaderInput) {
+    preheaderInput.value = 'Quarterly financial report and revenue forecast summary.';
+    preheaderInput.dispatchEvent('input');
+    assert(`Preheader input update reflects in snippet canvas`, snippetCanvas && snippetCanvas.innerHTML.includes('Quarterly financial report'));
+    assert(`Preheader length badge updates with optimal status`, lengthBadge && lengthBadge.textContent.includes('chars'));
+  }
+
+  // Test Preheader client tab switching
+  const preheaderTabBtns = document.querySelectorAll('.preheader-tab-btn');
+  assert(`Preheader client tab buttons exist (>= 4 clients)`, preheaderTabBtns && preheaderTabBtns.length >= 4);
+  preheaderTabBtns.forEach(btn => {
+    btn.click();
+    assert(`Preheader client tab [${btn.dataset.preheaderClient}] switches and updates snippet`, App.preheaderPreviewClient === btn.dataset.preheaderClient);
+  });
+
+  // Test Canvas View Mode Switching
+  if (viewInboxBtn && viewComposeBtn) {
+    viewInboxBtn.click();
+    assert(`Canvas view mode switches to 'inbox' and renders inbox list`, App.canvasViewMode === 'inbox' && simulatorInboxView.innerHTML.includes('inbox-sim-list'));
+    viewComposeBtn.click();
+    assert(`Canvas view mode switches back to 'compose'`, App.canvasViewMode === 'compose');
+  }
+
+  // Test Anti-Leak Zero-Width Non-Breaking Padding Generation
+  const tplDataWithPadding = {
+    title: 'Test Email',
+    preheader: 'Short snippet',
+    antiLeakPadding: true
+  };
+  const htmlWithPadding = EmailTemplateEngine.generateFullEmail(tplDataWithPadding, Presets.defaultData, Presets.styles.dhrubojyoti.settings, false, true);
+  assert(`EmailTemplateEngine generates anti-leak padding chain`, htmlWithPadding.includes('&#847;') && htmlWithPadding.includes('&zwnj;'));
+
+  const tplDataNoPadding = {
+    title: 'Test Email',
+    preheader: 'Short snippet',
+    antiLeakPadding: false
+  };
+  const htmlNoPadding = EmailTemplateEngine.generateFullEmail(tplDataNoPadding, Presets.defaultData, Presets.styles.dhrubojyoti.settings, false, true);
+  assert(`EmailTemplateEngine respects disabled anti-leak padding`, !htmlNoPadding.includes('&#847;'));
+
+} catch (e) {
+  assert(`Preheader Preview & Inbox Simulator tests execute cleanly`, false, e);
+}
+
 console.log("\n=================================================");
 console.log(`Audit Finished: ${passed} passed, ${failed} failed.`);
 console.log("=================================================");
+

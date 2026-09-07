@@ -1220,8 +1220,52 @@
               <input type="text" id="tplSubject" class="form-input" value="Introduction &amp; Project Collaboration">
             </div>
             <div class="form-group">
-              <label class="form-label" for="tplPreheader">Preheader Preview Text</label>
-              <input type="text" id="tplPreheader" class="form-input" value="Brief overview and technical roadmap specifications.">
+              <div class="label-with-badge">
+                <label class="form-label" for="tplPreheader">Preheader Preview Text</label>
+                <span class="badge-subtle" id="preheaderLengthBadge">52 chars • Optimal</span>
+              </div>
+              <input type="text" id="tplPreheader" class="form-input" value="Brief overview and technical roadmap specifications." placeholder="Summary snippet shown in email inboxes...">
+            </div>
+
+            <!-- Real-Time Preheader Inbox Snippet Live Simulator -->
+            <div class="preheader-preview-widget" id="preheaderPreviewWidget">
+              <div class="preheader-widget-header">
+                <span class="preheader-widget-title">
+                  <span class="status-indicator-dot online"></span>
+                  LIVE INBOX SNIPPET PREVIEW
+                </span>
+                <div class="preheader-client-tabs">
+                  <button type="button" class="preheader-tab-btn active" data-preheader-client="gmail" title="Gmail Desktop/Web layout">Gmail</button>
+                  <button type="button" class="preheader-tab-btn" data-preheader-client="apple" title="Apple Mail / macOS layout">Apple</button>
+                  <button type="button" class="preheader-tab-btn" data-preheader-client="ios" title="iOS Lock Screen / Mobile Push Notification">iOS Push</button>
+                  <button type="button" class="preheader-tab-btn" data-preheader-client="outlook" title="Outlook 365 message row layout">Outlook</button>
+                </div>
+              </div>
+
+              <!-- Live Render Container -->
+              <div class="preheader-snippet-canvas" id="preheaderSnippetCanvas">
+                <!-- Dynamically populated snippet -->
+              </div>
+
+              <!-- Diagnostic & Health Bar -->
+              <div class="preheader-meter-wrapper">
+                <div class="preheader-meter-bar">
+                  <div class="preheader-meter-fill" id="preheaderMeterFill" style="width: 58%;"></div>
+                </div>
+                <div class="preheader-meter-labels">
+                  <span id="preheaderCharCountText">52 / 90 chars (Preheader)</span>
+                  <span id="preheaderAdviceText" class="advice-optimal">&check; Perfect length for mobile &amp; desktop</span>
+                </div>
+              </div>
+
+              <!-- Anti-Leak Padding Toggle -->
+              <label class="preheader-anti-leak-toggle" for="tplAntiLeakPadding" title="Inserts zero-width non-breaking whitespace to prevent email clients from pulling following body text into the snippet">
+                <input type="checkbox" id="tplAntiLeakPadding" class="switch-input" checked>
+                <div class="switch-track mini"><div class="switch-thumb mini"></div></div>
+                <span class="anti-leak-label">
+                  <strong>Prevent Body Leakage</strong> (Anti-leak whitespace padding)
+                </span>
+              </label>
             </div>
             <div class="form-group">
               <label class="form-label" for="tplHeaderLogoText">Header Brand Banner</label>
@@ -1422,6 +1466,11 @@
         </div>
 
         <div class="toolbar-group">
+          <button class="toolbar-btn active" id="viewComposeBtn" title="Compose Window View">Compose View</button>
+          <button class="toolbar-btn" id="viewInboxBtn" title="Inbox Row & Snippet Simulation">Inbox Snippet</button>
+        </div>
+
+        <div class="toolbar-group">
           <button class="toolbar-btn active" id="themeLightBtn">Light Inbox</button>
           <button class="toolbar-btn" id="themeDarkBtn">Dark Inbox</button>
 
@@ -1451,35 +1500,43 @@
               <div class="gmail-window-controls">&ndash; &Square; &times;</div>
             </div>
 
-            <div class="gmail-compose-fields" id="simulatorFields">
-              <div class="gmail-field-row">
-                <span class="gmail-field-label">To:</span>
-                <span class="gmail-field-value" style="font-family: var(--font-mono);">recipient@domain.com</span>
-              </div>
-              <div class="gmail-field-row">
-                <span class="gmail-field-label">Subject:</span>
-                <span class="gmail-field-value" id="previewSubjectLine">Introduction &amp; Project Update</span>
-              </div>
+            <!-- Inbox List Snippet View (Activated via Inbox Snippet View mode) -->
+            <div class="simulator-inbox-view" id="simulatorInboxView" style="display: none;">
+              <!-- Authentic Client Inbox List Simulation Rendered Here -->
             </div>
 
-            <div class="gmail-compose-body" id="simulatorBody">
-              <div class="gmail-sample-text" id="signatureModeIntroText">
-                Hello,<br><br>
-                Thank you for your message. Please find my contact details and professional profile below.<br><br>
-                Best regards,
+            <!-- Compose Mode Container -->
+            <div class="simulator-compose-view" id="simulatorComposeView">
+              <div class="gmail-compose-fields" id="simulatorFields">
+                <div class="gmail-field-row">
+                  <span class="gmail-field-label">To:</span>
+                  <span class="gmail-field-value" style="font-family: var(--font-mono);">recipient@domain.com</span>
+                </div>
+                <div class="gmail-field-row">
+                  <span class="gmail-field-label">Subject:</span>
+                  <span class="gmail-field-value" id="previewSubjectLine">Introduction &amp; Project Update</span>
+                </div>
               </div>
 
-              <div class="gmail-signature-area" id="liveRenderCanvas">
-                <!-- Live generated HTML rendered here -->
-              </div>
-            </div>
+              <div class="gmail-compose-body" id="simulatorBody">
+                <div class="gmail-sample-text" id="signatureModeIntroText">
+                  Hello,<br><br>
+                  Thank you for your message. Please find my contact details and professional profile below.<br><br>
+                  Best regards,
+                </div>
 
-            <div class="gmail-footer-toolbar" id="simulatorFooter">
-              <button class="gmail-send-btn">Send</button>
-              <div class="gmail-tools-icons" style="font-family: var(--font-mono); font-size: 11px;">
-                <span>[A]</span>
-                <span>[&bull;]</span>
-                <span>[&infin;]</span>
+                <div class="gmail-signature-area" id="liveRenderCanvas">
+                  <!-- Live generated HTML rendered here -->
+                </div>
+              </div>
+
+              <div class="gmail-footer-toolbar" id="simulatorFooter">
+                <button class="gmail-send-btn">Send</button>
+                <div class="gmail-tools-icons" style="font-family: var(--font-mono); font-size: 11px;">
+                  <span>[A]</span>
+                  <span>[&bull;]</span>
+                  <span>[&infin;]</span>
+                </div>
               </div>
             </div>
 
