@@ -2981,41 +2981,151 @@ select option {
   font-weight: 500;
 }
 
-/* Anti-Leak Toggle */
-.preheader-anti-leak-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  padding-top: 4px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+/* Anti-Leak Box & Toggle */
+.preheader-anti-leak-box {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
-.anti-leak-label {
+.preheader-anti-leak-box:hover {
+  border-color: rgba(0, 220, 130, 0.3);
+  background: rgba(0, 220, 130, 0.03);
+}
+
+.anti-leak-toggle-inner {
+  margin: 0;
+  width: 100%;
+}
+
+.anti-leak-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.anti-leak-title-text {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--sahinur-text-bright);
+}
+
+.anti-leak-badge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--sahinur-accent);
+  background: rgba(0, 220, 130, 0.1);
+  border: 1px solid rgba(0, 220, 130, 0.3);
+  border-radius: 3px;
+  padding: 1px 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.anti-leak-desc {
+  font-size: 10.5px;
+  color: var(--sahinur-text-dim);
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+/* ==========================================================================
+   Rich Text Formatting Toolbar for Email Body Paragraphs
+   ========================================================================== */
+.format-toolbar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.rich-format-toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+.format-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--sahinur-text-dim);
+  width: 24px;
+  height: 24px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: var(--font-mono);
   font-size: 11px;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.format-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.format-btn:active {
+  background: rgba(0, 220, 130, 0.2);
+  color: var(--sahinur-accent);
+  border-color: var(--sahinur-accent);
+  transform: scale(0.95);
+}
+
+.format-btn strong {
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.format-btn em {
+  font-style: italic;
+  font-family: serif;
+  font-size: 13px;
+}
+
+.format-btn u {
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.format-helper-bar {
+  display: flex;
+  align-items: center;
+  margin-top: 4px;
+  padding: 2px 0;
+}
+
+.format-helper-text {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--sahinur-text-faint);
+  line-height: 1.4;
+}
+
+.format-helper-text strong {
   color: var(--sahinur-text-dim);
 }
 
-.anti-leak-label strong {
-  color: var(--sahinur-text);
+.format-helper-text em {
+  color: var(--sahinur-text-dim);
 }
 
-.switch-track.mini {
-  width: 28px;
-  height: 16px;
-  min-width: 28px;
-  border-radius: 10px;
-}
-
-.switch-thumb.mini {
-  width: 12px;
-  height: 12px;
-  top: 2px;
-  left: 2px;
-}
-
-.switch-input:checked + .switch-track.mini .switch-thumb.mini {
-  transform: translateX(12px);
+.format-helper-text u {
+  color: var(--sahinur-text-dim);
 }
 
 /* ==========================================================================

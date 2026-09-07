@@ -3686,6 +3686,181 @@ const App = {
         this.updateLivePreview();
       });
     }
+
+    // Rich Text Formatting Toolbars for Email Paragraphs
+    this.initParagraphFormattingToolbars();
+  },
+
+  /**
+   * Initialize rich text formatting toolbars for paragraph textareas
+   */
+  initParagraphFormattingToolbars() {
+    const toolbars = document.querySelectorAll('.rich-format-toolbar');
+    toolbars.forEach(toolbar => {
+      const targetId = toolbar.dataset.target;
+      const textarea = document.getElementById(targetId);
+      if (!textarea) return;
+
+      const buttons = toolbar.querySelectorAll('.format-btn');
+      buttons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const action = btn.dataset.action;
+          this.applyTextareaFormatting(textarea, action);
+        });
+      });
+    });
+  },
+
+  /**
+   * Apply rich text formatting (markdown/HTML) to a textarea selection
+   * @param {HTMLTextAreaElement} textarea
+   * @param {string} action - 'bold' | 'italic' | 'underline' | 'link' | 'highlight' | 'code' | 'bullet' | 'clear'
+   */
+  applyTextareaFormatting(textarea, action) {
+    textarea.focus();
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const val = textarea.value;
+    const selected = val.substring(start, end);
+
+    let replacement = '';
+    let newCursorStart = start;
+    let newCursorEnd = end;
+
+    switch (action) {
+      case 'bold':
+        if (selected) {
+          if (selected.startsWith('**') && selected.endsWith('**') && selected.length >= 4) {
+            replacement = selected.slice(2, -2);
+          } else {
+            replacement = `**${selected}**`;
+          }
+          newCursorStart = start;
+          newCursorEnd = start + replacement.length;
+        } else {
+          replacement = '**bold text**';
+          newCursorStart = start + 2;
+          newCursorEnd = start + 11;
+        }
+        break;
+
+      case 'italic':
+        if (selected) {
+          if (selected.startsWith('*') && selected.endsWith('*') && selected.length >= 2 && !selected.startsWith('**')) {
+            replacement = selected.slice(1, -1);
+          } else {
+            replacement = `*${selected}*`;
+          }
+          newCursorStart = start;
+          newCursorEnd = start + replacement.length;
+        } else {
+          replacement = '*italic text*';
+          newCursorStart = start + 1;
+          newCursorEnd = start + 12;
+        }
+        break;
+
+      case 'underline':
+        if (selected) {
+          if (selected.startsWith('<u>') && selected.endsWith('</u>')) {
+            replacement = selected.slice(3, -4);
+          } else {
+            replacement = `<u>${selected}</u>`;
+          }
+          newCursorStart = start;
+          newCursorEnd = start + replacement.length;
+        } else {
+          replacement = '<u>underlined text</u>';
+          newCursorStart = start + 3;
+          newCursorEnd = start + 18;
+        }
+        break;
+
+      case 'link': {
+        const linkUrl = prompt('Enter Link Destination URL (https://...):', 'https://');
+        if (!linkUrl) return;
+        const linkText = selected || 'link text';
+        replacement = `[${linkText}](${linkUrl})`;
+        newCursorStart = start;
+        newCursorEnd = start + replacement.length;
+        break;
+      }
+
+      case 'highlight':
+        if (selected) {
+          if (selected.startsWith('<mark>') && selected.endsWith('</mark>')) {
+            replacement = selected.slice(6, -7);
+          } else {
+            replacement = `<mark>${selected}</mark>`;
+          }
+          newCursorStart = start;
+          newCursorEnd = start + replacement.length;
+        } else {
+          replacement = '<mark>highlighted text</mark>';
+          newCursorStart = start + 6;
+          newCursorEnd = start + 22;
+        }
+        break;
+
+      case 'code':
+        if (selected) {
+          if (selected.startsWith('`') && selected.endsWith('`') && selected.length >= 2) {
+            replacement = selected.slice(1, -1);
+          } else {
+            replacement = `\`${selected}\``;
+          }
+          newCursorStart = start;
+          newCursorEnd = start + replacement.length;
+        } else {
+          replacement = '`code`';
+          newCursorStart = start + 1;
+          newCursorEnd = start + 5;
+        }
+        break;
+
+      case 'bullet':
+        if (selected) {
+          const lines = selected.split('\n');
+          const bulleted = lines.map(line => line.startsWith('- ') ? line.slice(2) : `- ${line}`).join('\n');
+          replacement = bulleted;
+          newCursorStart = start;
+          newCursorEnd = start + replacement.length;
+        } else {
+          replacement = '\n- ';
+          newCursorStart = start + replacement.length;
+          newCursorEnd = start + replacement.length;
+        }
+        break;
+
+      case 'clear':
+        if (selected) {
+          let cleaned = selected;
+          // Strip markdown symbols
+          cleaned = cleaned.replace(/\*\*(.*?)\*\*/g, '$1');
+          cleaned = cleaned.replace(/\*(.*?)\*/g, '$1');
+          cleaned = cleaned.replace(/\[(.*?)\]\((.*?)\)/g, '$1');
+          cleaned = cleaned.replace(/`(.*?)`/g, '$1');
+          // Strip HTML tags
+          cleaned = cleaned.replace(/<\/?(strong|b|em|i|u|ins|mark|code|a|p|span)[^>]*>/gi, '');
+          replacement = cleaned;
+          newCursorStart = start;
+          newCursorEnd = start + replacement.length;
+        } else {
+          return;
+        }
+        break;
+
+      default:
+        return;
+    }
+
+    textarea.value = val.substring(0, start) + replacement + val.substring(end);
+    textarea.setSelectionRange(newCursorStart, newCursorEnd);
+
+    // Trigger input event to update live preview and sync state
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    textarea.dispatchEvent(new Event('change', { bubbles: true }));
   },
 
   /**

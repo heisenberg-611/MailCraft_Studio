@@ -69,16 +69,19 @@ const EmailTemplateEngine = {
     const ctaTextColor = t.ctaTextColor || (SignatureEngine.getLuminance(ctaBgColor) > 0.55 ? '#0F172A' : '#FFFFFF');
     const footerBg = isDark ? '#0B1120' : '#F8FAFC';
 
-    // Format paragraphs
+    // Format paragraphs with rich formatting support
     const paragraphsHtml = (t.paragraphs || []).map(p => {
-      if (p.includes('\n- ') || p.startsWith('- ')) {
+      if (!p || typeof p !== 'string') return '';
+      if (p.includes('\n- ') || p.startsWith('- ') || p.includes('\n* ') || p.startsWith('* ') || p.includes('\n• ') || p.startsWith('• ')) {
         const items = p.split('\n').filter(line => line.trim().length > 0).map(line => {
-          const cleanLine = line.replace(/^-\s*/, '');
-          return `<li style="margin-bottom: 6px; color: ${emailBodyColor};">${cleanLine}</li>`;
+          const cleanLine = line.replace(/^[-*•]\s*/, '');
+          const formattedLine = this.formatRichText(cleanLine, emailBodyColor, accentColor, isDark);
+          return `<li style="margin-bottom: 6px; color: ${emailBodyColor};">${formattedLine}</li>`;
         }).join('');
         return `<ul class="email-text-body" style="margin: 12px 0 16px 20px; padding: 0; font-size: 14px; line-height: 1.6; color: ${emailBodyColor};">${items}</ul>`;
       }
-      return `<p class="email-text-body" style="margin: 0 0 14px 0; font-size: 14px; line-height: 1.6; color: ${emailBodyColor};">${p}</p>`;
+      const formattedP = this.formatRichText(p, emailBodyColor, accentColor, isDark);
+      return `<p class="email-text-body" style="margin: 0 0 14px 0; font-size: 14px; line-height: 1.6; color: ${emailBodyColor};">${formattedP}</p>`;
     }).join('');
 
     // Format highlight box
@@ -246,6 +249,52 @@ const EmailTemplateEngine = {
 </body>
 </html>
     `.trim();
+  },
+
+  /**
+   * Format rich text supporting markdown and inline HTML tags
+   * @param {string} text - Raw paragraph text
+   * @param {string} emailBodyColor - Paragraph body text color
+   * @param {string} accentColor - Accent color for links / highlights
+   * @param {boolean} isDark - Dark mode flag
+   */
+  formatRichText(text, emailBodyColor, accentColor, isDark = false) {
+    if (!text || typeof text !== 'string') return '';
+
+    let out = String(text);
+
+    // 1. Convert markdown links [text](url) -> <a href="url" ...>text</a>
+    out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, label, url) => {
+      return `<a href="${url}" target="_blank" style="color: ${accentColor}; font-weight: 600; text-decoration: underline;">${label}</a>`;
+    });
+
+    // 2. Bold: **text** or __text__ or <b>/<strong>
+    const strongColor = isDark ? '#F8FAFC' : '#0F172A';
+    out = out.replace(/(\*\*|__)(.*?)\1/g, `<strong style="font-weight: 700; color: ${strongColor};">$2</strong>`);
+    out = out.replace(/<(b|strong)>(.*?)<\/\1>/gi, `<strong style="font-weight: 700; color: ${strongColor};">$2</strong>`);
+
+    // 3. Italic: *text* or _text_ or <i>/<em>
+    out = out.replace(/(?<!\w)([*_])([^*\n_]+?)\1(?!\w)/g, '<em style="font-style: italic;">$2</em>');
+    out = out.replace(/<(i|em)>(.*?)<\/\1>/gi, '<em style="font-style: italic;">$2</em>');
+
+    // 4. Underline: <u>text</u> or <ins>text</ins>
+    out = out.replace(/<(u|ins)>(.*?)<\/\1>/gi, '<u style="text-decoration: underline;">$2</u>');
+
+    // 5. Highlight: <mark>text</mark>
+    const markBg = isDark ? 'rgba(0, 220, 130, 0.25)' : 'rgba(0, 220, 130, 0.2)';
+    const markColor = isDark ? '#00DC82' : '#047857';
+    out = out.replace(/<mark>(.*?)<\/mark>/gi, `<mark style="background-color: ${markBg}; color: ${markColor}; padding: 1px 4px; border-radius: 3px; font-weight: 600;">$1</mark>`);
+
+    // 6. Inline Code: `code` or <code>code</code>
+    const codeBg = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
+    const codeColor = isDark ? '#38BDF8' : '#0284C7';
+    out = out.replace(/`([^`\n]+)`/g, `<code style="font-family: Consolas, Monaco, 'Courier New', monospace; background-color: ${codeBg}; color: ${codeColor}; padding: 2px 5px; border-radius: 3px; font-size: 13px;">$1</code>`);
+    out = out.replace(/<code>(.*?)<\/code>/gi, `<code style="font-family: Consolas, Monaco, 'Courier New', monospace; background-color: ${codeBg}; color: ${codeColor}; padding: 2px 5px; border-radius: 3px; font-size: 13px;">$1</code>`);
+
+    // 7. Line breaks within a single paragraph -> <br>
+    out = out.replace(/\n/g, '<br>');
+
+    return out;
   },
 
   /**

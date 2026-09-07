@@ -1339,13 +1339,19 @@
               </div>
 
               <!-- Anti-Leak Padding Toggle -->
-              <label class="preheader-anti-leak-toggle" for="tplAntiLeakPadding" title="Inserts zero-width non-breaking whitespace to prevent email clients from pulling following body text into the snippet">
-                <input type="checkbox" id="tplAntiLeakPadding" class="switch-input" checked>
-                <div class="switch-track mini"><div class="switch-thumb mini"></div></div>
-                <span class="anti-leak-label">
-                  <strong>Prevent Body Leakage</strong> (Anti-leak whitespace padding)
-                </span>
-              </label>
+              <div class="preheader-anti-leak-box">
+                <label class="toggle-row anti-leak-toggle-inner" for="tplAntiLeakPadding" title="Inserts zero-width non-breaking whitespace to prevent email clients from pulling following body text into the snippet">
+                  <div class="toggle-label-group">
+                    <div class="anti-leak-title-wrap">
+                      <span class="anti-leak-title-text">Prevent Body Leakage</span>
+                      <span class="anti-leak-badge">Anti-Leak</span>
+                    </div>
+                    <span class="anti-leak-desc">Appends invisible whitespace padding to isolate preheader snippet</span>
+                  </div>
+                  <input type="checkbox" id="tplAntiLeakPadding" class="switch-input" checked>
+                  <div class="switch-track"><div class="switch-thumb"></div></div>
+                </label>
+              </div>
             </div>
             <div class="form-group">
               <label class="form-label" for="tplHeaderLogoText">Header Brand Banner</label>
@@ -1366,12 +1372,39 @@
               <input type="text" id="tplGreeting" class="form-input" value="Dear Colleague,">
             </div>
             <div class="form-group">
-              <label class="form-label" for="tplParagraph1">Paragraph 1</label>
-              <textarea id="tplParagraph1" class="form-textarea">I hope this message finds you well. I am reaching out regarding our recent developments in automated workflow systems and software architecture.</textarea>
+              <div class="format-toolbar-header">
+                <label class="form-label" for="tplParagraph1" style="margin-bottom: 0;">Paragraph 1</label>
+                <div class="rich-format-toolbar" data-target="tplParagraph1" title="Inline Rich Formatting Toolbar">
+                  <button type="button" class="format-btn" data-action="bold" title="Bold (**text**)"><strong>B</strong></button>
+                  <button type="button" class="format-btn" data-action="italic" title="Italic (*text*)"><em>I</em></button>
+                  <button type="button" class="format-btn" data-action="underline" title="Underline (&lt;u&gt;text&lt;/u&gt;)"><u>U</u></button>
+                  <button type="button" class="format-btn" data-action="link" title="Insert Link ([text](url))"><span>🔗</span></button>
+                  <button type="button" class="format-btn" data-action="highlight" title="Highlight (&lt;mark&gt;text&lt;/mark&gt;)"><span>💡</span></button>
+                  <button type="button" class="format-btn" data-action="code" title="Inline Code (`code`)"><span>` `</span></button>
+                  <button type="button" class="format-btn" data-action="bullet" title="Bullet List (- item)"><span>•</span></button>
+                  <button type="button" class="format-btn" data-action="clear" title="Clear Formatting"><span>✕</span></button>
+                </div>
+              </div>
+              <textarea id="tplParagraph1" class="form-textarea" style="min-height: 95px;">I hope this message finds you well. I am reaching out regarding our recent developments in automated workflow systems and software architecture.</textarea>
+              <div class="format-helper-bar">
+                <span class="format-helper-text">Supports <strong>**bold**</strong>, <em>*italic*</em>, <u>&lt;u&gt;underline&lt;/u&gt;</u>, [links](url), &lt;mark&gt;highlight&lt;/mark&gt;, and `code`.</span>
+              </div>
             </div>
             <div class="form-group">
-              <label class="form-label" for="tplParagraph2">Paragraph 2 / Bullet Points</label>
-              <textarea id="tplParagraph2" class="form-textarea">- High-Definition Retina graphics (2x, 3x, 4x DPI)
+              <div class="format-toolbar-header">
+                <label class="form-label" for="tplParagraph2" style="margin-bottom: 0;">Paragraph 2 / Bullet Points</label>
+                <div class="rich-format-toolbar" data-target="tplParagraph2" title="Inline Rich Formatting Toolbar">
+                  <button type="button" class="format-btn" data-action="bold" title="Bold (**text**)"><strong>B</strong></button>
+                  <button type="button" class="format-btn" data-action="italic" title="Italic (*text*)"><em>I</em></button>
+                  <button type="button" class="format-btn" data-action="underline" title="Underline (&lt;u&gt;text&lt;/u&gt;)"><u>U</u></button>
+                  <button type="button" class="format-btn" data-action="link" title="Insert Link ([text](url))"><span>🔗</span></button>
+                  <button type="button" class="format-btn" data-action="highlight" title="Highlight (&lt;mark&gt;text&lt;/mark&gt;)"><span>💡</span></button>
+                  <button type="button" class="format-btn" data-action="code" title="Inline Code (`code`)"><span>` `</span></button>
+                  <button type="button" class="format-btn" data-action="bullet" title="Bullet List (- item)"><span>•</span></button>
+                  <button type="button" class="format-btn" data-action="clear" title="Clear Formatting"><span>✕</span></button>
+                </div>
+              </div>
+              <textarea id="tplParagraph2" class="form-textarea" style="min-height: 90px;">- High-Definition Retina graphics (2x, 3x, 4x DPI)
 - 100% in-browser generation with zero backend
 - Direct 1-click clipboard paste into Gmail and Outlook</textarea>
             </div>
