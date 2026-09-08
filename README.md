@@ -12,14 +12,14 @@
 
 **The Definitive High-Definition Email Signature & Responsive Email Architecture Studio**
 
-[![Version](https://img.shields.io/badge/version-2.0.0-00DC82.svg?style=flat-square)](https://github.com/heisenberg-611/MailCraft_Studio/releases/tag/v2.0.0)
+[![Version](https://img.shields.io/badge/version-2.1.0-00DC82.svg?style=flat-square)](https://github.com/heisenberg-611/MailCraft_Studio/releases/tag/v2.1.0)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Client-Side](https://img.shields.io/badge/architecture-100%25%20Client--Side-brightgreen.svg?style=flat-square)](#architecture)
 [![Zero-Dependencies](https://img.shields.io/badge/dependencies-0%20(Vanilla%20JS)-orange.svg?style=flat-square)](#technology-stack)
 [![Retina HD](https://img.shields.io/badge/DPI-1x%20%7C%202x%20%7C%203x%20%7C%204x-blueviolet.svg?style=flat-square)](#core-features)
 [![Deploy with Vercel](https://img.shields.io/badge/deploy-Vercel-black.svg?style=flat-square&logo=vercel)](https://vercel.com/new)
 
-[Overview](#overview) • [What's New in v2.0](#whats-new-in-v20) • [Key Features](#key-features) • [Chrome Extension](#chrome-extension) • [Quick Start](#quick-start) • [Email Client Setup](#email-client-setup) • [Architecture](#architecture) • [Deployment](#deployment) • [Author](#author)
+[Overview](#overview) • [What's New in v2.1](#whats-new-in-v21) • [Key Features](#key-features) • [Chrome Extension](#chrome-extension) • [Quick Start](#quick-start) • [Email Client Setup](#email-client-setup) • [Architecture](#architecture) • [Deployment](#deployment) • [Author](#author)
 
 </div>
 
@@ -33,18 +33,15 @@ Unlike typical cloud-based signature generators that charge monthly subscription
 
 ---
 
-## 🚀 What's New in v2.0
+## 🚀 What's New in v2.1
 
-MailCraft Studio v2.0 is a milestone release delivering enterprise-grade layout engines, real-time visual editing, browser extension workflows, and deep compatibility tooling:
+MailCraft Studio v2.1 delivers enhanced mobile resilience, zero-image outgoing email protection, and expanded styling synchronization:
 
-- **10 Architectural Layout Blueprints**: Added *Header Brand Banner*, *Academic Multi-Affiliation*, *Micro Thread Quick Reply*, and *ASCII Terminal Obsidian* layouts to the core signature engine.
-- **Direct WYSIWYG Inline Live Editing**: Click directly on any signature element in the live preview canvas (Name, Title, Department, Phone, Email, Bio, Quote) to edit in place with automatic 2-way synchronization to sidebar form controls.
-- **Universal Modular Block Re-ordering**: Customize the visual order of identity blocks (Name/Title, Photo/Logo, Contact Rows, Social Badges, Calendar/CTA buttons, Quotes, Promo Banners, Disclaimers) across all 10 layout templates.
-- **Official Manifest V3 Chrome Extension**: Bundled browser extension with 1-click Gmail and Outlook Web compose box injection, multi-profile switcher, and rich signature clipboard copy.
-- **Preheader Preview & Inbox Envelope Simulator**: Visual preview of inbox envelope metadata (Sender, Subject, Preheader Preview Text) with automatic anti-leak zero-width whitespace padding to protect email bodies from appearing in email client preview snippets.
-- **Outlook Desktop MSO / VML Vector Buttons**: Bulletproof cross-platform Call-to-Action and Calendar booking buttons with native Vector Markup Language (`<!--[if mso]>`) fallbacks for Microsoft Outlook 2016–365.
-- **Enterprise Multi-Platform Deployment Exporter**: 1-click generators for Google Workspace Admin (Google Apps Script `.gs`), Microsoft 365 Exchange Online (PowerShell `.ps1`), macOS Apple Mail (`.mailsignature`), and Windows Outlook (`.htm`).
-- **Real-Time Compatibility & Size Linter**: Visual payload safety gauge and instant compatibility audit checklist against Gmail's 102KB clipping threshold.
+- **3 New Image-Free Mobile-Safe Templates**: Added *Clean Typographic (`clean-text`)*, *Editorial Minimalist (`editorial-links`)*, and *Modern Chip Badges (`badge-chip-link`)* templates with **zero `<img>` dependencies** to completely prevent image stripping when composing directly from mobile phone mail apps (iOS Mail, Android Gmail app, Samsung Email).
+- **Comprehensive Delivery Guidance Notice**: Integrated device-aware guidance advising when to use rich graphics (Desktop webmail) vs image-free hyperlink templates (mobile phone composers).
+- **Master Accent Color Synchronization**: 1-click sync button in the color matrix to instantly harmonize all dividers, roles, links, labels, and borders with your master accent color.
+- **Enhanced Anti-Leak Preheader & Rich Formatting Toolbar**: Bulletproof anti-leak whitespace chains to protect message content in inbox envelope snippets.
+- **High-DPI PNG & Vector Icon Assets**: High-resolution icon rendering with standalone fallback assets for all major social networks and academic registries.
 
 ---
 
@@ -52,7 +49,7 @@ MailCraft Studio v2.0 is a milestone release delivering enterprise-grade layout 
 
 ### 📐 1. Robust HTML Signature Engine (`SignatureEngine`)
 - **Strict Table Architecture**: Conforms to W3C HTML 4.01 / XHTML Transitional standards using nested tables with inline styles to guarantee seamless rendering across legacy and modern mail clients (Gmail, Apple Mail, Outlook Desktop, Outlook 365, Thunderbird, Yahoo, and iOS Mail).
-- **10 Signature Blueprints**:
+- **13 Signature Blueprints**:
   1. `Vertical Divider`: High-contrast dual-column layout with an accent colored vertical separator.
   2. `Horizontal Bar`: Sleek header identity bar with bottom contact rows.
   3. `Two-Column Grid`: Balanced identity on the left, social and contact rows on the right.
@@ -63,6 +60,9 @@ MailCraft Studio v2.0 is a milestone release delivering enterprise-grade layout 
   8. `ASCII Terminal Obsidian`: Monospace hacker terminal with command prompt prefixes.
   9. `Minimal Left`: Crisp left-accent border with minimalist typography.
   10. `Compact Inline`: Single-line horizontal flow for ultra-clean daily correspondence.
+  11. `Clean Typographic`: Zero-image mobile-safe layout with bullet-separated text hyperlinks.
+  12. `Editorial Serif`: Refined left accent bar with pipe-separated text hyperlinks and zero images.
+  13. `Modern Chip Badges`: Interactive CSS pill badges with background tints and zero image dependencies.
 
 ### ✏️ 2. Direct WYSIWYG Inline Live Editing
 - **Click-and-Type Canvas**: Edit your name, role, organization, phone, email, bio, or quote directly inside the live email client preview stage.

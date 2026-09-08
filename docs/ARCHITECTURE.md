@@ -1,4 +1,4 @@
-# MailCraft Studio Architecture & System Design (v2.0)
+# MailCraft Studio Architecture & System Design (v2.1)
 
 ## Overview
 MailCraft Studio is a 100% client-side, zero-backend enterprise web application engineered to generate pixel-perfect, High-Definition (Retina 2x/3x/4x) email signatures, responsive HTML email templates, and enterprise deployment packages.
@@ -38,7 +38,7 @@ email_signature/
 │   ├── dot-matrix.js            # Ambient canvas background visualizer
 │   └── app.js                   # Application coordinator, WYSIWYG sync & state manager
 ├── extension/                   # Manifest V3 Chrome Extension
-│   ├── manifest.json            # Extension manifest v3 configuration (v2.0.0)
+│   ├── manifest.json            # Extension manifest v3 configuration (v2.1.0)
 │   ├── popup.html               # Extension interactive popup UI
 │   ├── popup.css                # Extension popup styling
 │   ├── popup.js                 # Signature switcher & 1-click compose injector logic
