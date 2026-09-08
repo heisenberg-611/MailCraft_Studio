@@ -211,6 +211,15 @@ const SignatureEngine = {
       case 'ascii-terminal':
         renderedHtml = this.renderAsciiTerminal(d, s);
         break;
+      case 'clean-text':
+        renderedHtml = this.renderCleanText(d, s);
+        break;
+      case 'editorial-links':
+        renderedHtml = this.renderEditorialLinks(d, s);
+        break;
+      case 'badge-chip-link':
+        renderedHtml = this.renderBadgeChipLink(d, s);
+        break;
       case 'vertical-divider':
       default:
         renderedHtml = this.renderVerticalDivider(d, s);
@@ -867,6 +876,120 @@ const SignatureEngine = {
   },
 
   /**
+   * Template 11: Clean Typographic Stack (Zero Image / 100% Text & Hyperlinks)
+   * Ultra-fast rendering, zero image stripping on mobile phone mail apps
+   */
+  renderCleanText(d, s) {
+    const textDetailsHtml = this.renderDetailsBlock(d, s);
+    const socialLinksHtml = this.renderSocialsTextLinks(d, s, ' &bull; ');
+    const ctaHtml = this.renderCtaButton(d, s);
+    const badgeHtml = this.renderBadge(d, s);
+    const statusBadgeHtml = this.renderStatusBadgeHtml(d, s);
+    const bookingBadgeHtml = this.renderBookingBadgeHtml(d, s);
+    const quoteHtml = this.renderQuote(d, s);
+    const disclaimerHtml = this.renderDisclaimers(d, s);
+
+    const orderedBlocks = this.renderOrderedBlocks(d, s, {
+      identity: `${this.renderNameHtml(d, s)}${this.renderTitleHtml(d, s)}`,
+      contact: textDetailsHtml,
+      socials: socialLinksHtml ? `<div style="padding-top: 3px;">${socialLinksHtml}</div>` : '',
+      badges: `${statusBadgeHtml ? `<div style="padding-top: 3px;">${statusBadgeHtml}</div>` : ''}${badgeHtml ? `<div style="padding-top: 3px;">${badgeHtml}</div>` : ''}${bookingBadgeHtml ? `<div style="padding-top: 4px;">${bookingBadgeHtml}</div>` : ''}`,
+      banner: ctaHtml ? `<div style="padding-top: 6px;">${ctaHtml}</div>` : '',
+      footer: `${quoteHtml ? `<div style="padding-top: 6px;">${quoteHtml}</div>` : ''}${disclaimerHtml ? `<div style="padding-top: 6px;">${disclaimerHtml}</div>` : ''}`
+    });
+
+    return `
+<!-- Email Signature Start -->
+<table cellpadding="0" cellspacing="0" border="0" class="sig-table sig-full-width" style="margin: 0; padding: 0; font-family: ${s.fontFamily || 'Inter, -apple-system, sans-serif'}; font-size: ${s.bodyFontSize}px; line-height: 1.35; color: ${s.bodyColor}; background-color: transparent; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; max-width: 480px; width: 100%;">
+  ${orderedBlocks}
+</table>
+<!-- Email Signature End -->
+`.trim();
+  },
+
+  /**
+   * Template 12: Editorial Minimalist (Zero Image / Left Accent & Text Links)
+   * High-end editorial aesthetic with pure text hyperlinks
+   */
+  renderEditorialLinks(d, s) {
+    const textDetailsHtml = this.renderDetailsBlock(d, s);
+    const socialLinksHtml = this.renderSocialsTextLinks(d, s, ' | ');
+    const ctaHtml = this.renderCtaButton(d, s);
+    const badgeHtml = this.renderBadge(d, s);
+    const statusBadgeHtml = this.renderStatusBadgeHtml(d, s);
+    const bookingBadgeHtml = this.renderBookingBadgeHtml(d, s);
+    const quoteHtml = this.renderQuote(d, s);
+    const disclaimerHtml = this.renderDisclaimers(d, s);
+
+    const accent = s.dividerColor || s.accentColor || '#0284C7';
+    const spacing = (s.dividerSpacing !== undefined && s.dividerSpacing !== null && s.dividerSpacing !== '') ? Number(s.dividerSpacing) : 12;
+
+    const orderedBlocks = this.renderOrderedBlocks(d, s, {
+      identity: `${this.renderNameHtml(d, s)}${this.renderTitleHtml(d, s)}`,
+      contact: textDetailsHtml,
+      socials: socialLinksHtml ? `<div style="padding-top: 4px;">${socialLinksHtml}</div>` : '',
+      badges: `${statusBadgeHtml ? `<div style="padding-top: 3px;">${statusBadgeHtml}</div>` : ''}${badgeHtml ? `<div style="padding-top: 3px;">${badgeHtml}</div>` : ''}${bookingBadgeHtml ? `<div style="padding-top: 4px;">${bookingBadgeHtml}</div>` : ''}`,
+      banner: ctaHtml ? `<div style="padding-top: 6px;">${ctaHtml}</div>` : '',
+      footer: `${quoteHtml ? `<div style="padding-top: 6px;">${quoteHtml}</div>` : ''}${disclaimerHtml ? `<div style="padding-top: 6px;">${disclaimerHtml}</div>` : ''}`
+    });
+
+    return `
+<!-- Email Signature Start -->
+<table cellpadding="0" cellspacing="0" border="0" class="sig-table sig-full-width" style="margin: 0; padding: 0; font-family: ${s.fontFamily || 'Georgia, serif'}; font-size: ${s.bodyFontSize}px; line-height: 1.35; color: ${s.bodyColor}; background-color: transparent; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; max-width: 500px; width: 100%;">
+  <tr>
+    <td class="sig-dark-divider" style="border-left: 2.5px solid ${accent}; padding-left: ${spacing}px; vertical-align: top;">
+      <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; width: 100%;">
+        ${orderedBlocks}
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- Email Signature End -->
+`.trim();
+  },
+
+  /**
+   * Template 13: Modern Chip Badge Links (Zero Image / CSS Pill Links)
+   * Tech & executive card layout with interactive CSS text chips
+   */
+  renderBadgeChipLink(d, s) {
+    const textDetailsHtml = this.renderDetailsBlock(d, s);
+    const socialChipsHtml = this.renderSocialsChipLinks(d, s);
+    const ctaHtml = this.renderCtaButton(d, s);
+    const badgeHtml = this.renderBadge(d, s);
+    const statusBadgeHtml = this.renderStatusBadgeHtml(d, s);
+    const bookingBadgeHtml = this.renderBookingBadgeHtml(d, s);
+    const quoteHtml = this.renderQuote(d, s);
+    const disclaimerHtml = this.renderDisclaimers(d, s);
+
+    const cardBg = s.isDarkModeActive ? '#0F172A' : '#FAFAFA';
+    const cardBorder = s.isDarkModeActive ? '#334155' : '#E2E8F0';
+
+    const orderedBlocks = this.renderOrderedBlocks(d, s, {
+      identity: `${this.renderNameHtml(d, s)}${this.renderTitleHtml(d, s)}`,
+      contact: textDetailsHtml,
+      socials: socialChipsHtml ? `<div style="padding-top: 4px;">${socialChipsHtml}</div>` : '',
+      badges: `${statusBadgeHtml ? `<div style="padding-top: 3px;">${statusBadgeHtml}</div>` : ''}${badgeHtml ? `<div style="padding-top: 3px;">${badgeHtml}</div>` : ''}${bookingBadgeHtml ? `<div style="padding-top: 4px;">${bookingBadgeHtml}</div>` : ''}`,
+      banner: ctaHtml ? `<div style="padding-top: 6px;">${ctaHtml}</div>` : '',
+      footer: `${quoteHtml ? `<div style="padding-top: 6px;">${quoteHtml}</div>` : ''}${disclaimerHtml ? `<div style="padding-top: 6px;">${disclaimerHtml}</div>` : ''}`
+    });
+
+    return `
+<!-- Email Signature Start -->
+<table cellpadding="0" cellspacing="0" border="0" class="sig-table sig-full-width" style="margin: 0; padding: 0; font-family: ${s.fontFamily || 'Inter, -apple-system, sans-serif'}; font-size: ${s.bodyFontSize}px; line-height: 1.35; color: ${s.bodyColor}; background-color: transparent; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; max-width: 500px; width: 100%;">
+  <tr>
+    <td class="sig-dark-card" style="border: 1px solid ${cardBorder}; border-radius: 6px; padding: 12px 14px; background-color: ${cardBg};">
+      <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; width: 100%;">
+        ${orderedBlocks}
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- Email Signature End -->
+`.trim();
+  },
+
+  /**
    * Render High-Definition Avatar Image (Retina 2x/3x compliant)
    */
   renderAvatarHtml(d, s) {
@@ -1120,11 +1243,26 @@ const SignatureEngine = {
   },
 
   /**
+   * Helper: Normalize social media list supporting both Array and Object schemas
+   */
+  normalizeSocials(d) {
+    if (!d || !d.socials) return [];
+    if (Array.isArray(d.socials)) {
+      return d.socials.filter(item => item && item.enabled && item.url);
+    }
+    if (typeof d.socials === 'object') {
+      return Object.keys(d.socials)
+        .filter(key => Boolean(d.socials[key]))
+        .map(key => ({ id: key, url: d.socials[key], enabled: true }));
+    }
+    return [];
+  },
+
+  /**
    * Render Social Icons List as a bulletproof table row
    */
   renderSocialsRow(d, s) {
-    const socials = Array.isArray(d.socials) ? d.socials : [];
-    const activeSocials = socials.filter(item => item && item.enabled);
+    const activeSocials = this.normalizeSocials(d);
     if (activeSocials.length === 0) return '';
 
     const iconSize = s.iconSize || 18;
@@ -1171,6 +1309,51 @@ const SignatureEngine = {
   </tr>
 </table>
 `.trim();
+  },
+
+  /**
+   * Render Social Media / Profiles as pure text hyperlinks (Zero Images)
+   * Prevents image stripping on mobile phone mail apps
+   */
+  renderSocialsTextLinks(d, s, separator = ' &bull; ') {
+    const activeSocials = this.normalizeSocials(d);
+    if (activeSocials.length === 0) return '';
+
+    const linkColor = s.linkColor || s.accentColor || '#2563EB';
+    const links = activeSocials.map(item => {
+      const meta = (typeof Icons !== 'undefined' && Icons.social && Icons.social[item.id]) ? Icons.social[item.id] : { name: item.id };
+      const targetUrl = this.formatSocialUrl(item.id, item.url);
+      return `<a href="${targetUrl}" target="_blank" class="sig-dark-link" style="color: ${linkColor}; text-decoration: none; font-weight: 500;">${meta.name}</a>`;
+    });
+
+    return `
+<div class="sig-dark-body" style="font-size: ${(s.bodyFontSize || 12.5) - 0.5}px; color: ${s.bodyColor}; padding-top: 3px; line-height: 1.4;">
+  ${links.join(`<span style="color: #94A3B8; margin: 0 5px;">${separator}</span>`)}
+</div>
+    `.trim();
+  },
+
+  /**
+   * Render Social Media as interactive CSS Chip Badge Links (Zero Images)
+   */
+  renderSocialsChipLinks(d, s) {
+    const activeSocials = this.normalizeSocials(d);
+    if (activeSocials.length === 0) return '';
+
+    const accent = s.accentColor || '#00DC82';
+    const linkColor = s.linkColor || s.accentColor || '#00DC82';
+
+    const chips = activeSocials.map(item => {
+      const meta = (typeof Icons !== 'undefined' && Icons.social && Icons.social[item.id]) ? Icons.social[item.id] : { name: item.id };
+      const targetUrl = this.formatSocialUrl(item.id, item.url);
+      return `<a href="${targetUrl}" target="_blank" class="sig-dark-badge" style="display: inline-block; padding: 2.5px 8px; margin: 2px 4px 2px 0; border-radius: 4px; background-color: ${accent}15; color: ${linkColor}; border: 1px solid ${accent}35; font-size: 10.5px; font-weight: 600; text-decoration: none; line-height: 1.3;">${meta.name} &rarr;</a>`;
+    });
+
+    return `
+<div style="padding-top: 4px; line-height: 1.6;">
+  ${chips.join('')}
+</div>
+    `.trim();
   },
 
   /**
@@ -1388,6 +1571,12 @@ const SignatureEngine = {
   }
 };
 
+if (typeof window !== 'undefined') {
+  window.SignatureEngine = SignatureEngine;
+}
+if (typeof globalThis !== 'undefined') {
+  globalThis.SignatureEngine = SignatureEngine;
+}
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = SignatureEngine;
 }

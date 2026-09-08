@@ -64,9 +64,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     profileSelect.appendChild(opt);
   }
 
-  // 2. Multi-Industry Presets
+  // 2. Multi-Industry Presets (including No-Image Mobile Safe Presets)
   const featuredPresets = [
     'developerTerminal',
+    'cleanTextHyperlink',
+    'editorialMinimalText',
+    'badgeChipLinks',
     'academicScholar',
     'corporateExecutive',
     'minimalistModern',

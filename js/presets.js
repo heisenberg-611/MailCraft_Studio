@@ -461,6 +461,83 @@ const Presets = {
         labelWebsite: 'Website:',
         showBadges: false
       }
+    },
+    cleanTextHyperlink: {
+      id: 'cleanTextHyperlink',
+      name: 'Clean Typographic Links (No Image)',
+      description: 'Zero images · 100% mobile safe · Pure text hierarchy with bullet-separated links',
+      settings: {
+        template: 'clean-text',
+        fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        nameFontSize: 17,
+        nameFontWeight: '700',
+        nameColor: '#0F172A',
+        titleFontSize: 13,
+        titleColor: '#00DC82',
+        bodyFontSize: 12.5,
+        bodyColor: '#334155',
+        labelColor: '#00DC82',
+        accentColor: '#00DC82',
+        linkColor: '#00DC82',
+        showLabels: true,
+        labelPhone: 'Mobile:',
+        labelEmail: 'Email:',
+        labelWebsite: 'Web:',
+        showBadges: true,
+        badgeText: 'Mobile Safe'
+      }
+    },
+    editorialMinimalText: {
+      id: 'editorialMinimalText',
+      name: 'Editorial Serif Links (No Image)',
+      description: 'Refined editorial typography with left accent line and clean text hyperlinks',
+      settings: {
+        template: 'editorial-links',
+        fontFamily: "Georgia, 'Times New Roman', serif",
+        nameFontSize: 18,
+        nameFontWeight: '700',
+        nameColor: '#1E293B',
+        titleFontSize: 13.5,
+        titleColor: '#0284C7',
+        bodyFontSize: 12.5,
+        bodyColor: '#475569',
+        labelColor: '#0284C7',
+        accentColor: '#0284C7',
+        linkColor: '#0284C7',
+        dividerColor: '#0284C7',
+        dividerThickness: 2.5,
+        dividerSpacing: 14,
+        showLabels: true,
+        labelPhone: 'T:',
+        labelEmail: 'E:',
+        labelWebsite: 'W:',
+        showBadges: false
+      }
+    },
+    badgeChipLinks: {
+      id: 'badgeChipLinks',
+      name: 'Modern Chip Badges (No Image)',
+      description: 'Executive card structure with stylized interactive CSS pill links and zero images',
+      settings: {
+        template: 'badge-chip-link',
+        fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        nameFontSize: 17,
+        nameFontWeight: '700',
+        nameColor: '#0F172A',
+        titleFontSize: 13,
+        titleColor: '#6366F1',
+        bodyFontSize: 12.5,
+        bodyColor: '#334155',
+        labelColor: '#6366F1',
+        accentColor: '#6366F1',
+        linkColor: '#6366F1',
+        showLabels: true,
+        labelPhone: 'Direct:',
+        labelEmail: 'Mail:',
+        labelWebsite: 'Site:',
+        showBadges: true,
+        badgeText: 'Verified Identity'
+      }
     }
   },
 

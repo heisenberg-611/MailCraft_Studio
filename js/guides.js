@@ -86,6 +86,17 @@ const InstallationGuides = {
         'Yahoo Mail automatically saves your changes; compose a new message to test your signature.'
       ],
       tip: 'Yahoo Mail supports responsive HTML tables and renders high-DPI Retina images and custom link styling smoothly.'
+    },
+    mobileApp: {
+      name: 'Mobile Mail Apps',
+      fullName: 'Mobile Mail Apps (iOS / Android / Gmail)',
+      steps: [
+        'Delivery Notice: When composing and sending emails directly from mobile phone mail apps (iOS Mail, Gmail mobile app, Samsung Mail), mobile mail engines strip inline images and icons.',
+        'To retain photos, avatars, and social icons, send your emails from Desktop webmail (Gmail, Outlook, Apple Mail).',
+        'If you want to send directly from mobile phone mail apps, select one of our "No-Image Hyperlink Templates" (Clean Typographic, Editorial Minimalist, Modern Chip Badges).',
+        'Copy the signature HTML or Rich Signature and paste it into your mobile mail app Settings > Signature field.'
+      ],
+      tip: 'Our No-Image Hyperlink Templates are 100% resilient across all mobile mail clients because they use zero images while retaining styled text links and badge chips.'
     }
   },
 
@@ -93,7 +104,10 @@ const InstallationGuides = {
     const keyMap = {
       'apple': 'appleMail',
       'outlook': 'outlookWeb',
-      'yahoo': 'yahooMail'
+      'yahoo': 'yahooMail',
+      'mobile': 'mobileApp',
+      'ios': 'mobileApp',
+      'android': 'mobileApp'
     };
     return keyMap[clientKey] || clientKey || 'gmail';
   },
@@ -155,6 +169,9 @@ const InstallationGuides = {
     }).join('');
 
     return `
+      <div class="guide-delivery-notice" style="margin-bottom: 14px; padding: 9px 12px; background: rgba(0, 220, 130, 0.06); border: 1px dashed rgba(0, 220, 130, 0.3); border-radius: 4px; font-size: 11px; color: var(--sahinur-text-dim); line-height: 1.4;">
+        <span style="color: var(--sahinur-accent); font-family: var(--font-mono); font-weight: 700;">// DELIVERY TIP:</span> Send signatures with photos &amp; icons from <strong>Desktop webmail</strong> (Gmail, Outlook, Apple Mail) to retain full graphics. For composing and sending directly from <strong>mobile phone mail apps</strong>, use our <strong>No-Image Hyperlink Templates</strong> (Clean Typographic, Editorial, Chip Badges).
+      </div>
       <h3 class="guide-client-title"><span class="sahinur-prompt-prefix">&gt;</span> ${guide.fullName || guide.name}</h3>
       <div class="guide-steps-container">
         ${stepsList}
