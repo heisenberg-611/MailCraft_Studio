@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Icon Canvas Test</title>
+  <style>
+    body { font-family: sans-serif; background: #1e293b; color: white; padding: 20px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; }
+    .card { background: #0f172a; border-radius: 8px; padding: 10px; text-align: center; }
+    canvas { background: #334155; border-radius: 4px; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <h2>Canvas Icon Rendering Test</h2>
+  <div class="grid" id="grid"></div>
+  <script src="js/icons.js"></script>
+  <script>
+    const grid = document.getElementById('grid');
+    Object.keys(Icons.social).forEach(key => {
+      const icon = Icons.social[key];
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = '<div>' + icon.name + '</div>';
+      
+      const img = document.createElement('img');
+      img.src = Icons.getSocialDataUri(key, 'color');
+      img.width = 32;
+      img.height = 32;
+      card.appendChild(img);
+      grid.appendChild(card);
+    });
+  </script>
+</body>
+</html>
