@@ -8,6 +8,33 @@
 
 const SignatureEngine = {
   /**
+   * Helper: Determine base origin for hosted remote assets (Vercel Edge CDN)
+   */
+  getAssetOrigin(s = {}) {
+    if (s && s.assetOrigin && typeof s.assetOrigin === 'string' && s.assetOrigin.trim()) {
+      return s.assetOrigin.trim().replace(/\/+$/, '');
+    }
+    // For live studio preview (not export), use relative '.' so icons load regardless of dev server port, subpath, or protocol
+    if (s.isExport === false) {
+      return '.';
+    }
+    // For exported email signatures or when running on production Vercel
+    if (typeof window !== 'undefined' && window.location && window.location.origin) {
+      const o = window.location.origin;
+      if (o !== 'null' && !o.startsWith('file:') && !o.includes('localhost') && !o.includes('127.0.0.1')) {
+        return o;
+      }
+    }
+    return 'https://mailcraftstudio.vercel.app';
+  },
+
+  /**
+   * Helper: Check if string is a remote HTTPS/HTTP URL
+   */
+  isRemoteUrl(url) {
+    return typeof url === 'string' && /^https?:\/\//i.test(url.trim());
+  },
+  /**
    * Helper: Parse 3-digit or 6-digit hex color to RGB object
    */
   hexToRgb(hex) {
@@ -993,7 +1020,16 @@ const SignatureEngine = {
    * Render High-Definition Avatar Image (Retina 2x/3x compliant)
    */
   renderAvatarHtml(d, s) {
-    const src = (typeof ImageProcessor !== 'undefined' && ImageProcessor.processedDataUrl) ? ImageProcessor.processedDataUrl : (d.avatarUrl || '');
+    let src = '';
+    if (this.isRemoteUrl(d.avatarUrl)) {
+      src = d.avatarUrl.trim();
+    } else if (typeof d.avatarUrl === 'string' && d.avatarUrl.trim().startsWith('/')) {
+      src = `${this.getAssetOrigin(s)}${d.avatarUrl.trim()}`;
+    } else if (typeof ImageProcessor !== 'undefined' && ImageProcessor.processedDataUrl) {
+      src = ImageProcessor.processedDataUrl;
+    } else {
+      src = d.avatarUrl || '';
+    }
     if (!src) return '';
 
     const size = Number(s.avatarSize) || 85;
@@ -1018,6 +1054,12 @@ const SignatureEngine = {
   renderLogoHtml(d, s) {
     if (!d.showLogo || !d.logoUrl) return '';
 
+    let src = typeof d.logoUrl === 'string' ? d.logoUrl.trim() : d.logoUrl;
+    if (!src) return '';
+    if (typeof src === 'string' && src.startsWith('/')) {
+      src = `${this.getAssetOrigin(s)}${src}`;
+    }
+
     const size = Number(d.logoSize) || 70;
     let borderRadius = '0px';
     if (d.logoShape === 'circle') borderRadius = '50%';
@@ -1025,7 +1067,7 @@ const SignatureEngine = {
     else if (d.logoShape === 'squircle') borderRadius = '18%';
 
     return `
-<img src="${d.logoUrl}" alt="${d.company || 'Company Logo'}" width="${size}" border="0" style="display: block; width: ${size}px; max-width: ${size}px; height: auto; border-radius: ${borderRadius}; border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; image-rendering: -webkit-optimize-contrast;" />
+<img src="${src}" alt="${d.company || 'Company Logo'}" width="${size}" border="0" style="display: block; width: ${size}px; max-width: ${size}px; height: auto; border-radius: ${borderRadius}; border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; image-rendering: -webkit-optimize-contrast;" />
 `.trim();
   },
 
@@ -1268,11 +1310,23 @@ const SignatureEngine = {
     const iconSize = s.iconSize || 18;
     const spacing = s.iconSpacing !== undefined ? s.iconSpacing : 8;
     const style = s.iconStyle || 'color';
+    const origin = this.getAssetOrigin(s);
 
     const cells = activeSocials.map((item, index) => {
       const meta = Icons.social[item.id] || { name: item.id };
       const targetUrl = this.formatSocialUrl(item.id, item.url);
-      const dataUri = Icons.getSocialDataUri(item.id, style, s.accentColor || '#00DC82');
+
+      // Automatically construct hosted HTTPS link from Vercel Edge CDN (Mobile Gmail Safe)
+      const dataUri = (typeof Icons !== 'undefined' && typeof Icons.getSocialDataUri === 'function')
+        ? Icons.getSocialDataUri(item.id, style, s.accentColor || '#00DC82', iconSize)
+        : '';
+
+      let iconSrc = '';
+      if (s.iconDeliveryMode === 'base64') {
+        iconSrc = dataUri;
+      } else {
+        iconSrc = `${origin}/assets/icons/${item.id}.png`;
+      }
 
       let paddingStyle = '';
       let borderStyle = '';
@@ -1292,11 +1346,12 @@ const SignatureEngine = {
       }
 
       const paddingRight = (index < activeSocials.length - 1) ? `padding-right: ${spacing}px;` : '';
+      const fallbackAttr = (!s.isExport && dataUri) ? ` onerror="this.onerror=null;this.src='${dataUri}';"` : '';
 
       return `
 <td align="center" valign="middle" style="vertical-align: middle; ${paddingRight} line-height: 1;">
-  <a href="${targetUrl}" target="_blank" style="display: inline-block; text-decoration: none; border: 0; outline: none; ${bgStyle} ${paddingStyle} ${borderStyle}">
-    <img src="${dataUri}" alt="${meta.name}" class="${imgClass}" width="${iconSize}" height="${iconSize}" border="0" style="display: block; border: 0; outline: none; width: ${iconSize}px; height: ${iconSize}px; max-width: ${iconSize}px; max-height: ${iconSize}px; image-rendering: -webkit-optimize-contrast;" />
+  <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none; border: 0; outline: none; ${bgStyle} ${paddingStyle} ${borderStyle}">
+    <img src="${iconSrc}"${fallbackAttr} alt="${meta.name}" class="${imgClass}" width="${iconSize}" height="${iconSize}" border="0" style="display: block; border: 0; outline: none; width: ${iconSize}px; height: ${iconSize}px; max-width: ${iconSize}px; max-height: ${iconSize}px; image-rendering: -webkit-optimize-contrast;" />
   </a>
 </td>
       `.trim();
@@ -1511,14 +1566,42 @@ const SignatureEngine = {
    * Render Promotional Campaign Banner
    */
   renderPromoBanner(d, s) {
-    if (!d.promoBanner || !d.promoBanner.enabled || !d.promoBanner.imageUrl) return '';
+    if (!d.promoBanner || !d.promoBanner.enabled) return '';
     const banner = d.promoBanner;
-    const bannerImg = `<img src="${banner.imageUrl}" alt="${banner.alt || 'Promotional Banner'}" width="380" border="0" style="display: block; width: 100%; max-width: 380px; height: auto; border-radius: 5px; border: 0; outline: none; text-decoration: none;" />`;
-
-    if (banner.targetUrl) {
-      return `<a href="${banner.targetUrl}" target="_blank" style="display: block; text-decoration: none; border: 0;">${bannerImg}</a>`;
+    let imageUrl = (banner.imageUrl || banner.imageDataUrl || '').trim();
+    if (!imageUrl) return '';
+    if (imageUrl.startsWith('/')) {
+      imageUrl = `${this.getAssetOrigin(s)}${imageUrl}`;
     }
-    return bannerImg;
+
+    const alt = banner.alt || 'Promotional Campaign';
+    const targetUrl = (banner.targetUrl || '').trim();
+
+    const bannerImg = `<img src="${imageUrl}" alt="${alt}" width="380" border="0" style="display: block; width: 100%; max-width: 380px; height: auto; border-radius: 5px; border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic;" />`;
+
+    if (targetUrl) {
+      return `
+<table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; margin-top: 8px; max-width: 380px; width: 100%; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+  <tr>
+    <td style="padding: 0; margin: 0; line-height: 0; font-size: 0;">
+      <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" style="display: block; text-decoration: none; border: 0; outline: none;">
+        ${bannerImg}
+      </a>
+    </td>
+  </tr>
+</table>
+      `.trim();
+    }
+
+    return `
+<table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; margin-top: 8px; max-width: 380px; width: 100%; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+  <tr>
+    <td style="padding: 0; margin: 0; line-height: 0; font-size: 0;">
+      ${bannerImg}
+    </td>
+  </tr>
+</table>
+    `.trim();
   },
 
   /**

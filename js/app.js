@@ -542,6 +542,7 @@ const App = {
     setVal('country', d.country);
 
     // Photo & Logo Settings
+    setVal('avatarUrlInput', (d.avatarUrl && /^https?:\/\//i.test(d.avatarUrl)) ? d.avatarUrl : '');
     setVal('avatarSize', s.avatarSize || 85);
     const avatarSizeVal = document.getElementById('avatarSizeVal');
     if (avatarSizeVal) avatarSizeVal.textContent = `${s.avatarSize || 85}px`;
@@ -565,6 +566,7 @@ const App = {
     setVal('avatarBorderColorHex', s.avatarBorderColor || '#00DC82');
 
     // Logo
+    setVal('logoUrlInput', (d.logoUrl && /^https?:\/\//i.test(d.logoUrl)) ? d.logoUrl : '');
     setChecked('showLogo', d.showLogo);
     const logoGroup = document.getElementById('logoControlsGroup');
     if (logoGroup) logoGroup.style.display = d.showLogo ? 'flex' : 'none';
@@ -739,6 +741,7 @@ const App = {
     setChecked('showPromoBanner', d.promoBanner ? d.promoBanner.enabled : false);
     const promoBannerGroup = document.getElementById('promoBannerGroup');
     if (promoBannerGroup) promoBannerGroup.style.display = (d.promoBanner && d.promoBanner.enabled) ? 'flex' : 'none';
+    setVal('promoBannerImageUrl', (d.promoBanner && d.promoBanner.imageUrl && /^https?:\/\//i.test(d.promoBanner.imageUrl)) ? d.promoBanner.imageUrl : '');
     setVal('promoTargetUrl', (d.promoBanner && d.promoBanner.targetUrl) || 'https://www.dhrubojyoti.dev');
     setVal('promoAltText', (d.promoBanner && d.promoBanner.alt) || 'Special Announcement');
 
@@ -1598,7 +1601,16 @@ const App = {
       });
     }
 
-    // Promo Banner Image Upload (Auto-optimized for Gmail <102KB limit)
+    // Promo Banner Image (External HTTPS Link & Local File Upload)
+    const promoBannerImageUrl = document.getElementById('promoBannerImageUrl');
+    if (promoBannerImageUrl) {
+      promoBannerImageUrl.addEventListener('input', (e) => {
+        if (!this.state.data.promoBanner) this.state.data.promoBanner = { enabled: true };
+        this.state.data.promoBanner.imageUrl = e.target.value.trim();
+        this.updateLivePreview();
+      });
+    }
+
     const promoBannerFileInput = document.getElementById('promoBannerFileInput');
     if (promoBannerFileInput) {
       promoBannerFileInput.addEventListener('change', (e) => {
@@ -1609,6 +1621,7 @@ const App = {
               this.state.data.promoBanner = { enabled: true, imageUrl: '', targetUrl: '', alt: '' };
             }
             this.state.data.promoBanner.imageUrl = dataUrl;
+            if (promoBannerImageUrl) promoBannerImageUrl.value = '';
             this.updateLivePreview();
             this.showToast('Uploaded & optimized promo banner for Gmail!', 'success');
           });
@@ -1657,6 +1670,15 @@ const App = {
       });
     }
 
+    // Company Logo (External HTTPS Link & Local File Upload)
+    const logoUrlInput = document.getElementById('logoUrlInput');
+    if (logoUrlInput) {
+      logoUrlInput.addEventListener('input', (e) => {
+        this.state.data.logoUrl = e.target.value.trim();
+        this.updateLivePreview();
+      });
+    }
+
     const logoFileInput = document.getElementById('logoFileInput');
     if (logoFileInput) {
       logoFileInput.addEventListener('change', (e) => {
@@ -1664,6 +1686,7 @@ const App = {
         if (file && typeof ImageProcessor !== 'undefined') {
           ImageProcessor.processGenericImage(file, { maxWidth: 300, maxHeight: 300 }, (dataUrl) => {
             this.state.data.logoUrl = dataUrl;
+            if (logoUrlInput) logoUrlInput.value = '';
             this.updateLivePreview();
             this.showToast('Uploaded company logo!', 'success');
           });
@@ -2503,10 +2526,18 @@ const App = {
    * Update real-time DPI resolution & compressed payload telemetry pill
    */
   updateAvatarTelemetry() {
-    if (typeof ImageProcessor === 'undefined' || !ImageProcessor.getPayloadStats) return;
-    const stats = ImageProcessor.getPayloadStats();
     const pixelEl = document.getElementById('avatarPixelDim');
     const sizeEl = document.getElementById('avatarPayloadSize');
+    if (this.state.data.avatarUrl && /^https?:\/\//i.test(this.state.data.avatarUrl)) {
+      if (pixelEl) pixelEl.textContent = 'Remote HTTPS Asset';
+      if (sizeEl) {
+        sizeEl.textContent = '0 KB Base64 (Mobile Gmail Safe)';
+        sizeEl.style.color = 'var(--sahinur-accent)';
+      }
+      return;
+    }
+    if (typeof ImageProcessor === 'undefined' || !ImageProcessor.getPayloadStats) return;
+    const stats = ImageProcessor.getPayloadStats();
     if (pixelEl) pixelEl.textContent = `${stats.pixels} (${stats.dpi}x DPI)`;
     if (sizeEl) {
       sizeEl.textContent = `~${stats.kb} KB (${stats.isOptimized ? '100% Crisp · Safe' : 'Uncompressed'})`;
@@ -3180,7 +3211,23 @@ const App = {
     bindSettingInput('labelWebsite', 'labelWebsite');
     bindSettingInput('labelAddress', 'labelAddress');
 
-    // Headshot Upload & DPI
+    // Headshot (External HTTPS Link & Local Upload)
+    const avatarUrlInput = document.getElementById('avatarUrlInput');
+    if (avatarUrlInput) {
+      avatarUrlInput.addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        if (val) {
+          this.state.data.avatarUrl = val;
+        } else {
+          this.state.data.avatarUrl = (typeof ImageProcessor !== 'undefined' && ImageProcessor.processedDataUrl)
+            ? ImageProcessor.processedDataUrl
+            : '';
+        }
+        this.updateLivePreview();
+        this.updateAvatarTelemetry();
+      });
+    }
+
     const avatarInput = document.getElementById('avatarFileInput');
     if (avatarInput) {
       avatarInput.addEventListener('change', (e) => {
@@ -3188,6 +3235,7 @@ const App = {
         if (file && typeof ImageProcessor !== 'undefined') {
           ImageProcessor.loadImageFile(file, (dataUrl) => {
             this.state.data.avatarUrl = dataUrl;
+            if (avatarUrlInput) avatarUrlInput.value = '';
             this.updateLivePreview();
             this.updateAvatarTelemetry();
             this.showToast('Uploaded and optimized headshot with High-DPI!', 'success');

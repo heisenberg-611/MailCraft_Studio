@@ -227,6 +227,14 @@ const Icons = {
       color = '#FFFFFF';
     }
     return this.getIconDataUri(id, color, size);
+  },
+
+  /**
+   * Helper for hosted remote HTTPS icon links (Vercel Edge CDN)
+   */
+  getSocialHttpsUrl(id, origin = '') {
+    const base = origin ? origin.replace(/\/+$/, '') : '';
+    return `${base}/assets/icons/${id}.png`;
   }
 };
 

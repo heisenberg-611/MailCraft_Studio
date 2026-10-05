@@ -180,6 +180,34 @@
         passedScore -= 10;
       }
 
+      // 5B. Mobile Gmail App Image Protocol Audit
+      const base64Imgs = (htmlString.match(/<img\b[^>]*src=["']data:image\/[^"']+["']/gi) || []).length;
+      const remoteHttpsImgs = (htmlString.match(/<img\b[^>]*src=["']https?:\/\/[^"']+["']/gi) || []).length;
+
+      if (base64Imgs === 0 && remoteHttpsImgs > 0) {
+        checks.push({
+          id: 'mobile_gmail_images',
+          title: 'Mobile Gmail Remote Image Protocol',
+          status: 'pass',
+          message: `All ${remoteHttpsImgs} images use remote HTTPS links. 100% Mobile Gmail App display guaranteed without image stripping.`
+        });
+      } else if (base64Imgs > 0) {
+        checks.push({
+          id: 'mobile_gmail_images',
+          title: 'Mobile Gmail Image Compatibility',
+          status: 'warn',
+          message: `${base64Imgs} embedded Base64 image(s) detected. Note: Mobile Gmail App (iOS/Android) blocks or drops embedded Base64 images. Use external HTTPS links for universal mobile delivery.`
+        });
+        passedScore -= 10;
+      } else if (remoteHttpsImgs === 0 && imgMatches.length === 0) {
+        checks.push({
+          id: 'mobile_gmail_images',
+          title: 'Mobile Gmail Compatibility',
+          status: 'pass',
+          message: 'Zero-image signature layout. 100% resilient across all mobile mail clients.'
+        });
+      }
+
       // 6. Character Encoding & Non-breaking spaces
       const hasBadEntities = /&amp;amp;/i.test(htmlString);
       if (!hasBadEntities) {

@@ -276,9 +276,18 @@
               <span class="sahinur-eyebrow">// 01. PERSONAL HEADSHOT</span>
             </div>
             <div class="form-group">
-              <label class="form-label">Upload High-Res Headshot</label>
+              <label class="form-label" for="avatarUrlInput">
+                External HTTPS Image Link
+                <span class="badge-subtle" style="color: var(--sahinur-accent); margin-left: 6px;">Mobile Gmail Safe</span>
+              </label>
+              <input type="url" id="avatarUrlInput" class="form-input" placeholder="https://example.com/avatar.jpg">
+              <span class="form-label-desc">Paste direct HTTPS link (GitHub, LinkedIn, Cloudinary, CDN) to prevent mobile Gmail from stripping the image.</span>
+            </div>
+
+            <div class="form-group" style="margin-top: 6px;">
+              <label class="form-label">Or Upload Local Headshot</label>
               <input type="file" id="avatarFileInput" accept="image/*" class="form-input" style="padding: 6px;">
-              <span class="form-label-desc">Supports PNG, JPEG, WEBP, and SVG formats.</span>
+              <span class="form-label-desc">Falls back to embedded Base64 if no external link is provided.</span>
             </div>
             
             <div class="form-group">
@@ -381,7 +390,16 @@
 
             <div id="logoControlsGroup" style="display: none; padding-top: 10px; display: flex; flex-direction: column; gap: 12px;">
               <div class="form-group">
-                <label class="form-label">Upload Company Logo</label>
+                <label class="form-label" for="logoUrlInput">
+                  External HTTPS Logo Link
+                  <span class="badge-subtle" style="color: var(--sahinur-accent); margin-left: 6px;">Mobile Gmail Safe</span>
+                </label>
+                <input type="url" id="logoUrlInput" class="form-input" placeholder="https://company.com/assets/logo.png">
+                <span class="form-label-desc">Direct HTTPS link to company or institution brand logo.</span>
+              </div>
+
+              <div class="form-group" style="margin-top: 6px;">
+                <label class="form-label">Or Upload Local Logo</label>
                 <input type="file" id="logoFileInput" accept="image/*" class="form-input" style="padding: 6px;">
               </div>
 
@@ -1050,9 +1068,17 @@
 
             <div id="promoBannerGroup" style="display: none; padding-top: 6px; display: flex; flex-direction: column; gap: 10px;">
               <div class="form-group">
-                <label class="form-label">Upload Custom Banner</label>
+                <label class="form-label" for="promoBannerImageUrl">
+                  Banner Image HTTPS Link
+                  <span class="badge-subtle" style="color: var(--sahinur-accent); margin-left: 6px;">Mobile Gmail Safe</span>
+                </label>
+                <input type="url" id="promoBannerImageUrl" class="form-input" placeholder="https://cdn.example.com/banner.png">
+                <span class="form-label-desc">Remote HTTPS link prevents image stripping on mobile Gmail app.</span>
+              </div>
+              <div class="form-group" style="margin-top: 6px;">
+                <label class="form-label">Or Upload Custom Banner</label>
                 <input type="file" id="promoBannerFileInput" accept="image/*" class="form-input" style="padding: 6px;">
-                <span class="form-label-desc">Recommended size: 800x160px (2X Retina). Auto-compressed for Gmail (&lt;20KB).</span>
+                <span class="form-label-desc">Recommended size: 800x160px (2X Retina).</span>
               </div>
               <div class="form-group">
                 <label class="form-label" for="promoTargetUrl">Banner Click Destination URL</label>
