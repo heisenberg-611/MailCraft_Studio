@@ -70,24 +70,20 @@ const App = {
     // Synchronize client window and preview theme classes
     const clientWindow = document.getElementById('clientWindow');
     const previewArea = document.getElementById('previewArea');
+    const isDark = this.inboxTheme === 'dark';
     if (clientWindow) {
       clientWindow.classList.remove('light-inbox', 'dark-inbox', 'sahinur-terminal');
-      clientWindow.classList.add(this.inboxTheme === 'dark' ? 'dark-inbox' : 'light-inbox');
+      clientWindow.classList.add(isDark ? 'dark-inbox' : 'light-inbox');
     }
     if (previewArea) {
       previewArea.classList.remove('preview-theme-light', 'preview-theme-dark');
-      previewArea.classList.add(this.inboxTheme === 'dark' ? 'preview-theme-dark' : 'preview-theme-light');
+      previewArea.classList.add(isDark ? 'preview-theme-dark' : 'preview-theme-light');
     }
     const themeLightBtn = document.getElementById('themeLightBtn');
     const themeDarkBtn = document.getElementById('themeDarkBtn');
     if (themeLightBtn && themeDarkBtn) {
-      if (this.inboxTheme === 'dark') {
-        themeDarkBtn.classList.add('active');
-        themeLightBtn.classList.remove('active');
-      } else {
-        themeLightBtn.classList.add('active');
-        themeDarkBtn.classList.remove('active');
-      }
+      themeDarkBtn.classList.toggle('active', isDark);
+      themeLightBtn.classList.toggle('active', !isDark);
     }
 
     if (requestedPreset) {
@@ -100,9 +96,12 @@ const App = {
           this.applyUserPresetObject(found);
         }
       }
+    } else if (this.savedActivePreset) {
+      const presetSelect = document.getElementById('presetSelect');
+      if (presetSelect) presetSelect.value = this.savedActivePreset;
     }
 
-    const requestedTemplate = urlParams.get('template') || urlParams.get('layout');
+    const requestedTemplate = urlParams.get('template') || urlParams.get('layout') || (this.state.settings && this.state.settings.template);
     if (requestedTemplate) {
       this.state.settings.template = requestedTemplate;
       document.querySelectorAll('.template-card').forEach(card => {
@@ -117,8 +116,15 @@ const App = {
       ImageProcessor.config.borderWidth = 0;
       ImageProcessor.config.borderColor = this.state.settings.avatarBorderColor || '#00DC82';
       ImageProcessor.config.dpi = this.state.settings.avatarDpi || 2;
+      
+      const currentAvatar = this.state.data.avatarUrl;
+      const isRemote = typeof currentAvatar === 'string' && /^https?:\/\//i.test(currentAvatar.trim());
+
       ImageProcessor.init((dataUrl) => {
-        this.state.data.avatarUrl = dataUrl;
+        // Do NOT overwrite user's external HTTPS avatar or custom uploaded photo if already set
+        if (!this.state.data.avatarUrl || (!isRemote && !this.state.data.avatarUrl.startsWith('data:'))) {
+          this.state.data.avatarUrl = dataUrl;
+        }
         this.updateLivePreview();
         this.updateAvatarTelemetry();
       });
@@ -130,15 +136,33 @@ const App = {
     this.bindBlockOrganizerEvents();
     this.syncFormWithState();
     this.renderCustomFieldsInputs();
-    this.syncEmailTemplateFromDom();
     this.renderClientChrome(this.clientView || 'gmail');
 
-    if (requestedMode === 'team' || requestedMode === 'batch') {
+    // Restore Saved Mode or URL override
+    const activeMode = requestedMode || this.mode || 'signature';
+    if (activeMode === 'team' || activeMode === 'batch') {
       const teamBtn = document.getElementById('modeTeamBtn');
       if (teamBtn) teamBtn.click();
-    } else if (requestedMode === 'email' || requestedMode === 'template') {
+    } else if (activeMode === 'email' || activeMode === 'template') {
       const tplBtn = document.getElementById('modeTemplateBtn');
       if (tplBtn) tplBtn.click();
+    } else {
+      const sigBtn = document.getElementById('modeSignatureBtn');
+      if (sigBtn) sigBtn.click();
+    }
+
+    // Restore Saved Active Sidebar Tab
+    if (this.savedActiveTab) {
+      const savedTabBtn = document.querySelector(`.sidebar-nav-btn[data-tab="${this.savedActiveTab}"]`);
+      if (savedTabBtn) savedTabBtn.click();
+    }
+
+    // Auto-save session cache on tab reload / close / blur
+    if (typeof window !== 'undefined') {
+      window.addEventListener('beforeunload', () => this.saveToStorage());
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) this.saveToStorage();
+      });
     }
 
     // Register Progressive Web App (PWA) Offline Service Worker
@@ -610,20 +634,42 @@ const App = {
       swatch.classList.toggle('active', swatchColor === activeColorHex);
     });
 
-    // Email Template Colors
+    // Email Template Colors & Content
     const td = this.state.templateData;
-    syncColorPair('tplHeaderColor', td.headerTextColor || '#FFFFFF');
-    syncColorPair('tplHeaderBgColor', td.headerBgColor || '#0F172A');
-    syncColorPair('tplGreetingColor', td.greetingColor || '#0F172A');
-    syncColorPair('tplBodyColor', td.bodyColor || '#334155');
-    syncColorPair('tplHighlightTitleColor', td.highlightTitleColor || s.accentColor || '#00DC82');
-    syncColorPair('tplHighlightTextColor', td.highlightTextColor || '#334155');
-    syncColorPair('tplHighlightBgColor', td.highlightBgColor || '#F8FAFC');
-    syncColorPair('tplCtaTextColor', td.ctaTextColor || '#0F172A');
-    syncColorPair('tplCtaBgColor', td.ctaBgColor || s.accentColor || '#00DC82');
-    syncColorPair('tplClosingColor', td.closingColor || '#64748B');
-    syncColorPair('tplFooterColor', td.footerTextColor || '#64748B');
-    setVal('tplHeaderTag', td.headerTag || '');
+    if (td) {
+      syncColorPair('tplHeaderColor', td.headerTextColor || '#FFFFFF');
+      syncColorPair('tplHeaderBgColor', td.headerBgColor || '#0F172A');
+      syncColorPair('tplGreetingColor', td.greetingColor || '#0F172A');
+      syncColorPair('tplBodyColor', td.bodyColor || '#334155');
+      syncColorPair('tplHighlightTitleColor', td.highlightTitleColor || s.accentColor || '#00DC82');
+      syncColorPair('tplHighlightTextColor', td.highlightTextColor || '#334155');
+      syncColorPair('tplHighlightBgColor', td.highlightBgColor || '#F8FAFC');
+      syncColorPair('tplCtaTextColor', td.ctaTextColor || '#0F172A');
+      syncColorPair('tplCtaBgColor', td.ctaBgColor || s.accentColor || '#00DC82');
+      syncColorPair('tplClosingColor', td.closingColor || '#64748B');
+      syncColorPair('tplFooterColor', td.footerTextColor || '#64748B');
+      setVal('tplHeaderTag', td.headerTag || '');
+
+      setVal('tplSubject', td.title || '');
+      setVal('tplPreheader', td.preheader || '');
+      setChecked('tplAntiLeakPadding', td.antiLeakPadding !== false);
+      setVal('tplHeaderLogoText', td.headerLogoText || '');
+      setVal('tplGreeting', td.greeting || '');
+      if (Array.isArray(td.paragraphs)) {
+        setVal('tplParagraph1', td.paragraphs[0] || '');
+        setVal('tplParagraph2', td.paragraphs[1] || '');
+      }
+      setVal('tplClosing', td.closing || '');
+      setVal('tplCtaText', td.ctaText || '');
+      setVal('tplCtaUrl', td.ctaUrl || '');
+
+      const hl = td.highlightBox || {};
+      setChecked('tplShowHighlight', !!hl.enabled);
+      const hlGroup = document.getElementById('tplHighlightInputGroup');
+      if (hlGroup) hlGroup.style.display = hl.enabled ? 'flex' : 'none';
+      setVal('tplHighlightTitle', hl.title || '');
+      setVal('tplHighlightContent', hl.content || '');
+    }
 
     // Typography & Line-by-Line Customization
     setVal('fontFamily', s.fontFamily || "'Courier New', Courier, monospace");
@@ -4207,24 +4253,94 @@ const App = {
   },
 
   /**
-   * Save state to browser localStorage
+   * Save complete active state to temporary session cache (sessionStorage) & localStorage
    */
   saveToStorage() {
     try {
-      localStorage.setItem('mailcraft_state', JSON.stringify({
+      const activeTabBtn = document.querySelector('.sidebar-nav-btn.active');
+      const activeTab = activeTabBtn ? activeTabBtn.dataset.tab : (this.savedActiveTab || 'tab-identity');
+      const presetSelect = document.getElementById('presetSelect');
+      const activePreset = presetSelect ? presetSelect.value : (this.savedActivePreset || '');
+
+      const payload = {
         data: this.state.data,
         settings: this.state.settings,
-        templateData: this.state.templateData
-      }));
-    } catch (e) {}
+        templateData: this.state.templateData,
+        mode: this.mode || 'signature',
+        inboxTheme: this.inboxTheme || 'light',
+        clientView: this.clientView || 'gmail',
+        canvasViewMode: this.canvasViewMode || 'desktop',
+        activeTab: activeTab,
+        activePreset: activePreset,
+        teamRoster: (typeof TeamEngine !== 'undefined' && Array.isArray(TeamEngine.roster)) ? TeamEngine.roster : [],
+        savedAt: Date.now()
+      };
+
+      const payloadStr = JSON.stringify(payload);
+
+      // 1. Temporary Session Cache (Primary: survives reloads within current browser tab)
+      try {
+        if (typeof sessionStorage !== 'undefined') {
+          sessionStorage.setItem('mailcraft_session_cache', payloadStr);
+        }
+      } catch (sessionErr) {
+        // Quota fallback: strip large base64 avatar strings so all form inputs, colors, and layout persist
+        try {
+          const trimmed = Object.assign({}, payload);
+          trimmed.data = Object.assign({}, payload.data);
+          if (trimmed.data.avatarUrl && trimmed.data.avatarUrl.length > 50000 && !trimmed.data.avatarUrl.startsWith('http')) {
+            trimmed.data.avatarUrl = '';
+          }
+          if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.setItem('mailcraft_session_cache', JSON.stringify(trimmed));
+          }
+        } catch (e2) {}
+      }
+
+      // 2. Persistent LocalStorage (Secondary: survives browser restarts)
+      try {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem('mailcraft_state', payloadStr);
+        }
+      } catch (localErr) {
+        try {
+          const trimmed = Object.assign({}, payload);
+          trimmed.data = Object.assign({}, payload.data);
+          if (trimmed.data.avatarUrl && trimmed.data.avatarUrl.length > 50000 && !trimmed.data.avatarUrl.startsWith('http')) {
+            trimmed.data.avatarUrl = '';
+          }
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('mailcraft_state', JSON.stringify(trimmed));
+          }
+        } catch (e2) {}
+      }
+    } catch (e) {
+      console.warn('Session cache save failed:', e);
+    }
   },
 
   /**
-   * Load state from browser localStorage
+   * Load state prioritizing temporary session cache (sessionStorage) then localStorage
    */
   loadFromStorage() {
     try {
-      const raw = localStorage.getItem('mailcraft_state');
+      let raw = null;
+      // 1. Check active temporary session cache first
+      try {
+        if (typeof sessionStorage !== 'undefined') {
+          raw = sessionStorage.getItem('mailcraft_session_cache');
+        }
+      } catch (e) {}
+
+      // 2. Fallback to persistent localStorage
+      if (!raw) {
+        try {
+          if (typeof localStorage !== 'undefined') {
+            raw = localStorage.getItem('mailcraft_state');
+          }
+        } catch (e) {}
+      }
+
       const trueDefaultAvatar = (typeof DEFAULT_AVATAR_BASE64 !== 'undefined' && DEFAULT_AVATAR_BASE64) 
         ? DEFAULT_AVATAR_BASE64 
         : 'assets/default-avatar.jpg';
@@ -4234,13 +4350,8 @@ const App = {
         if (parsed.data) {
           this.state.data = Object.assign({}, Presets.defaultData, parsed.data);
           const av = this.state.data.avatarUrl;
-          // Cleanly replace any legacy/stale avatar with the authentic high-res photograph
-          if (!av || 
-              av.length < 50000 || 
-              av.includes('/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHI') ||
-              av.startsWith('data:image/svg') ||
-              av === 'assets/default-avatar.png' ||
-              av === 'assets/avatar.png') {
+          // Only provide default avatar if avatarUrl is completely missing/empty
+          if (!av) {
             this.state.data.avatarUrl = trueDefaultAvatar;
           }
         }
@@ -4253,14 +4364,45 @@ const App = {
             this.state.templateData.footerNote = '';
           }
         }
+        if (parsed.mode) {
+          this.mode = parsed.mode;
+        }
+        if (parsed.inboxTheme) {
+          this.inboxTheme = parsed.inboxTheme;
+        }
+        if (parsed.clientView) {
+          this.clientView = parsed.clientView;
+        }
+        if (parsed.canvasViewMode) {
+          this.canvasViewMode = parsed.canvasViewMode;
+        }
+        if (parsed.activeTab) {
+          this.savedActiveTab = parsed.activeTab;
+        }
+        if (parsed.activePreset) {
+          this.savedActivePreset = parsed.activePreset;
+        }
+        if (parsed.teamRoster && Array.isArray(parsed.teamRoster) && typeof TeamEngine !== 'undefined') {
+          TeamEngine.roster = parsed.teamRoster;
+        }
       } else {
-        this.state.data.avatarUrl = trueDefaultAvatar;
+        if (!this.state.data.avatarUrl) {
+          this.state.data.avatarUrl = trueDefaultAvatar;
+        }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Session cache load failed:', e);
+    }
   }
 };
 
 // Initialize Application on DOM Ready
-document.addEventListener('DOMContentLoaded', () => {
-  App.init();
-});
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    App.init();
+  });
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = App;
+}
