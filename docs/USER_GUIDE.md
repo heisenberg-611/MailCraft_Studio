@@ -1,4 +1,4 @@
-# MailCraft Studio User Guide & Installation Handbook (v2.0)
+# MailCraft Studio User Guide & Installation Handbook (v2.2)
 
 ## Quick Start
 
@@ -12,7 +12,15 @@
 
 ---
 
-## Interactive Studio Features (v2.0)
+## Interactive Studio Features (v2.2)
+
+### 0. State Persistence & Reload Survival (New in v2.2)
+- All edits (Identity, Avatars, Colors, Custom Links, Email Templates) automatically persist in real time via dual `sessionStorage` and `localStorage` caching.
+- Refreshing the browser or switching tabs preserves 100% of your in-flight progress without losing work.
+
+### 0.1 Remote HTTPS Image Assets (Mobile Gmail Safe)
+- Social icons automatically link to high-speed, Edge CDN hosted Retina PNGs on `mailcraftstudio.vercel.app` across 5 visual schemes and Day/Dark modes.
+- Enter external HTTPS URLs for your Avatar, Company Logo, and Promo Banner to ensure complete delivery on mobile phone mail apps (iOS Mail, Android Gmail) without image stripping or 102KB truncation.
 
 ### 1. Direct WYSIWYG Live Canvas Editing
 - Click directly on any text element in the signature preview pane (Name, Job Title, Organization, Phone, Email, Bio, Quote).

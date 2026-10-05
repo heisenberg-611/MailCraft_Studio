@@ -12,14 +12,14 @@
 
 **The Definitive High-Definition Email Signature & Responsive Email Architecture Studio**
 
-[![Version](https://img.shields.io/badge/version-2.1.0-00DC82.svg?style=flat-square)](https://github.com/heisenberg-611/MailCraft_Studio/releases/tag/v2.1.0)
+[![Version](https://img.shields.io/badge/version-2.2.0-00DC82.svg?style=flat-square)](https://github.com/heisenberg-611/MailCraft_Studio/releases/tag/v2.2.0)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Client-Side](https://img.shields.io/badge/architecture-100%25%20Client--Side-brightgreen.svg?style=flat-square)](#architecture)
 [![Zero-Dependencies](https://img.shields.io/badge/dependencies-0%20(Vanilla%20JS)-orange.svg?style=flat-square)](#technology-stack)
 [![Retina HD](https://img.shields.io/badge/DPI-1x%20%7C%202x%20%7C%203x%20%7C%204x-blueviolet.svg?style=flat-square)](#core-features)
 [![Deploy with Vercel](https://img.shields.io/badge/deploy-Vercel-black.svg?style=flat-square&logo=vercel)](https://vercel.com/new)
 
-[Overview](#overview) • [What's New in v2.1](#whats-new-in-v21) • [Key Features](#key-features) • [Chrome Extension](#chrome-extension) • [Quick Start](#quick-start) • [Email Client Setup](#email-client-setup) • [Architecture](#architecture) • [Deployment](#deployment) • [Author](#author)
+[Overview](#overview) • [What's New in v2.2](#whats-new-in-v22) • [Key Features](#key-features) • [Chrome Extension](#chrome-extension) • [Quick Start](#quick-start) • [Email Client Setup](#email-client-setup) • [Architecture](#architecture) • [Deployment](#deployment) • [Author](#author)
 
 </div>
 
@@ -33,15 +33,15 @@ Unlike typical cloud-based signature generators that charge monthly subscription
 
 ---
 
-## 🚀 What's New in v2.1
+## 🚀 What's New in v2.2
 
-MailCraft Studio v2.1 delivers enhanced mobile resilience, zero-image outgoing email protection, and expanded styling synchronization:
+MailCraft Studio v2.2 introduces remote HTTPS asset hosting, full Day/Dark theme icon adaptation, external media URL support, and real-time session persistence:
 
-- **3 New Image-Free Mobile-Safe Templates**: Added *Clean Typographic (`clean-text`)*, *Editorial Minimalist (`editorial-links`)*, and *Modern Chip Badges (`badge-chip-link`)* templates with **zero `<img>` dependencies** to completely prevent image stripping when composing directly from mobile phone mail apps (iOS Mail, Android Gmail app, Samsung Email).
-- **Comprehensive Delivery Guidance Notice**: Integrated device-aware guidance advising when to use rich graphics (Desktop webmail) vs image-free hyperlink templates (mobile phone composers).
-- **Master Accent Color Synchronization**: 1-click sync button in the color matrix to instantly harmonize all dividers, roles, links, labels, and borders with your master accent color.
-- **Enhanced Anti-Leak Preheader & Rich Formatting Toolbar**: Bulletproof anti-leak whitespace chains to protect message content in inbox envelope snippets.
-- **High-DPI PNG & Vector Icon Assets**: High-resolution icon rendering with standalone fallback assets for all major social networks and academic registries.
+- **🌐 Remote HTTPS Asset Hosting (Mobile Gmail Safe)**: 126 pre-rendered Retina 2x PNG icons deployed on Vercel Edge CDN across 5 visual schemes (`brand`, `brand-dark`, `mono`, `white`, `accent`) and root fallback. Eliminates Base64 data bloat, shrinking HTML payload to ~8.2 KB to prevent Gmail's 102KB clipping and mobile image stripping.
+- **🌗 Adaptive Day & Dark Theme Icon Engine**: Intelligent dark theme icon routing where dark brand logos (GitHub, X, Medium) automatically adapt to high-contrast `#FFFFFF` in dark mode, ensuring complete visibility across dark backgrounds.
+- **🔗 External HTTPS URL Support for Avatars, Logos & Banners**: Added dedicated external HTTPS inputs with "Mobile Gmail Safe" telemetry badges for user avatars, company logos, and campaign promo banners (including click-through URLs).
+- **💾 State Persistence Engine & Session Cache**: Implemented dual-layer storage (`sessionStorage` + `localStorage`) with `beforeunload` listeners. In-flight edits to identity, design, custom links, and email templates now completely survive browser tab reloads.
+- **🔍 Mobile Gmail Linter Audit**: Real-time compatibility auditor now checks remote image delivery vs Base64 weight, verifying signatures against Gmail's 102KB ceiling.
 
 ---
 

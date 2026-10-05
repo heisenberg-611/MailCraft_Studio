@@ -158,8 +158,10 @@ const App = {
     }
 
     // Auto-save session cache on tab reload / close / blur
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
       window.addEventListener('beforeunload', () => this.saveToStorage());
+    }
+    if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) this.saveToStorage();
       });

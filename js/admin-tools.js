@@ -284,7 +284,7 @@ Disconnect-ExchangeOnline -Confirm:$false
         manifestContent = `{
   "manifest_version": 3,
   "name": "MailCraft Studio - Email Signature Switcher",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "1-Click inject and switch pixel-perfect, retina-ready email signatures in Gmail and Outlook Web.",
   "permissions": [
     "activeTab",
@@ -335,7 +335,7 @@ Disconnect-ExchangeOnline -Confirm:$false
         <span class="prompt-symbol">$</span>
         <span class="brand-title">MailCraft Studio</span>
       </div>
-      <span class="version-tag">v2.1.0</span>
+      <span class="version-tag">v2.2.0</span>
     </header>
     <div class="form-group">
       <label class="form-label" for="profileSelect">Active Signature Profile</label>

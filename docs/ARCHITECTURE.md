@@ -1,4 +1,4 @@
-# MailCraft Studio Architecture & System Design (v2.1)
+# MailCraft Studio Architecture & System Design (v2.2)
 
 ## Overview
 MailCraft Studio is a 100% client-side, zero-backend enterprise web application engineered to generate pixel-perfect, High-Definition (Retina 2x/3x/4x) email signatures, responsive HTML email templates, and enterprise deployment packages.
@@ -12,8 +12,9 @@ email_signature/
 ├── studio.html                  # Master Studio IDE UI & layout
 ├── index.html                   # Landing page redirect / showcase
 ├── site.webmanifest             # PWA Web Application Manifest
-├── sw.js                        # Offline PWA Stale-While-Revalidate Service Worker
+├── sw.js                        # Offline PWA Stale-While-Revalidate Service Worker (v2.2.0)
 ├── assets/
+│   ├── icons/                   # 126 Hosted Retina 2x PNG icons (brand, brand-dark, mono, white, accent)
 │   ├── default-avatar.js        # High-res embedded photo asset
 │   └── default-avatar.jpg       # Raw image asset
 ├── css/
@@ -25,20 +26,20 @@ email_signature/
 │   ├── banner-builder.js        # HTML5 Canvas 2x Retina promotional banner designer
 │   ├── admin-tools.js           # Desktop files (.mailsignature, .htm) & Admin deployers (.gs, .ps1, extension zip)
 │   ├── linter.js                # Real-time email size & Gmail 102KB clipping safety auditor
-│   ├── icons.js                 # High-definition SVG icons with XML namespace
+│   ├── icons.js                 # High-definition SVG icons & remote HTTPS URL mapper
 │   ├── quotes.js                # Curated inspirational quote shuffler
-│   ├── presets.js               # 12+ aesthetic presets & 10 architectural templates
+│   ├── presets.js               # 16 aesthetic presets & 13 architectural templates
 │   ├── preset-manager.js        # LocalStorage custom preset persistence & JSON export/import
 │   ├── team-engine.js           # Batch CSV parsing, team roster management & 1-click Zip exporter
 │   ├── image-processor.js       # HTML5 Canvas High-DPI scaler & filter engine
-│   ├── signature-engine.js      # Email-safe nested table HTML generator (10 Blueprints)
+│   ├── signature-engine.js      # Email-safe nested table HTML generator (13 Blueprints)
 │   ├── email-template-engine.js # Responsive full email builder with preheader anti-leak engine
 │   ├── clipboard.js             # Modern rich-text HTML clipboard writer
 │   ├── guides.js                # Email client setup modal guides
 │   ├── dot-matrix.js            # Ambient canvas background visualizer
-│   └── app.js                   # Application coordinator, WYSIWYG sync & state manager
+│   └── app.js                   # State persistence (sessionStorage + localStorage) & coordinator
 ├── extension/                   # Manifest V3 Chrome Extension
-│   ├── manifest.json            # Extension manifest v3 configuration (v2.1.0)
+│   ├── manifest.json            # Extension manifest v3 configuration (v2.2.0)
 │   ├── popup.html               # Extension interactive popup UI
 │   ├── popup.css                # Extension popup styling
 │   ├── popup.js                 # Signature switcher & 1-click compose injector logic
