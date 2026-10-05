@@ -78,6 +78,12 @@ Implementation of direct HTTPS asset linking for all email signature graphics (A
   - [x] Automated audit script (`scratch/audit_all_icons.js`) verified all 21 icons across all 6 schemes (126 PNGs) on disk.
   - [x] Live HTTP verification against `https://mailcraftstudio.vercel.app`: 126/126 icon files return `HTTP 200 image/png` with `Cache-Control: public, max-age=31536000, immutable`.
   - [x] Verified all core site assets on Vercel: `favicon.ico`, `favicon.svg`, `favicon-16x16.png`, `favicon-32x32.png`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `default-avatar.jpg`, `og-image.png`, `og-image.jpg`. All return `HTTP 200 OK`.
+- [x] **Task 12: Official Release v2.2.0 Published**
+  - [x] Version bumped across all 13 system manifests and files: `README.md`, `studio.html`, `index.html`, `sw.js`, `extension/manifest.json`, `extension/popup.html`, `extension/README.md`, `js/admin-tools.js`, `js/preset-manager.js`, `docs/ARCHITECTURE.md`, `docs/USER_GUIDE.md`.
+  - [x] Fixed node test runner mock issue for `window.addEventListener` and `document.addEventListener`.
+  - [x] Ran 213+ automated tests (all passed 100%).
+  - [x] Created git tag `v2.2.0`, pushed to GitHub `origin/main` and `origin/v2.2.0`.
+  - [x] Published official GitHub Release: `https://github.com/heisenberg-611/MailCraft_Studio/releases/tag/v2.2.0`.
 
 ---
 
