@@ -1310,6 +1310,24 @@ const SignatureEngine = {
     const iconSize = s.iconSize || 18;
     const spacing = s.iconSpacing !== undefined ? s.iconSpacing : 8;
     const style = s.iconStyle || 'color';
+    // Determine hosted asset scheme subfolder based on visual style & day/dark theme
+    let schemeFolder = 'brand';
+    const isDark = Boolean(s.isDarkModeActive || s.isDark);
+
+    if (style === 'circle' || style === 'pill' || style === 'filled') {
+      // Rounded Pill and Circular Solid badges have colored backgrounds, so the icon must be pure white
+      schemeFolder = 'white';
+    } else if (style === 'monochrome' || style === 'mono') {
+      // Monochrome neutral: dark slate in day/light mode, pure white in dark mode
+      schemeFolder = isDark ? 'white' : 'mono';
+    } else if (style === 'brand' || style === 'color') {
+      // Official Brand Colors: brand in day/light mode, brand-dark in dark mode (so black logos stay visible)
+      schemeFolder = isDark ? 'brand-dark' : 'brand';
+    } else if (style === 'accent') {
+      // Unified accent color
+      schemeFolder = 'accent';
+    }
+
     const origin = this.getAssetOrigin(s);
 
     const cells = activeSocials.map((item, index) => {
@@ -1325,24 +1343,29 @@ const SignatureEngine = {
       if (s.iconDeliveryMode === 'base64') {
         iconSrc = dataUri;
       } else {
-        iconSrc = `${origin}/assets/icons/${item.id}.png`;
+        iconSrc = `${origin}/assets/icons/${schemeFolder}/${item.id}.png`;
       }
 
       let paddingStyle = '';
       let borderStyle = '';
       let bgStyle = '';
-      let imgClass = 'sig-dark-invert';
+      let imgClass = '';
 
-      if (style === 'filled' || style === 'circle') {
+      if (style === 'filled' || style === 'circle' || style === 'pill') {
         const bg = s.accentColor || '#00DC82';
         bgStyle = `background-color: ${bg};`;
         paddingStyle = 'padding: 4px;';
-        borderStyle = style === 'circle' ? 'border-radius: 50%;' : 'border-radius: 3px;';
-        imgClass = '';
+        borderStyle = style === 'circle' ? 'border-radius: 50%;' : 'border-radius: 4px;';
       } else if (style === 'outline') {
         const border = s.accentColor || '#00DC82';
         borderStyle = `border: 1px solid ${border}; border-radius: 3px;`;
         paddingStyle = 'padding: 3px;';
+      } else if (style === 'monochrome' || style === 'mono') {
+        if (!isDark) imgClass = 'sig-dark-invert';
+      } else if (style === 'brand' || style === 'color') {
+        if (!isDark && ['github', 'x', 'medium'].includes(item.id)) {
+          imgClass = 'sig-dark-invert';
+        }
       }
 
       const paddingRight = (index < activeSocials.length - 1) ? `padding-right: ${spacing}px;` : '';

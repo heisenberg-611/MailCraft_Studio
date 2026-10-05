@@ -232,9 +232,19 @@ const Icons = {
   /**
    * Helper for hosted remote HTTPS icon links (Vercel Edge CDN)
    */
-  getSocialHttpsUrl(id, origin = '') {
+  getSocialHttpsUrl(id, style = 'brand', isDark = false, origin = '') {
     const base = origin ? origin.replace(/\/+$/, '') : '';
-    return `${base}/assets/icons/${id}.png`;
+    let schemeFolder = 'brand';
+    if (style === 'circle' || style === 'pill' || style === 'filled') {
+      schemeFolder = 'white';
+    } else if (style === 'monochrome' || style === 'mono') {
+      schemeFolder = isDark ? 'white' : 'mono';
+    } else if (style === 'brand' || style === 'color') {
+      schemeFolder = isDark ? 'brand-dark' : 'brand';
+    } else if (style === 'accent') {
+      schemeFolder = 'accent';
+    }
+    return `${base}/assets/icons/${schemeFolder}/${id}.png`;
   }
 };
 

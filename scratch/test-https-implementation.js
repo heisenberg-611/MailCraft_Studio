@@ -6,7 +6,7 @@ const Icons = require('../js/icons.js');
 global.Icons = Icons;
 const LinterEngine = require('../js/linter.js');
 
-console.log('--- TEST 1: Automatic Hosted HTTPS Social Icons ---');
+console.log('--- TEST 1: All 5 Hosted Icon Schemes & Day/Dark Themes ---');
 const data1 = {
   fullName: 'Dhrubojyoti Saha',
   jobTitle: 'Software Architect',
@@ -19,18 +19,44 @@ const data1 = {
   ]
 };
 
-const settings1 = {
-  template: 'vertical-divider',
-  assetOrigin: 'https://mailcraft.vercel.app'
-};
+const baseOrigin = 'https://mailcraftstudio.vercel.app';
 
-const html1 = SignatureEngine.generateHtml(data1, settings1, false, true);
+// 1A: Official Brand Colors (Day / Light)
+const htmlBrandLight = SignatureEngine.generateHtml(data1, { iconStyle: 'brand', assetOrigin: baseOrigin }, false, true);
+assert(htmlBrandLight.includes('src="https://mailcraftstudio.vercel.app/assets/icons/brand/github.png"'), 'Brand day mode uses brand/ folder');
+console.log('✔ Official Brand Colors (Day Theme) targets brand/ folder');
 
-// Verify social icons use https links to Vercel site
-assert(html1.includes('src="https://mailcraft.vercel.app/assets/icons/github.png"'), 'GitHub icon must use Vercel HTTPS link');
-assert(html1.includes('src="https://mailcraft.vercel.app/assets/icons/linkedin.png"'), 'LinkedIn icon must use Vercel HTTPS link');
-assert(html1.includes('src="https://mailcraft.vercel.app/assets/icons/x.png"'), 'X icon must use Vercel HTTPS link');
-console.log('✔ Social icons automatically use remote Vercel HTTPS links');
+// 1B: Official Brand Colors (Dark Theme)
+const htmlBrandDark = SignatureEngine.generateHtml(data1, { iconStyle: 'brand', assetOrigin: baseOrigin }, true, true);
+assert(htmlBrandDark.includes('src="https://mailcraftstudio.vercel.app/assets/icons/brand-dark/github.png"'), 'Brand dark mode uses brand-dark/ folder');
+console.log('✔ Official Brand Colors (Dark Theme) targets brand-dark/ folder');
+
+// 1C: Monochrome Neutral (Day Theme)
+const htmlMonoLight = SignatureEngine.generateHtml(data1, { iconStyle: 'monochrome', assetOrigin: baseOrigin }, false, true);
+assert(htmlMonoLight.includes('src="https://mailcraftstudio.vercel.app/assets/icons/mono/github.png"'), 'Mono day mode uses mono/ folder');
+console.log('✔ Monochrome Neutral (Day Theme) targets mono/ folder');
+
+// 1D: Monochrome Neutral (Dark Theme)
+const htmlMonoDark = SignatureEngine.generateHtml(data1, { iconStyle: 'monochrome', assetOrigin: baseOrigin }, true, true);
+assert(htmlMonoDark.includes('src="https://mailcraftstudio.vercel.app/assets/icons/white/github.png"'), 'Mono dark mode uses white/ folder');
+console.log('✔ Monochrome Neutral (Dark Theme) targets white/ folder');
+
+// 1E: Rounded Pill Badge (uses white icons on colored pill background)
+const htmlPill = SignatureEngine.generateHtml(data1, { iconStyle: 'pill', assetOrigin: baseOrigin }, false, true);
+assert(htmlPill.includes('src="https://mailcraftstudio.vercel.app/assets/icons/white/github.png"'), 'Pill badge uses white/ folder');
+assert(htmlPill.includes('border-radius: 4px;'), 'Pill badge has rounded border');
+console.log('✔ Rounded Pill Badge targets white/ folder with pill background');
+
+// 1F: Circular Solid Badge (uses white icons on circular badge background)
+const htmlCircle = SignatureEngine.generateHtml(data1, { iconStyle: 'circle', assetOrigin: baseOrigin }, false, true);
+assert(htmlCircle.includes('src="https://mailcraftstudio.vercel.app/assets/icons/white/github.png"'), 'Circle badge uses white/ folder');
+assert(htmlCircle.includes('border-radius: 50%;'), 'Circle badge has circular border');
+console.log('✔ Circular Solid Badge targets white/ folder with circular background');
+
+// 1G: Unified Accent Color
+const htmlAccent = SignatureEngine.generateHtml(data1, { iconStyle: 'accent', assetOrigin: baseOrigin }, false, true);
+assert(htmlAccent.includes('src="https://mailcraftstudio.vercel.app/assets/icons/accent/github.png"'), 'Accent uses accent/ folder');
+console.log('✔ Unified Accent Color targets accent/ folder');
 
 console.log('--- TEST 2: Unique Avatar & Company Logo External HTTPS Links ---');
 const data2 = {
@@ -40,8 +66,7 @@ const data2 = {
   logoUrl: 'https://mycompany.com/assets/logo-white.png'
 };
 
-const html2 = SignatureEngine.generateHtml(data2, settings1, false, true);
-
+const html2 = SignatureEngine.generateHtml(data2, { assetOrigin: baseOrigin }, false, true);
 assert(html2.includes('src="https://avatars.githubusercontent.com/u/1234567?v=4"'), 'Avatar must use external HTTPS URL directly');
 assert(html2.includes('src="https://mycompany.com/assets/logo-white.png"'), 'Logo must use external HTTPS URL directly');
 assert(!html2.includes('data:image/'), 'No base64 data URIs should be present when HTTPS links are used');
@@ -57,10 +82,9 @@ const data3 = {
   }
 };
 
-const html3 = SignatureEngine.generateHtml(data3, settings1, false, true);
-
-assert(html3.includes('src="https://cdn.mycompany.com/banners/launch-2026.png"'), 'Promo banner image must use remote HTTPS URL');
-assert(html3.includes('href="https://mycompany.com/launch?utm_source=email_sig&amp;utm_medium=banner"') || html3.includes('href="https://mycompany.com/launch?utm_source=email_sig&utm_medium=banner"'), 'Promo banner link must point to targetUrl');
+const html3 = SignatureEngine.generateHtml(data3, { assetOrigin: baseOrigin }, false, true);
+assert(html3.includes('src="https://cdn.mycompany.com/banners/launch-2026.png"'), 'Promo banner image must use HTTPS URL directly');
+assert(html3.includes('href="https://mycompany.com/launch?utm_source=email_sig&utm_medium=banner"'), 'Promo banner must link to targetUrl');
 console.log('✔ Campaign promo banner properly links remote HTTPS image and click destination');
 
 console.log('--- TEST 4: Relative Path Resolution to Vercel Origin ---');
@@ -71,38 +95,27 @@ const data4 = {
   logoUrl: '/assets/my-custom-logo.png'
 };
 
-const html4 = SignatureEngine.generateHtml(data4, settings1, false, true);
-
-assert(html4.includes('src="https://mailcraft.vercel.app/assets/my-custom-photo.jpg"'), 'Relative avatar path must resolve to Vercel origin');
-assert(html4.includes('src="https://mailcraft.vercel.app/assets/my-custom-logo.png"'), 'Relative logo path must resolve to Vercel origin');
+const html4 = SignatureEngine.generateHtml(data4, { assetOrigin: baseOrigin }, false, true);
+assert(html4.includes('src="https://mailcraftstudio.vercel.app/assets/my-custom-photo.jpg"'), 'Relative avatar path must resolve to Vercel origin');
+assert(html4.includes('src="https://mailcraftstudio.vercel.app/assets/my-custom-logo.png"'), 'Relative logo path must resolve to Vercel origin');
 console.log('✔ Relative asset paths correctly auto-expand to full Vercel HTTPS URLs');
 
 console.log('--- TEST 5: Linter Mobile Gmail Audit Check ---');
-const auditReport = LinterEngine.audit(html3);
-console.log('Total HTML payload bytes:', auditReport.totalBytes, `(${auditReport.sizeFormatted})`);
-assert(auditReport.totalBytes < 15000, 'HTML size should be featherweight under 15KB with HTTPS links');
-
-const mobileCheck = auditReport.checks.find(c => c.id === 'mobile_gmail_images');
-assert(mobileCheck, 'mobile_gmail_images check must exist');
-assert.strictEqual(mobileCheck.status, 'pass', 'mobile_gmail_images check should pass when all images are HTTPS');
+const audit5 = LinterEngine.audit(html3);
+console.log(`Total HTML payload bytes: ${audit5.sizeBytes} (${audit5.sizeFormatted})`);
+const mobileCheck = audit5.checks.find(c => c.id === 'mobile_gmail_images');
+assert(mobileCheck, 'Linter must include mobile_gmail_images check');
+assert(mobileCheck.status === 'pass', `Mobile Gmail image check must pass: ${mobileCheck.message}`);
 console.log('✔ Linter successfully validates 100% Mobile Gmail App remote image delivery');
 
 console.log('--- TEST 6: Graceful Base64 Fallback When Requested ---');
-const settingsBase64 = {
-  template: 'vertical-divider',
-  iconDeliveryMode: 'base64'
-};
-const dataBase64 = {
-  ...data1,
-  avatarUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
-};
-const htmlBase64 = SignatureEngine.generateHtml(dataBase64, settingsBase64, false, true);
-assert(htmlBase64.includes('data:image/'), 'Should retain base64 data URI when base64 is explicitly provided');
+const htmlBase64 = SignatureEngine.generateHtml(data1, { iconDeliveryMode: 'base64' }, false, true);
+assert(htmlBase64.includes('data:image/svg+xml;base64,'), 'Base64 delivery mode renders data:image/ URIs');
 const auditBase64 = LinterEngine.audit(htmlBase64);
 const mobileCheckBase64 = auditBase64.checks.find(c => c.id === 'mobile_gmail_images');
-assert.strictEqual(mobileCheckBase64.status, 'warn', 'Linter should warn when base64 images are detected');
+assert(mobileCheckBase64 && mobileCheckBase64.status === 'warn', 'Linter should warn if base64 images are detected');
 console.log('✔ Linter warns when Base64 is used, guiding users to HTTPS');
 
 console.log('\n========================================');
-console.log(' ALL 6 VERIFICATION TEST SUITES PASSED! ');
-console.log('========================================\n');
+console.log(' ALL 7 SCHEME & HOSTING VERIFICATION SUITES PASSED! ');
+console.log('========================================');

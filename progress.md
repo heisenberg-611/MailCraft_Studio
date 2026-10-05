@@ -57,13 +57,27 @@ Implementation of direct HTTPS asset linking for all email signature graphics (A
   - [x] Enhanced `getAssetOrigin(s)`: during live studio preview (`isExport === false`), uses relative `./` resolution so local icons load reliably under any local dev server, subpath, or file protocol.
   - [x] Added robust self-nullifying `onerror` fallback (`this.onerror=null; this.src='...'`) to prevent broken icon frames in local preview.
   - [x] Confirmed that for exported signatures (`isExport === true`), assets point to production Vercel (`https://mailcraftstudio.vercel.app/assets/icons/*.png`). Pushing to Vercel is required for external email recipients on mobile Gmail.
+- [x] **Task 9: All 5 Icon Schemes & Day/Dark Theme Hosting**
+  - [x] Generated Retina 2x PNGs for all 5 visual schemes across Day & Dark themes using `rsvg-convert`:
+    - `assets/icons/brand/` (21 icons - official brand colors)
+    - `assets/icons/brand-dark/` (21 icons - dark mode brand colors: GitHub, X, Medium rendered in `#FFFFFF` so they don't disappear on dark backgrounds)
+    - `assets/icons/mono/` (21 icons - slate neutral gray `#4A5568` for Day/Light mode)
+    - `assets/icons/white/` (21 icons - pure white `#FFFFFF` for Rounded Pill Badge, Circular Solid Badge, and Dark mode Monochrome)
+    - `assets/icons/accent/` (21 icons - `#00DC82` unified signature accent)
+  - [x] Updated `SignatureEngine.renderSocialsRow` and `Icons.getSocialHttpsUrl` to automatically map visual scheme + theme to the corresponding hosted directory.
 
 ---
 
 ## Verification Test Results
 ```
---- TEST 1: Automatic Hosted HTTPS Social Icons ---
-✔ Social icons automatically use remote Vercel HTTPS links
+--- TEST 1: All 5 Hosted Icon Schemes & Day/Dark Themes ---
+✔ Official Brand Colors (Day Theme) targets brand/ folder
+✔ Official Brand Colors (Dark Theme) targets brand-dark/ folder
+✔ Monochrome Neutral (Day Theme) targets mono/ folder
+✔ Monochrome Neutral (Dark Theme) targets white/ folder
+✔ Rounded Pill Badge targets white/ folder with pill background
+✔ Circular Solid Badge targets white/ folder with circular background
+✔ Unified Accent Color targets accent/ folder
 --- TEST 2: Unique Avatar & Company Logo External HTTPS Links ---
 ✔ Unique avatar and company logo render external HTTPS links directly without base64 embedding
 --- TEST 3: Campaign Promo Banner HTTPS Links ---
@@ -77,9 +91,20 @@ Total HTML payload bytes: 8398 (8.2 KB)
 ✔ Linter warns when Base64 is used, guiding users to HTTPS
 
 ========================================
- ALL 6 VERIFICATION TEST SUITES PASSED! 
+ ALL 7 SCHEME & HOSTING VERIFICATION SUITES PASSED! 
 ========================================
 ```
+
+---
+
+## Full Scheme & Theme Hosting Matrix
+| Visual Style Dropdown Option | Day / Light Theme Target | Dark Theme Target | Description |
+| :--- | :--- | :--- | :--- |
+| **Official Brand Colors** | `/assets/icons/brand/{id}.png` | `/assets/icons/brand-dark/{id}.png` | Official brand colors; in dark mode, black logos (GitHub, X, Medium) adapt to white |
+| **Monochrome Neutral** | `/assets/icons/mono/{id}.png` | `/assets/icons/white/{id}.png` | `#4A5568` slate in day mode; `#FFFFFF` pure white in dark mode |
+| **Rounded Pill Badge** | `/assets/icons/white/{id}.png` | `/assets/icons/white/{id}.png` | White icon on colored rounded pill badge (`border-radius: 4px;`) |
+| **Circular Solid Badge** | `/assets/icons/white/{id}.png` | `/assets/icons/white/{id}.png` | White icon on colored circular badge (`border-radius: 50%;`) |
+| **Unified Accent Color** | `/assets/icons/accent/{id}.png` | `/assets/icons/accent/{id}.png` | Unified `#00DC82` emerald accent icons |
 
 ---
 
