@@ -74,6 +74,10 @@ Implementation of direct HTTPS asset linking for all email signature graphics (A
   - [x] Added `beforeunload` and `visibilitychange` listeners to auto-save the very latest keystrokes before any reload or tab switch.
   - [x] Fixed startup clobbering: prevented `ImageProcessor.init` from overwriting custom/HTTPS avatars and ensured `syncFormWithState` synchronizes template content before preview renders.
   - [x] Added unit tests (`scratch/test_session_cache.js`) confirming reload state restoration. All tests pass.
+- [x] **Task 11: 100% Comprehensive Audit of All 126 Icon Assets & Site Branding**
+  - [x] Automated audit script (`scratch/audit_all_icons.js`) verified all 21 icons across all 6 schemes (126 PNGs) on disk.
+  - [x] Live HTTP verification against `https://mailcraftstudio.vercel.app`: 126/126 icon files return `HTTP 200 image/png` with `Cache-Control: public, max-age=31536000, immutable`.
+  - [x] Verified all core site assets on Vercel: `favicon.ico`, `favicon.svg`, `favicon-16x16.png`, `favicon-32x32.png`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `default-avatar.jpg`, `og-image.png`, `og-image.jpg`. All return `HTTP 200 OK`.
 
 ---
 
