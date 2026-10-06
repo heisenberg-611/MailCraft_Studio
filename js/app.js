@@ -1,8 +1,17 @@
 /**
- * Main Application Controller & State Manager
- * Coordinates UI, Live Rendering, Preset Management, Team Batch Generation, and Exporters
- * Zero server dependencies & 100% on-device privacy
+ * Main Application Coordinator & State Manager
+ * MailCraft Studio - Modular Architecture
+ * Coordinates UI, Live Rendering, Preset Management, Team Batch Generation, and Exporters.
+ * Zero server dependencies & 100% on-device privacy.
  */
+
+// Node.js environment dependency resolution for standalone testing
+if (typeof require !== 'undefined') {
+  if (typeof PreviewSimulator === 'undefined') try { global.PreviewSimulator = require('./preview-simulator.js'); } catch (e) {}
+  if (typeof ModalController === 'undefined') try { global.ModalController = require('./modal-controller.js'); } catch (e) {}
+  if (typeof RichTextEditor === 'undefined') try { global.RichTextEditor = require('./rich-text-editor.js'); } catch (e) {}
+  if (typeof FormControls === 'undefined') try { global.FormControls = require('./form-controls.js'); } catch (e) {}
+}
 
 const App = {
   mode: 'signature', // 'signature' | 'team' | 'template'
@@ -14,8 +23,12 @@ const App = {
 
   // App State
   state: {
-    data: Object.assign({}, Presets.defaultData),
-    settings: Object.assign({}, Presets.styles.developerTerminal ? Presets.styles.developerTerminal.settings : Presets.styles.dhrubojyoti.settings),
+    data: Object.assign({}, (typeof Presets !== 'undefined' && Presets.defaultData) ? Presets.defaultData : {}),
+    settings: Object.assign({}, (typeof Presets !== 'undefined' && Presets.styles && Presets.styles.developerTerminal)
+      ? Presets.styles.developerTerminal.settings
+      : ((typeof Presets !== 'undefined' && Presets.styles && Presets.styles.dhrubojyoti)
+        ? Presets.styles.dhrubojyoti.settings
+        : {})),
     templateData: {
       title: 'Project Update',
       preheader: 'Important updates and technical collaboration overview',
@@ -52,7 +65,33 @@ const App = {
   },
 
   /**
-   * Initialize App
+   * Helper: Escape HTML special characters to prevent XSS
+   */
+  escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  },
+
+  /**
+   * Helper: Escape attribute string
+   */
+  escapeAttr(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  },
+
+  /**
+   * Initialize Application
    */
   init() {
     this.loadFromStorage();
@@ -63,115 +102,121 @@ const App = {
     this.renderTeamRosterList();
 
     // Check URL parameters for preset or mode override
-    const urlParams = new URLSearchParams(window.location.search);
-    const requestedPreset = urlParams.get('preset');
-    const requestedMode = urlParams.get('mode');
+    if (typeof window !== 'undefined' && window.location) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const requestedPreset = urlParams.get('preset');
+      const requestedMode = urlParams.get('mode');
 
-    // Synchronize client window and preview theme classes
-    const clientWindow = document.getElementById('clientWindow');
-    const previewArea = document.getElementById('previewArea');
-    const isDark = this.inboxTheme === 'dark';
-    if (clientWindow) {
-      clientWindow.classList.remove('light-inbox', 'dark-inbox', 'sahinur-terminal');
-      clientWindow.classList.add(isDark ? 'dark-inbox' : 'light-inbox');
-    }
-    if (previewArea) {
-      previewArea.classList.remove('preview-theme-light', 'preview-theme-dark');
-      previewArea.classList.add(isDark ? 'preview-theme-dark' : 'preview-theme-light');
-    }
-    const themeLightBtn = document.getElementById('themeLightBtn');
-    const themeDarkBtn = document.getElementById('themeDarkBtn');
-    if (themeLightBtn && themeDarkBtn) {
-      themeDarkBtn.classList.toggle('active', isDark);
-      themeLightBtn.classList.toggle('active', !isDark);
-    }
-
-    if (requestedPreset) {
-      if (Presets.styles[requestedPreset]) {
-        this.applyPreset(requestedPreset);
-      } else {
-        const userPresets = PresetManager.getUserPresets();
-        const found = userPresets.find(p => p.id === requestedPreset);
-        if (found) {
-          this.applyUserPresetObject(found);
-        }
+      // Synchronize client window and preview theme classes
+      const clientWindow = document.getElementById('clientWindow');
+      const previewArea = document.getElementById('previewArea');
+      const isDark = this.inboxTheme === 'dark';
+      if (clientWindow) {
+        clientWindow.classList.remove('light-inbox', 'dark-inbox', 'sahinur-terminal');
+        clientWindow.classList.add(isDark ? 'dark-inbox' : 'light-inbox');
       }
-    } else if (this.savedActivePreset) {
-      const presetSelect = document.getElementById('presetSelect');
-      if (presetSelect) presetSelect.value = this.savedActivePreset;
-    }
+      if (previewArea) {
+        previewArea.classList.remove('preview-theme-light', 'preview-theme-dark');
+        previewArea.classList.add(isDark ? 'preview-theme-dark' : 'preview-theme-light');
+      }
+      const themeLightBtn = document.getElementById('themeLightBtn');
+      const themeDarkBtn = document.getElementById('themeDarkBtn');
+      if (themeLightBtn && themeDarkBtn) {
+        themeDarkBtn.classList.toggle('active', isDark);
+        themeLightBtn.classList.toggle('active', !isDark);
+      }
 
-    const requestedTemplate = urlParams.get('template') || urlParams.get('layout') || (this.state.settings && this.state.settings.template);
-    if (requestedTemplate) {
-      this.state.settings.template = requestedTemplate;
-      document.querySelectorAll('.template-card').forEach(card => {
-        card.classList.toggle('active', card.dataset.template === requestedTemplate);
-      });
-    }
-
-    // Initialize High-DPI canvas avatar with state settings synchronized
-    if (typeof ImageProcessor !== 'undefined') {
-      ImageProcessor.config.size = this.state.settings.avatarSize || 85;
-      ImageProcessor.config.shape = this.state.settings.avatarShape || 'square';
-      ImageProcessor.config.borderWidth = 0;
-      ImageProcessor.config.borderColor = this.state.settings.avatarBorderColor || '#00DC82';
-      ImageProcessor.config.dpi = this.state.settings.avatarDpi || 2;
-      
-      const currentAvatar = this.state.data.avatarUrl;
-      const isRemote = typeof currentAvatar === 'string' && /^https?:\/\//i.test(currentAvatar.trim());
-
-      ImageProcessor.init((dataUrl) => {
-        // Do NOT overwrite user's external HTTPS avatar or custom uploaded photo if already set
-        if (!this.state.data.avatarUrl || (!isRemote && !this.state.data.avatarUrl.startsWith('data:'))) {
-          this.state.data.avatarUrl = dataUrl;
+      if (requestedPreset) {
+        if (typeof Presets !== 'undefined' && Presets.styles && Presets.styles[requestedPreset]) {
+          this.applyPreset(requestedPreset);
+        } else if (typeof PresetManager !== 'undefined') {
+          const userPresets = PresetManager.getUserPresets();
+          const found = userPresets.find(p => p.id === requestedPreset);
+          if (found) {
+            this.applyUserPresetObject(found);
+          }
         }
-        this.updateLivePreview();
-        this.updateAvatarTelemetry();
-      });
-    }
+      } else if (this.savedActivePreset) {
+        const presetSelect = document.getElementById('presetSelect');
+        if (presetSelect) presetSelect.value = this.savedActivePreset;
+      }
 
-    this.bindEvents();
-    this.bindWebsiteInteractions();
-    this.bindInlineCanvasEditing();
-    this.bindBlockOrganizerEvents();
-    this.syncFormWithState();
-    this.renderCustomFieldsInputs();
-    this.renderClientChrome(this.clientView || 'gmail');
+      const requestedTemplate = urlParams.get('template') || urlParams.get('layout') || (this.state.settings && this.state.settings.template);
+      if (requestedTemplate) {
+        this.state.settings.template = requestedTemplate;
+        document.querySelectorAll('.template-card').forEach(card => {
+          card.classList.toggle('active', card.dataset.template === requestedTemplate);
+        });
+      }
 
-    // Restore Saved Mode or URL override
-    const activeMode = requestedMode || this.mode || 'signature';
-    if (activeMode === 'team' || activeMode === 'batch') {
-      const teamBtn = document.getElementById('modeTeamBtn');
-      if (teamBtn) teamBtn.click();
-    } else if (activeMode === 'email' || activeMode === 'template') {
-      const tplBtn = document.getElementById('modeTemplateBtn');
-      if (tplBtn) tplBtn.click();
+      // Initialize High-DPI canvas avatar with state settings synchronized
+      if (typeof ImageProcessor !== 'undefined') {
+        ImageProcessor.config.size = this.state.settings.avatarSize || 85;
+        ImageProcessor.config.shape = this.state.settings.avatarShape || 'square';
+        ImageProcessor.config.borderWidth = 0;
+        ImageProcessor.config.borderColor = this.state.settings.avatarBorderColor || '#00DC82';
+        ImageProcessor.config.dpi = this.state.settings.avatarDpi || 2;
+        
+        const currentAvatar = this.state.data.avatarUrl;
+        const isRemote = typeof currentAvatar === 'string' && /^https?:\/\//i.test(currentAvatar.trim());
+
+        ImageProcessor.init((dataUrl) => {
+          // Do NOT overwrite user's external HTTPS avatar or custom uploaded photo if already set
+          if (!this.state.data.avatarUrl || (!isRemote && !this.state.data.avatarUrl.startsWith('data:'))) {
+            this.state.data.avatarUrl = dataUrl;
+          }
+          this.updateLivePreview();
+          this.updateAvatarTelemetry();
+        });
+      }
+
+      this.bindEvents();
+      this.bindStudioFormControls();
+      this.bindInlineCanvasEditing();
+      this.bindBlockOrganizerEvents();
+      this.syncFormWithState();
+      this.renderCustomFieldsInputs();
+      this.renderClientChrome(this.clientView || 'gmail');
+
+      // Restore Saved Mode or URL override
+      const activeMode = requestedMode || this.mode || 'signature';
+      if (activeMode === 'team' || activeMode === 'batch') {
+        const teamBtn = document.getElementById('modeTeamBtn');
+        if (teamBtn) teamBtn.click();
+      } else if (activeMode === 'email' || activeMode === 'template') {
+        const tplBtn = document.getElementById('modeTemplateBtn');
+        if (tplBtn) tplBtn.click();
+      } else {
+        const sigBtn = document.getElementById('modeSignatureBtn');
+        if (sigBtn) sigBtn.click();
+      }
+
+      // Restore Saved Active Sidebar Tab
+      if (this.savedActiveTab) {
+        const savedTabBtn = document.querySelector(`.sidebar-nav-btn[data-tab="${this.savedActiveTab}"]`);
+        if (savedTabBtn) savedTabBtn.click();
+      }
+
+      // Auto-save session cache on tab reload / close / blur
+      if (typeof window.addEventListener === 'function') {
+        window.addEventListener('beforeunload', () => this.saveToStorage());
+      }
+      if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) this.saveToStorage();
+        });
+      }
+
+      // Register Progressive Web App (PWA) Offline Service Worker
+      if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => console.log('MailCraft PWA Service Worker Registered:', reg.scope))
+          .catch((err) => console.warn('PWA Service Worker Registration Failed:', err));
+      }
     } else {
-      const sigBtn = document.getElementById('modeSignatureBtn');
-      if (sigBtn) sigBtn.click();
-    }
-
-    // Restore Saved Active Sidebar Tab
-    if (this.savedActiveTab) {
-      const savedTabBtn = document.querySelector(`.sidebar-nav-btn[data-tab="${this.savedActiveTab}"]`);
-      if (savedTabBtn) savedTabBtn.click();
-    }
-
-    // Auto-save session cache on tab reload / close / blur
-    if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
-      window.addEventListener('beforeunload', () => this.saveToStorage());
-    }
-    if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) this.saveToStorage();
-      });
-    }
-
-    // Register Progressive Web App (PWA) Offline Service Worker
-    if (typeof window !== 'undefined' && 'serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-      navigator.serviceWorker.register('./sw.js')
-        .then((reg) => console.log('MailCraft PWA Service Worker Registered:', reg.scope))
-        .catch((err) => console.warn('PWA Service Worker Registration Failed:', err));
+      this.bindEvents();
+      this.bindStudioFormControls();
+      this.syncFormWithState();
     }
 
     this.updateLivePreview();
@@ -181,6 +226,7 @@ const App = {
    * Inject SVG vector icons into UI buttons & placeholders
    */
   injectUiIcons() {
+    if (typeof Icons === 'undefined' || !Icons.ui) return;
     const setIcon = (id, svg) => {
       const el = document.getElementById(id);
       if (el) el.innerHTML = svg;
@@ -211,7 +257,7 @@ const App = {
    */
   refreshPresetDropdown() {
     const userGroup = document.getElementById('userPresetsGroup');
-    if (!userGroup) return;
+    if (!userGroup || typeof PresetManager === 'undefined') return;
 
     const userPresets = PresetManager.getUserPresets();
     if (!userPresets.length) {
@@ -228,6 +274,7 @@ const App = {
    * Apply built-in preset
    */
   applyPreset(presetKey) {
+    if (typeof Presets === 'undefined' || !Presets.styles) return;
     const p = Presets.styles[presetKey];
     if (!p) return;
 
@@ -298,12 +345,14 @@ const App = {
     const container = document.getElementById('socialsListContainer');
     if (!container) return;
 
-    const availableNetworks = [
-      'facebook', 'x', 'youtube', 'linkedin', 'instagram',
-      'github', 'orcid', 'googleScholar', 'researchGate', 'website',
-      'whatsapp', 'telegram', 'discord', 'behance', 'dribbble',
-      'medium', 'phone', 'email', 'calendar', 'location'
-    ];
+    const availableNetworks = (typeof Icons !== 'undefined' && Icons.social)
+      ? Object.keys(Icons.social)
+      : [
+          'facebook', 'x', 'youtube', 'linkedin', 'instagram',
+          'github', 'website', 'whatsapp', 'telegram', 'discord',
+          'behance', 'dribbble', 'medium', 'phone', 'email',
+          'calendar', 'location', 'orcid', 'googleScholar', 'researchGate', 'calendly'
+        ];
 
     const orderedKeys = [];
     if (Array.isArray(this.state.data.socials)) {
@@ -318,20 +367,26 @@ const App = {
     });
 
     container.innerHTML = orderedKeys.map(key => {
-      const meta = Icons.social[key] || { name: key, color: '#00DC82', svg: '' };
+      const meta = (typeof Icons !== 'undefined' && Icons.social && Icons.social[key]) ? Icons.social[key] : { name: key, color: '#00DC82', svg: '' };
       const current = (this.state.data.socials || []).find(s => s.id === key) || { enabled: false, url: '' };
-      const defItem = (Presets.defaultData.socials || []).find(s => s.id === key) || { url: '' };
+      const defItem = (typeof Presets !== 'undefined' && Presets.defaultData && Presets.defaultData.socials)
+        ? (Presets.defaultData.socials.find(s => s.id === key) || { url: '' })
+        : { url: '' };
+      const safeKey = this.escapeAttr(key);
+      const safeUrl = this.escapeAttr(current.url || '');
+      const safePlaceholder = this.escapeAttr(defItem.url || meta.name + ' URL');
+      const dragSvg = (typeof Icons !== 'undefined' && Icons.ui && Icons.ui.dragHandle) ? Icons.ui.dragHandle : '::';
 
       return `
-        <div class="social-item" data-social-id="${key}" draggable="true">
+        <div class="social-item" data-social-id="${safeKey}" draggable="true">
           <div class="social-drag-handle" title="Drag to reorder position">
-            ${Icons.ui.dragHandle}
+            ${dragSvg}
           </div>
           <input type="checkbox" class="social-enable-cb" ${current.enabled ? 'checked' : ''} style="cursor: pointer;">
           <div class="social-item-icon" style="color: ${meta.color};">
             ${meta.svg}
           </div>
-          <input type="text" class="social-item-input" value="${current.url || ''}" placeholder="${defItem.url || meta.name + ' URL'}">
+          <input type="text" class="social-item-input" value="${safeUrl}" placeholder="${safePlaceholder}">
         </div>
       `;
     }).join('');
@@ -423,11 +478,14 @@ const App = {
     }
 
     container.innerHTML = fields.map((f, index) => {
+      const safeLabel = this.escapeAttr(f.label || '');
+      const safeVal = this.escapeAttr(f.value || '');
+      const safeUrl = this.escapeAttr(f.url || '');
       return `
         <div class="custom-field-row" data-index="${index}" style="display: flex; gap: 6px; align-items: center; background: var(--sahinur-surface-2); padding: 8px; border-radius: 4px; border: 1px solid var(--sahinur-border);">
-          <input type="text" class="form-input custom-field-label" value="${f.label || ''}" placeholder="Label (e.g. Pronouns)" style="width: 32%; font-size: 11.5px; padding: 5px 8px;">
-          <input type="text" class="form-input custom-field-val" value="${f.value || ''}" placeholder="Value (e.g. he/him)" style="flex: 1; font-size: 11.5px; padding: 5px 8px;">
-          <input type="text" class="form-input custom-field-url" value="${f.url || ''}" placeholder="URL (Optional)" style="width: 25%; font-size: 11.5px; padding: 5px 8px;">
+          <input type="text" class="form-input custom-field-label" value="${safeLabel}" placeholder="Label (e.g. Pronouns)" style="width: 32%; font-size: 11.5px; padding: 5px 8px;">
+          <input type="text" class="form-input custom-field-val" value="${safeVal}" placeholder="Value (e.g. he/him)" style="flex: 1; font-size: 11.5px; padding: 5px 8px;">
+          <input type="text" class="form-input custom-field-url" value="${safeUrl}" placeholder="URL (Optional)" style="width: 25%; font-size: 11.5px; padding: 5px 8px;">
           <button class="btn-secondary remove-custom-field-btn" data-index="${index}" style="padding: 5px 8px; color: #EF4444; border-color: rgba(239, 68, 68, 0.3);" title="Delete field">
             &times;
           </button>
@@ -437,7 +495,7 @@ const App = {
 
     // Bind remove buttons
     container.querySelectorAll('.remove-custom-field-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', () => {
         const idx = parseInt(btn.dataset.index, 10);
         this.state.data.customFields.splice(idx, 1);
         this.renderCustomFieldsInputs();
@@ -475,9 +533,9 @@ const App = {
   renderTeamRosterList() {
     const container = document.getElementById('teamRosterContainer');
     const countEl = document.getElementById('teamMemberCount');
-    if (!container) return;
+    if (!container || typeof TeamEngine === 'undefined') return;
 
-    const roster = TeamEngine.roster;
+    const roster = TeamEngine.roster || [];
     if (countEl) countEl.textContent = roster.length;
 
     if (!roster.length) {
@@ -487,14 +545,18 @@ const App = {
 
     container.innerHTML = roster.map(m => {
       const isActive = m.id === TeamEngine.activeMemberId;
+      const safeId = this.escapeAttr(m.id);
+      const safeName = this.escapeHtml(m.fullName || 'New Member');
+      const safeTitle = this.escapeHtml(m.jobTitle || 'No Title');
+      const safeEmail = this.escapeHtml(m.email || 'No Email');
       return `
-        <div class="team-member-item ${isActive ? 'active' : ''}" data-member-id="${m.id}" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: ${isActive ? 'var(--sahinur-surface-2)' : 'transparent'}; border: 1px solid ${isActive ? 'var(--sahinur-accent)' : 'var(--sahinur-border)'}; border-radius: 4px; margin-bottom: 6px; cursor: pointer;">
+        <div class="team-member-item ${isActive ? 'active' : ''}" data-member-id="${safeId}" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: ${isActive ? 'var(--sahinur-surface-2)' : 'transparent'}; border: 1px solid ${isActive ? 'var(--sahinur-accent)' : 'var(--sahinur-border)'}; border-radius: 4px; margin-bottom: 6px; cursor: pointer;">
           <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-            <div style="font-weight: 600; font-size: 12px; color: ${isActive ? 'var(--sahinur-accent)' : 'var(--sahinur-text-bright)'};">${m.fullName}</div>
-            <div style="font-size: 10.5px; color: var(--sahinur-text-dim);">${m.jobTitle || 'No Title'} &bull; ${m.email || 'No Email'}</div>
+            <div style="font-weight: 600; font-size: 12px; color: ${isActive ? 'var(--sahinur-accent)' : 'var(--sahinur-text-bright)'};">${safeName}</div>
+            <div style="font-size: 10.5px; color: var(--sahinur-text-dim);">${safeTitle} &bull; ${safeEmail}</div>
           </div>
           <div style="display: flex; gap: 4px;">
-            <button class="btn-secondary delete-member-btn" data-member-id="${m.id}" style="padding: 2px 6px; font-size: 10px; color: #EF4444;" title="Delete Member">&times;</button>
+            <button class="btn-secondary delete-member-btn" data-member-id="${safeId}" style="padding: 2px 6px; font-size: 10px; color: #EF4444;" title="Delete Member">&times;</button>
           </div>
         </div>
       `;
@@ -528,6 +590,7 @@ const App = {
    * Sync active team member to live preview simulator
    */
   syncActiveTeamMemberToSimulator() {
+    if (typeof TeamEngine === 'undefined') return;
     const member = TeamEngine.getActiveMember();
     if (!member) return;
 
@@ -545,578 +608,22 @@ const App = {
   },
 
   /**
-   * Sync form inputs to match the current state
+   * Handle CSV file drop or upload
    */
-  syncFormWithState() {
-    const d = this.state.data;
-    const s = this.state.settings;
-
-    const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
-    const setChecked = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
-
-    setVal('fullName', d.fullName);
-    setVal('nameTag', s.nameTag || s.badgeText || '');
-    setVal('namePrefix', s.namePrefix || '');
-    setVal('nameSuffix', s.nameSuffix || '');
-    setVal('jobTitle', d.jobTitle);
-    setVal('company', d.company);
-    setVal('department', d.department);
-    setVal('phone', d.phone);
-    setVal('email', d.email);
-    setVal('website', d.website);
-    setVal('address', d.address);
-    setVal('country', d.country);
-
-    // Photo & Logo Settings
-    setVal('avatarUrlInput', (d.avatarUrl && /^https?:\/\//i.test(d.avatarUrl)) ? d.avatarUrl : '');
-    setVal('avatarSize', s.avatarSize || 85);
-    const avatarSizeVal = document.getElementById('avatarSizeVal');
-    if (avatarSizeVal) avatarSizeVal.textContent = `${s.avatarSize || 85}px`;
-
-    if (typeof ImageProcessor !== 'undefined') {
-      ImageProcessor.config.size = s.avatarSize || 85;
-      ImageProcessor.config.shape = s.avatarShape || 'square';
-      ImageProcessor.config.borderWidth = 0;
-      ImageProcessor.config.borderColor = s.avatarBorderColor || '#00DC82';
-    }
-
-    setVal('avatarZoom', (typeof ImageProcessor !== 'undefined' && ImageProcessor.config) ? ImageProcessor.config.zoom : 1.0);
-    const avatarZoomVal = document.getElementById('avatarZoomVal');
-    if (avatarZoomVal) avatarZoomVal.textContent = `${((typeof ImageProcessor !== 'undefined' && ImageProcessor.config) ? ImageProcessor.config.zoom : 1.0).toFixed(1)}x`;
-
-    setVal('avatarBorderWidth', s.avatarBorderWidth !== undefined ? s.avatarBorderWidth : 2);
-    const avatarBorderVal = document.getElementById('avatarBorderVal');
-    if (avatarBorderVal) avatarBorderVal.textContent = `${s.avatarBorderWidth !== undefined ? s.avatarBorderWidth : 2}px`;
-
-    setVal('avatarBorderColor', s.avatarBorderColor || '#00DC82');
-    setVal('avatarBorderColorHex', s.avatarBorderColor || '#00DC82');
-
-    // Logo
-    setVal('logoUrlInput', (d.logoUrl && /^https?:\/\//i.test(d.logoUrl)) ? d.logoUrl : '');
-    setChecked('showLogo', d.showLogo);
-    const logoGroup = document.getElementById('logoControlsGroup');
-    if (logoGroup) logoGroup.style.display = d.showLogo ? 'flex' : 'none';
-    setVal('logoSize', d.logoSize || 70);
-    const logoSizeVal = document.getElementById('logoSizeVal');
-    if (logoSizeVal) logoSizeVal.textContent = `${d.logoSize || 70}px`;
-    setVal('logoShape', d.logoShape || 'square');
-
-    // Avatar Shapes
-    document.querySelectorAll('.shape-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.shape === (s.avatarShape || 'squircle'));
-    });
-
-    // Template Layout Cards
-    document.querySelectorAll('.template-card').forEach(card => {
-      card.classList.toggle('active', card.dataset.template === (s.template || 'vertical-divider'));
-    });
-
-    // Signature Colors
-    const syncColorPair = (id, val) => {
-      const p = document.getElementById(id);
-      const h = document.getElementById(id + 'Hex');
-      if (p && val) p.value = val;
-      if (h && val) h.value = val;
+  handleCsvFile(file) {
+    if (typeof FileReader === 'undefined' || typeof TeamEngine === 'undefined') return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const parsed = TeamEngine.parseCsv(e.target.result);
+      if (parsed.length > 0) {
+        this.renderTeamRosterList();
+        this.syncActiveTeamMemberToSimulator();
+        this.showToast(`Imported ${parsed.length} team members from CSV!`, 'success');
+      } else {
+        this.showToast('Could not parse members from CSV. Please check format.', 'error');
+      }
     };
-    syncColorPair('accentColor', s.accentColor || '#00DC82');
-    syncColorPair('nameColor', s.nameColor || '#0A0A0A');
-    syncColorPair('titleColor', s.titleColor || s.accentColor || '#00DC82');
-    syncColorPair('bodyColor', s.bodyColor || '#242424');
-    syncColorPair('labelColor', s.labelColor || s.accentColor || '#00DC82');
-    syncColorPair('linkColor', s.linkColor || s.accentColor || '#00DC82');
-    syncColorPair('dividerColor', s.dividerColor || s.accentColor || '#00DC82');
-    syncColorPair('quoteColor', s.quoteColor || '#475569');
-    syncColorPair('disclaimerColor', s.disclaimerColor || '#94A3B8');
-    syncColorPair('avatarBorderColor', s.avatarBorderColor || s.accentColor || '#00DC82');
-
-    // Synchronize active quick swatch
-    const activeColorHex = (s.accentColor || '#00DC82').toLowerCase();
-    document.querySelectorAll('.color-swatch[data-color]').forEach(swatch => {
-      const swatchColor = (swatch.dataset.color || '').toLowerCase();
-      swatch.classList.toggle('active', swatchColor === activeColorHex);
-    });
-
-    // Email Template Colors & Content
-    const td = this.state.templateData;
-    if (td) {
-      syncColorPair('tplHeaderColor', td.headerTextColor || '#FFFFFF');
-      syncColorPair('tplHeaderBgColor', td.headerBgColor || '#0F172A');
-      syncColorPair('tplGreetingColor', td.greetingColor || '#0F172A');
-      syncColorPair('tplBodyColor', td.bodyColor || '#334155');
-      syncColorPair('tplHighlightTitleColor', td.highlightTitleColor || s.accentColor || '#00DC82');
-      syncColorPair('tplHighlightTextColor', td.highlightTextColor || '#334155');
-      syncColorPair('tplHighlightBgColor', td.highlightBgColor || '#F8FAFC');
-      syncColorPair('tplCtaTextColor', td.ctaTextColor || '#0F172A');
-      syncColorPair('tplCtaBgColor', td.ctaBgColor || s.accentColor || '#00DC82');
-      syncColorPair('tplClosingColor', td.closingColor || '#64748B');
-      syncColorPair('tplFooterColor', td.footerTextColor || '#64748B');
-      setVal('tplHeaderTag', td.headerTag || '');
-
-      setVal('tplSubject', td.title || '');
-      setVal('tplPreheader', td.preheader || '');
-      setChecked('tplAntiLeakPadding', td.antiLeakPadding !== false);
-      setVal('tplHeaderLogoText', td.headerLogoText || '');
-      setVal('tplGreeting', td.greeting || '');
-      if (Array.isArray(td.paragraphs)) {
-        setVal('tplParagraph1', td.paragraphs[0] || '');
-        setVal('tplParagraph2', td.paragraphs[1] || '');
-      }
-      setVal('tplClosing', td.closing || '');
-      setVal('tplCtaText', td.ctaText || '');
-      setVal('tplCtaUrl', td.ctaUrl || '');
-
-      const hl = td.highlightBox || {};
-      setChecked('tplShowHighlight', !!hl.enabled);
-      const hlGroup = document.getElementById('tplHighlightInputGroup');
-      if (hlGroup) hlGroup.style.display = hl.enabled ? 'flex' : 'none';
-      setVal('tplHighlightTitle', hl.title || '');
-      setVal('tplHighlightContent', hl.content || '');
-    }
-
-    // Typography & Line-by-Line Customization
-    setVal('fontFamily', s.fontFamily || "'Courier New', Courier, monospace");
-    setVal('nameFontSize', s.nameFontSize || 17);
-    const nameFontSizeVal = document.getElementById('nameFontSizeVal');
-    if (nameFontSizeVal) nameFontSizeVal.textContent = `${s.nameFontSize || 17}px`;
-
-    setVal('nameFontWeight', s.nameFontWeight || '700');
-    setVal('nameTransform', s.nameTransform || 'none');
-
-    setVal('titleFontStyle', s.titleFontStyle || 'normal');
-    setVal('titleSeparator', s.titleSeparator || 'bullet');
-    setVal('titleFontSize', s.titleFontSize || 13);
-    const titleFontSizeVal = document.getElementById('titleFontSizeVal');
-    if (titleFontSizeVal) titleFontSizeVal.textContent = `${s.titleFontSize || 13}px`;
-
-    setVal('bodyFontSize', s.bodyFontSize || 12.5);
-    const bodyFontSizeVal = document.getElementById('bodyFontSizeVal');
-    if (bodyFontSizeVal) bodyFontSizeVal.textContent = `${s.bodyFontSize || 12.5}px`;
-
-    setVal('labelScheme', s.labelScheme || 'terminal');
-    const customLabelGroup = document.getElementById('customLabelInputsGroup');
-    if (customLabelGroup) customLabelGroup.style.display = (s.labelScheme === 'custom') ? 'flex' : 'none';
-    setVal('labelPhone', s.labelPhone !== undefined ? s.labelPhone : '$ tel:');
-    setVal('labelEmail', s.labelEmail !== undefined ? s.labelEmail : '$ mail:');
-    setVal('labelWebsite', s.labelWebsite !== undefined ? s.labelWebsite : '$ web:');
-    setVal('labelAddress', s.labelAddress !== undefined ? s.labelAddress : '$ loc:');
-
-    setVal('dividerThickness', s.dividerThickness || 2);
-    const dividerThicknessVal = document.getElementById('dividerThicknessVal');
-    if (dividerThicknessVal) dividerThicknessVal.textContent = `${s.dividerThickness || 2}px`;
-    setVal('dividerStyle', s.dividerStyle || 'solid');
-
-    setVal('dividerSpacing', s.dividerSpacing || 14);
-    const dividerSpacingVal = document.getElementById('dividerSpacingVal');
-    if (dividerSpacingVal) dividerSpacingVal.textContent = `${s.dividerSpacing || 14}px`;
-
-    // Line Spacing Density Chips
-    const activeSpacing = s.lineSpacing || 'normal';
-    document.querySelectorAll('#lineSpacingChips .dpi-chip').forEach(chip => {
-      chip.classList.toggle('active', chip.dataset.spacing === activeSpacing);
-    });
-
-    // Social Icon Scheme
-    setVal('iconStyle', s.iconStyle || 'accent');
-    setVal('iconSize', s.iconSize || 18);
-    const iconSizeVal = document.getElementById('iconSizeVal');
-    if (iconSizeVal) iconSizeVal.textContent = `${s.iconSize || 18}px`;
-
-    setVal('iconSpacing', s.iconSpacing || 8);
-    const iconSpacingVal = document.getElementById('iconSpacingVal');
-    if (iconSpacingVal) iconSpacingVal.textContent = `${s.iconSpacing || 8}px`;
-
-    // Live Status Badge
-    const statusObj = d.statusBadge || {};
-    setChecked('showStatusBadge', (d.showStatusBadge !== undefined) ? d.showStatusBadge : statusObj.enabled);
-    const statusGroup = document.getElementById('statusBadgeGroup');
-    if (statusGroup) statusGroup.style.display = ((d.showStatusBadge !== undefined) ? d.showStatusBadge : statusObj.enabled) ? 'flex' : 'none';
-    setVal('statusBadgeText', statusObj.text || d.statusText || 'Available for Projects');
-    setVal('statusBadgeColor', statusObj.color || '#10B981');
-    setVal('statusBadgeColorHex', statusObj.color || '#10B981');
-
-    // Calendar Booking Badge
-    const bookingObj = d.bookingBadge || {};
-    setChecked('showBookingBadge', (d.showBookingBadge !== undefined) ? d.showBookingBadge : bookingObj.enabled);
-    const bookingGroup = document.getElementById('bookingBadgeGroup');
-    if (bookingGroup) bookingGroup.style.display = ((d.showBookingBadge !== undefined) ? d.showBookingBadge : bookingObj.enabled) ? 'flex' : 'none';
-    setVal('bookingProviderSelect', bookingObj.provider || 'calendly');
-    setVal('bookingBadgeText', bookingObj.text || 'Schedule 1:1 Call');
-    setVal('bookingBadgeUrl', bookingObj.url || 'https://calendly.com');
-
-    // QR Code & vCard Hub
-    const qrObj = d.qrCode || {};
-    setChecked('showQrCode', (d.showQrCode !== undefined) ? d.showQrCode : qrObj.enabled);
-    const qrGroup = document.getElementById('qrCodeGroup');
-    if (qrGroup) qrGroup.style.display = ((d.showQrCode !== undefined) ? d.showQrCode : qrObj.enabled) ? 'flex' : 'none';
-    setVal('qrTargetMode', qrObj.targetMode || 'vcard');
-    setVal('qrCustomUrl', qrObj.customUrl || '');
-    const qrCustomGroup = document.getElementById('qrCustomUrlGroup');
-    if (qrCustomGroup) qrCustomGroup.style.display = (qrObj.targetMode === 'custom') ? 'block' : 'none';
-    setVal('qrSize', qrObj.size || 64);
-    const qrSizeVal = document.getElementById('qrSizeVal');
-    if (qrSizeVal) qrSizeVal.textContent = `${qrObj.size || 64}px`;
-
-    // Static Role Badge
-    setChecked('showBadge', d.showBadge);
-    const badgeInputGroup = document.getElementById('badgeInputGroup');
-    if (badgeInputGroup) badgeInputGroup.style.display = d.showBadge ? 'block' : 'none';
-    setVal('badgeText', d.badgeText || 'Dev Architect');
-
-    // Generic CTA
-    setChecked('showCta', d.showCta);
-    const ctaInputGroup = document.getElementById('ctaInputGroup');
-    if (ctaInputGroup) ctaInputGroup.style.display = d.showCta ? 'flex' : 'none';
-    setVal('ctaText', d.ctaText || 'Explore Portfolio');
-    setVal('ctaUrl', d.ctaUrl || 'https://www.dhrubojyoti.dev');
-
-    setChecked('showGreenNote', d.showGreenNote);
-    const greenNoteGroup = document.getElementById('greenNoteInputGroup');
-    if (greenNoteGroup) greenNoteGroup.style.display = d.showGreenNote ? 'block' : 'none';
-    setVal('greenNoteText', d.greenNoteText || 'Please consider the environment before printing this email.');
-
-    setChecked('showQuote', d.showQuote);
-    const quoteGroup = document.getElementById('quoteInputGroup');
-    if (quoteGroup) quoteGroup.style.display = d.showQuote ? 'block' : 'none';
-    setVal('quoteText', d.quoteText || '');
-    setChecked('autoShuffleQuote', d.autoShuffleQuote !== false);
-
-    setChecked('showDisclaimer', d.showDisclaimer);
-    const disclaimerGroup = document.getElementById('disclaimerInputGroup');
-    if (disclaimerGroup) disclaimerGroup.style.display = d.showDisclaimer ? 'block' : 'none';
-    setVal('disclaimerText', d.disclaimerText || '');
-
-    // Promo Banner
-    setChecked('showPromoBanner', d.promoBanner ? d.promoBanner.enabled : false);
-    const promoBannerGroup = document.getElementById('promoBannerGroup');
-    if (promoBannerGroup) promoBannerGroup.style.display = (d.promoBanner && d.promoBanner.enabled) ? 'flex' : 'none';
-    setVal('promoBannerImageUrl', (d.promoBanner && d.promoBanner.imageUrl && /^https?:\/\//i.test(d.promoBanner.imageUrl)) ? d.promoBanner.imageUrl : '');
-    setVal('promoTargetUrl', (d.promoBanner && d.promoBanner.targetUrl) || 'https://www.dhrubojyoti.dev');
-    setVal('promoAltText', (d.promoBanner && d.promoBanner.alt) || 'Special Announcement');
-
-    // Modular Block Organizer Hierarchy (Pillar 4B)
-    const blockListContainer = document.getElementById('blockOrganizerList');
-    if (blockListContainer && Array.isArray(s.blockOrder) && s.blockOrder.length > 0) {
-      const items = Array.from(blockListContainer.querySelectorAll('.block-item'));
-      s.blockOrder.forEach(blockKey => {
-        const item = items.find(el => el.dataset.block === blockKey);
-        if (item) blockListContainer.appendChild(item);
-      });
-    }
-  },
-
-  /**
-   * Sync social media inputs from DOM to state
-   */
-  syncSocialsFromDom() {
-    const container = document.getElementById('socialsListContainer');
-    if (!container) return;
-
-    const socials = [];
-    container.querySelectorAll('.social-item').forEach(item => {
-      const id = item.dataset.socialId;
-      const cb = item.querySelector('.social-enable-cb');
-      const input = item.querySelector('.social-item-input');
-      if (id && cb && input) {
-        socials.push({
-          id,
-          enabled: cb.checked,
-          url: input.value.trim()
-        });
-      }
-    });
-
-    this.state.data.socials = socials;
-    this.updateLivePreview();
-  },
-
-  /**
-   * Sync email template values from DOM
-   */
-  syncEmailTemplateFromDom() {
-    const getVal = (id, def = '') => { const el = document.getElementById(id); return el ? el.value : def; };
-    const getChecked = id => { const el = document.getElementById(id); return el ? el.checked : false; };
-
-    this.state.templateData.title = getVal('tplSubject', 'Project Update');
-    this.state.templateData.preheader = getVal('tplPreheader', 'Important updates and technical roadmap');
-    this.state.templateData.antiLeakPadding = getChecked('tplAntiLeakPadding');
-    this.state.templateData.headerLogoText = getVal('tplHeaderLogoText', 'DHRUBOJYOTI SAHA \u2022 PORTFOLIO');
-    this.state.templateData.headerTag = getVal('tplHeaderTag', '');
-    this.state.templateData.greeting = getVal('tplGreeting', 'Dear Colleague,');
-    this.state.templateData.paragraphs = [
-      getVal('tplParagraph1', ''),
-      getVal('tplParagraph2', '')
-    ].filter(Boolean);
-    this.state.templateData.closing = getVal('tplClosing', 'Best regards,');
-    this.state.templateData.ctaText = getVal('tplCtaText', 'Explore Project Showcase');
-    this.state.templateData.ctaUrl = getVal('tplCtaUrl', 'https://www.dhrubojyoti.dev');
-    this.state.templateData.showCta = true;
-
-    // Email Granular Colors
-    this.state.templateData.headerTextColor = getVal('tplHeaderColor', '#FFFFFF');
-    this.state.templateData.headerBgColor = getVal('tplHeaderBgColor', '#0F172A');
-    this.state.templateData.greetingColor = getVal('tplGreetingColor', '#0F172A');
-    this.state.templateData.bodyColor = getVal('tplBodyColor', '#334155');
-    this.state.templateData.highlightTitleColor = getVal('tplHighlightTitleColor', '#00DC82');
-    this.state.templateData.highlightTextColor = getVal('tplHighlightTextColor', '#334155');
-    this.state.templateData.highlightBgColor = getVal('tplHighlightBgColor', '#F8FAFC');
-    this.state.templateData.ctaTextColor = getVal('tplCtaTextColor', '#0F172A');
-    this.state.templateData.ctaBgColor = getVal('tplCtaBgColor', '#00DC82');
-    this.state.templateData.closingColor = getVal('tplClosingColor', '#64748B');
-    this.state.templateData.footerTextColor = getVal('tplFooterColor', '#64748B');
-
-    this.state.templateData.highlightBox = {
-      enabled: getChecked('tplShowHighlight'),
-      title: getVal('tplHighlightTitle', 'Key Highlights'),
-      content: getVal('tplHighlightContent', '')
-    };
-
-    const subjectDisplay = document.getElementById('previewSubjectLine');
-    if (subjectDisplay) {
-      const title = this.state.templateData.title || 'Introduction & Project Update';
-      if (subjectDisplay.tagName === 'INPUT') {
-        subjectDisplay.value = title;
-      } else {
-        subjectDisplay.textContent = title;
-      }
-    }
-
-    this.updatePreheaderPreview();
-  },
-
-  /**
-   * Updates the in-sidebar Preheader Live Preview Widget and Diagnostic Bar
-   */
-  updatePreheaderPreview() {
-    const canvas = document.getElementById('preheaderSnippetCanvas');
-    const badge = document.getElementById('preheaderLengthBadge');
-    const meterFill = document.getElementById('preheaderMeterFill');
-    const countText = document.getElementById('preheaderCharCountText');
-    const adviceText = document.getElementById('preheaderAdviceText');
-
-    const preheaderInput = document.getElementById('tplPreheader');
-    const preheader = (preheaderInput && preheaderInput.value !== undefined)
-      ? preheaderInput.value
-      : ((this.state && this.state.templateData && this.state.templateData.preheader !== undefined)
-        ? this.state.templateData.preheader
-        : '');
-
-    const subjectInput = document.getElementById('tplSubject');
-    const subject = (subjectInput && subjectInput.value !== undefined)
-      ? subjectInput.value
-      : ((this.state && this.state.templateData && this.state.templateData.title)
-        ? this.state.templateData.title
-        : 'Introduction & Project Collaboration');
-
-    const fullName = (this.state && this.state.data && this.state.data.fullName)
-      ? this.state.data.fullName
-      : 'Dhrubojyoti Saha';
-
-    const charCount = preheader.length;
-    const maxRecommended = 90;
-    const percentage = Math.min(100, Math.max(5, Math.round((charCount / maxRecommended) * 100)));
-
-    if (meterFill) {
-      meterFill.style.width = `${percentage}%`;
-      meterFill.classList.remove('meter-short', 'meter-optimal', 'meter-long');
-      if (charCount < 40) {
-        meterFill.classList.add('meter-short');
-      } else if (charCount <= 90) {
-        meterFill.classList.add('meter-optimal');
-      } else {
-        meterFill.classList.add('meter-long');
-      }
-    }
-
-    if (countText) {
-      countText.textContent = `${charCount} / ${maxRecommended} chars (Preheader)`;
-    }
-
-    if (badge) {
-      badge.classList.remove('badge-short', 'badge-long');
-      if (charCount === 0) {
-        badge.textContent = 'Empty snippet';
-        badge.classList.add('badge-short');
-      } else if (charCount < 40) {
-        badge.textContent = `${charCount} chars • Short snippet`;
-        badge.classList.add('badge-short');
-      } else if (charCount <= 90) {
-        badge.textContent = `${charCount} chars • Optimal`;
-      } else {
-        badge.textContent = `${charCount} chars • May truncate`;
-        badge.classList.add('badge-long');
-      }
-    }
-
-    if (adviceText) {
-      adviceText.className = '';
-      if (charCount === 0) {
-        adviceText.className = 'advice-short';
-        adviceText.innerHTML = '&#9888; No preheader set &mdash; email clients will pull random body text';
-      } else if (charCount < 40) {
-        adviceText.className = 'advice-short';
-        adviceText.innerHTML = '&#8505; Short snippet &mdash; Anti-leak padding recommended to prevent body bleed';
-      } else if (charCount <= 90) {
-        adviceText.className = 'advice-optimal';
-        adviceText.innerHTML = '&check; Perfect length for mobile notifications &amp; desktop inboxes';
-      } else {
-        adviceText.className = 'advice-warning';
-        adviceText.innerHTML = '&#9888; May be clipped on small smartphone screens (40&ndash;70 chars visible)';
-      }
-    }
-
-    if (!canvas) return;
-
-    const client = this.preheaderPreviewClient || 'gmail';
-    const displaySnippet = preheader.trim() || 'No preheader text entered yet...';
-    const displaySubject = subject.trim() || 'No Subject';
-
-    if (client === 'gmail') {
-      canvas.innerHTML = `
-        <div class="snippet-gmail-box">
-          <span class="snippet-gmail-star">&#9734;</span>
-          <span class="snippet-gmail-sender">${fullName}</span>
-          <div class="snippet-gmail-content">
-            <span class="snippet-gmail-subject">${displaySubject}</span>
-            <span class="snippet-gmail-sep">&ndash;</span>
-            <span class="snippet-gmail-preheader">${displaySnippet}</span>
-          </div>
-          <span class="snippet-gmail-time">10:42 AM</span>
-        </div>
-      `;
-    } else if (client === 'apple') {
-      canvas.innerHTML = `
-        <div class="snippet-apple-box">
-          <div class="snippet-apple-top">
-            <div class="snippet-apple-sender-wrap">
-              <span class="snippet-apple-dot"></span>
-              <span class="snippet-apple-sender">${fullName}</span>
-            </div>
-            <span class="snippet-apple-time">10:42 AM</span>
-          </div>
-          <div class="snippet-apple-subject">${displaySubject}</div>
-          <div class="snippet-apple-preheader">${displaySnippet}</div>
-        </div>
-      `;
-    } else if (client === 'ios') {
-      canvas.innerHTML = `
-        <div class="snippet-ios-box">
-          <div class="snippet-ios-header">
-            <div class="snippet-ios-app">
-              <div class="snippet-ios-icon">&#9993;</div>
-              <span class="snippet-ios-app-name">Mail</span>
-            </div>
-            <span class="snippet-ios-time">now</span>
-          </div>
-          <div class="snippet-ios-sender">${fullName}</div>
-          <div class="snippet-ios-subject">${displaySubject}</div>
-          <div class="snippet-ios-preheader">${displaySnippet}</div>
-        </div>
-      `;
-    } else { // outlook
-      canvas.innerHTML = `
-        <div class="snippet-outlook-box">
-          <div class="snippet-outlook-top">
-            <span class="snippet-outlook-sender">${fullName}</span>
-            <span class="snippet-outlook-time">10:42 AM</span>
-          </div>
-          <div class="snippet-outlook-subject">${displaySubject}</div>
-          <div class="snippet-outlook-preheader">${displaySnippet}</div>
-        </div>
-      `;
-    }
-  },
-
-  /**
-   * Renders the authentic inbox list view simulator in the canvas
-   */
-  renderSimulatorInboxView() {
-    const inboxView = document.getElementById('simulatorInboxView');
-    if (!inboxView) return;
-
-    const preheaderInput = document.getElementById('tplPreheader');
-    const preheader = (preheaderInput && preheaderInput.value !== undefined)
-      ? preheaderInput.value
-      : ((this.state && this.state.templateData && this.state.templateData.preheader !== undefined)
-        ? this.state.templateData.preheader
-        : 'Brief overview and technical roadmap specifications.');
-
-    const subjectInput = document.getElementById('tplSubject');
-    const subject = (subjectInput && subjectInput.value !== undefined)
-      ? subjectInput.value
-      : ((this.state && this.state.templateData && this.state.templateData.title)
-        ? this.state.templateData.title
-        : 'Introduction & Project Collaboration');
-
-    const fullName = (this.state && this.state.data && this.state.data.fullName)
-      ? this.state.data.fullName
-      : 'Dhrubojyoti Saha';
-
-    const client = this.clientView || 'gmail';
-
-    let searchPlaceholder = 'Search in mail';
-    let tab1 = 'Primary', tab2 = 'Promotions', tab3 = 'Social';
-    if (client === 'apple') {
-      searchPlaceholder = 'Search All Inboxes';
-      tab1 = 'All Inboxes'; tab2 = 'VIP'; tab3 = 'Flagged';
-    } else if (client === 'outlook') {
-      searchPlaceholder = 'Search Microsoft 365';
-      tab1 = 'Focused'; tab2 = 'Other'; tab3 = 'Sent';
-    } else if (client === 'yahoo') {
-      searchPlaceholder = 'Search Yahoo Mail';
-      tab1 = 'Inbox'; tab2 = 'Unread'; tab3 = 'Starred';
-    }
-
-    inboxView.innerHTML = `
-      <div class="inbox-sim-searchbar">
-        <div class="inbox-sim-search-input">
-          <span>&#128269;</span>
-          <span>${searchPlaceholder}</span>
-        </div>
-        <span class="inbox-sim-badge">LIVE SIMULATOR</span>
-      </div>
-      <div class="inbox-sim-tabs">
-        <div class="inbox-sim-tab active">&#9993; ${tab1}</div>
-        <div class="inbox-sim-tab">&#127991; ${tab2}</div>
-        <div class="inbox-sim-tab">&#128101; ${tab3}</div>
-      </div>
-      <div class="inbox-sim-list">
-        <!-- The User's Active Email -->
-        <div class="inbox-sim-row active-sim-item">
-          <span class="inbox-sim-checkbox">&#9634;</span>
-          <span class="inbox-sim-star starred">&#9733;</span>
-          <span class="inbox-sim-sender">${fullName}</span>
-          <div class="inbox-sim-body-wrap">
-            <span class="inbox-sim-subject">${subject}</span>
-            <span class="snippet-gmail-sep">&ndash;</span>
-            <span class="inbox-sim-preheader">${preheader}</span>
-          </div>
-          <span class="inbox-sim-time">Just now</span>
-        </div>
-        <!-- Dummy context emails -->
-        <div class="inbox-sim-row">
-          <span class="inbox-sim-checkbox">&#9634;</span>
-          <span class="inbox-sim-star">&#9734;</span>
-          <span class="inbox-sim-sender">GitHub Notifications</span>
-          <div class="inbox-sim-body-wrap">
-            <span class="inbox-sim-subject">[heisenberg-611/portfolio] Pull request #42 merged</span>
-            <span class="snippet-gmail-sep">&ndash;</span>
-            <span class="inbox-sim-preheader">Automated CI/CD pipeline succeeded for main branch deployment.</span>
-          </div>
-          <span class="inbox-sim-time">09:15 AM</span>
-        </div>
-        <div class="inbox-sim-row">
-          <span class="inbox-sim-checkbox">&#9634;</span>
-          <span class="inbox-sim-star">&#9734;</span>
-          <span class="inbox-sim-sender">Google Calendar</span>
-          <div class="inbox-sim-body-wrap">
-            <span class="inbox-sim-subject">Invitation: Architecture Review @ 2:00 PM</span>
-            <span class="snippet-gmail-sep">&ndash;</span>
-            <span class="inbox-sim-preheader">You have been invited to Architecture &amp; System Design Sync.</span>
-          </div>
-          <span class="inbox-sim-time">Yesterday</span>
-        </div>
-      </div>
-    `;
+    reader.readAsText(file);
   },
 
   /**
@@ -1200,267 +707,7 @@ const App = {
       }
     }
 
-    this.saveToStorage();
-  },
-
-  /**
-   * Render Authentic Simulator Chrome for Gmail, Apple Mail, and Outlook
-   */
-  renderClientChrome(clientName) {
-    const clientWindow = document.getElementById('clientWindow');
-    const headerEl = document.getElementById('simulatorHeader');
-    const fieldsEl = document.getElementById('simulatorFields');
-    const footerEl = document.getElementById('simulatorFooter');
-    
-    if (clientWindow) {
-      clientWindow.classList.remove('client-gmail', 'client-apple', 'client-outlook', 'client-yahoo');
-      clientWindow.classList.add(`client-${clientName}`);
-    }
-
-    const subjectVal = (this.state && this.state.templateData && this.state.templateData.title) 
-      ? this.state.templateData.title 
-      : 'Introduction & Project Update';
-    const fullName = (this.state && this.state.data && this.state.data.fullName) 
-      ? this.state.data.fullName 
-      : 'Dhrubojyoti Saha';
-    const emailAddr = (this.state && this.state.data && this.state.data.email) 
-      ? this.state.data.email 
-      : 'dhrubojyoti.saha@g.bracu.ac.bd';
-    const fromVal = `${fullName} &lt;${emailAddr}&gt;`;
-
-    if (clientName === 'gmail') {
-      if (headerEl) {
-        headerEl.className = 'gmail-header-wrapper';
-        headerEl.innerHTML = `
-          <div class="gmail-chrome-header">
-            <div class="gmail-title">New Message</div>
-            <div class="gmail-window-controls">
-              <span class="ctrl-btn" title="Minimize">&minus;</span>
-              <span class="ctrl-btn" title="Full screen">&#x2922;</span>
-              <span class="ctrl-btn" title="Save & Close">&times;</span>
-            </div>
-          </div>
-        `;
-      }
-      if (fieldsEl) {
-        fieldsEl.className = 'gmail-compose-fields';
-        fieldsEl.innerHTML = `
-          <div class="gmail-field-row">
-            <span class="gmail-field-label">Recipients</span>
-            <div class="gmail-recipient-chip">
-              <span class="chip-avatar">R</span>
-              <span class="chip-name">recipient@domain.com</span>
-              <span class="chip-remove">&times;</span>
-            </div>
-            <div class="gmail-field-actions">
-              <span class="action-link">Cc</span>
-              <span class="action-link">Bcc</span>
-            </div>
-          </div>
-          <div class="gmail-field-row gmail-subject-row">
-            <input type="text" class="gmail-subject-input" id="previewSubjectLine" readonly value="${subjectVal}">
-          </div>
-        `;
-      }
-      if (footerEl) {
-        footerEl.className = 'gmail-footer-toolbar';
-        footerEl.innerHTML = `
-          <div class="gmail-footer-left">
-            <button class="gmail-send-btn">
-              <span>Send</span>
-              <span class="send-dropdown">&#x25BE;</span>
-            </button>
-            <div class="gmail-formatting-tools">
-              <span class="tool-btn" title="Formatting options">A</span>
-              <span class="tool-btn" title="Attach files">&#x1F4CE;</span>
-              <span class="tool-btn" title="Insert link">&#x1F517;</span>
-              <span class="tool-btn" title="Insert emoji">&#x1F60A;</span>
-              <span class="tool-btn" title="Insert files using Drive">&#x1F4C1;</span>
-              <span class="tool-btn" title="Insert photo">&#x1F5BC;</span>
-              <span class="tool-btn" title="Toggle confidential mode">&#x1F512;</span>
-              <span class="tool-btn" title="Insert signature">&#x270D;</span>
-            </div>
-          </div>
-          <div class="gmail-footer-right">
-            <span class="tool-btn trash-btn" title="Discard draft">&#x1F5D1;</span>
-          </div>
-        `;
-      }
-    } else if (clientName === 'apple') {
-      if (headerEl) {
-        headerEl.className = 'apple-header-wrapper';
-        headerEl.innerHTML = `
-          <div class="apple-chrome-header">
-            <div class="apple-traffic-lights">
-              <span class="traffic-light red" title="Close"></span>
-              <span class="traffic-light yellow" title="Minimize"></span>
-              <span class="traffic-light green" title="Zoom"></span>
-            </div>
-            <div class="apple-title">New Message &mdash; Mail</div>
-            <div class="apple-header-spacer"></div>
-          </div>
-          <div class="apple-toolbar">
-            <button class="apple-tool-action primary" title="Send (&#x2318;D)">
-              <span class="apple-icon">&#x2708;</span> Send
-            </button>
-            <button class="apple-tool-action" title="Attach file">
-              <span class="apple-icon">&#x1F4CE;</span> Attach
-            </button>
-            <button class="apple-tool-action" title="Show format bar">
-              <span class="apple-icon">Aa</span> Format
-            </button>
-            <button class="apple-tool-action" title="Show photo browser">
-              <span class="apple-icon">&#x1F5BC;</span> Media
-            </button>
-          </div>
-        `;
-      }
-      if (fieldsEl) {
-        fieldsEl.className = 'gmail-compose-fields';
-        fieldsEl.innerHTML = `
-          <div class="apple-field-row">
-            <span class="apple-field-label">To:</span>
-            <div class="apple-token-pill">recipient@domain.com</div>
-          </div>
-          <div class="apple-field-row">
-            <span class="apple-field-label">Cc:</span>
-            <span class="apple-field-placeholder"></span>
-          </div>
-          <div class="apple-field-row">
-            <span class="apple-field-label">From:</span>
-            <span class="apple-field-value">${fromVal}</span>
-          </div>
-          <div class="apple-field-row apple-subject-row">
-            <span class="apple-field-label">Subject:</span>
-            <span class="apple-field-value bold" id="previewSubjectLine">${subjectVal}</span>
-          </div>
-        `;
-      }
-      if (footerEl) {
-        footerEl.className = 'apple-status-bar';
-        footerEl.innerHTML = `
-          <span class="apple-status-dot"></span>
-          <span class="apple-status-text">Draft saved to iCloud &bull; macOS Mail</span>
-        `;
-      }
-    } else if (clientName === 'yahoo') {
-      if (headerEl) {
-        headerEl.className = 'yahoo-header-wrapper';
-        headerEl.innerHTML = `
-          <div class="yahoo-chrome-header">
-            <div class="yahoo-header-left">
-              <span class="yahoo-logo-pill">yahoo<b>!</b></span>
-              <span class="yahoo-header-divider"></span>
-              <span class="yahoo-title">New Message</span>
-            </div>
-            <div class="yahoo-window-controls">
-              <span class="ctrl-btn" title="Minimize">&minus;</span>
-              <span class="ctrl-btn" title="Pop out">&#x2922;</span>
-              <span class="ctrl-btn close-btn" title="Close">&times;</span>
-            </div>
-          </div>
-        `;
-      }
-      if (fieldsEl) {
-        fieldsEl.className = 'yahoo-compose-fields';
-        fieldsEl.innerHTML = `
-          <div class="yahoo-field-row">
-            <span class="yahoo-field-label">To</span>
-            <div class="yahoo-recipient-pill">
-              <span class="yahoo-pill-avatar">R</span>
-              <span class="yahoo-pill-name">recipient@domain.com</span>
-              <span class="yahoo-pill-remove" title="Remove">&times;</span>
-            </div>
-            <div class="yahoo-field-actions">
-              <span class="yahoo-action">Cc/Bcc</span>
-            </div>
-          </div>
-          <div class="yahoo-field-row yahoo-subject-row">
-            <input type="text" class="yahoo-subject-input" id="previewSubjectLine" readonly value="${subjectVal}" placeholder="Subject">
-          </div>
-        `;
-      }
-      if (footerEl) {
-        footerEl.className = 'yahoo-footer-toolbar';
-        footerEl.innerHTML = `
-          <div class="yahoo-footer-left">
-            <button class="yahoo-send-btn">
-              <span>Send</span>
-            </button>
-            <div class="yahoo-formatting-tools">
-              <span class="tool-btn" title="Format Text"><b>A</b></span>
-              <span class="tool-btn" title="Attach Files">&#x1F4CE;</span>
-              <span class="tool-btn" title="Add GIF / Emoji">&#x1F60A;</span>
-              <span class="tool-btn" title="Insert Stationery">&#x1F3A8;</span>
-              <span class="tool-btn" title="Insert Link">&#x1F517;</span>
-            </div>
-          </div>
-          <div class="yahoo-footer-right">
-            <span class="yahoo-status-text">Draft saved</span>
-            <span class="tool-btn trash-btn" title="Delete draft">&#x1F5D1;</span>
-          </div>
-        `;
-      }
-    } else { // outlook
-      if (headerEl) {
-        headerEl.className = 'outlook-header-wrapper';
-        headerEl.innerHTML = `
-          <div class="outlook-chrome-header">
-            <div class="outlook-header-left">
-              <span class="outlook-app-icon">&#x2709;</span>
-              <span class="outlook-title">Outlook Mail &mdash; Message</span>
-            </div>
-            <div class="outlook-window-controls">
-              <span class="ctrl-btn" title="Minimize">&minus;</span>
-              <span class="ctrl-btn" title="Maximize">&#x25A1;</span>
-              <span class="ctrl-btn close-btn" title="Close">&times;</span>
-            </div>
-          </div>
-          <div class="outlook-ribbon">
-            <button class="outlook-send-btn" title="Send (Ctrl+Enter)">
-              <span class="outlook-send-icon">&#x27A4;</span> Send
-            </button>
-            <div class="outlook-ribbon-group">
-              <button class="outlook-ribbon-btn" title="Discard"><span class="ribbon-icon">&#x1F5D1;</span> Discard</button>
-              <button class="outlook-ribbon-btn" title="Attach File"><span class="ribbon-icon">&#x1F4CE;</span> Attach File</button>
-              <button class="outlook-ribbon-btn" title="Encrypt message"><span class="ribbon-icon">&#x1F512;</span> Encrypt</button>
-              <button class="outlook-ribbon-btn" title="Categorize"><span class="ribbon-icon">&#x1F3F7;</span> Categorize</button>
-            </div>
-          </div>
-        `;
-      }
-      if (fieldsEl) {
-        fieldsEl.className = 'gmail-compose-fields';
-        fieldsEl.innerHTML = `
-          <div class="outlook-field-row">
-            <button class="outlook-field-btn">To</button>
-            <div class="outlook-field-value-box">
-              <span class="outlook-contact-tag">recipient@domain.com</span>
-            </div>
-          </div>
-          <div class="outlook-field-row">
-            <button class="outlook-field-btn">Cc</button>
-            <div class="outlook-field-value-box"></div>
-          </div>
-          <div class="outlook-field-row outlook-subject-row">
-            <input type="text" class="outlook-subject-input" id="previewSubjectLine" readonly value="${subjectVal}">
-          </div>
-        `;
-      }
-      if (footerEl) {
-        footerEl.className = 'outlook-status-bar';
-        footerEl.innerHTML = `
-          <div class="outlook-status-left">
-            <span>Sensitivity: Normal</span>
-            <span class="separator">|</span>
-            <span>Accessibility: Good to go</span>
-          </div>
-          <div class="outlook-status-right">
-            <span>Microsoft 365 &bull; HTML</span>
-          </div>
-        `;
-      }
-    }
+    this.scheduleSaveToStorage(250);
   },
 
   /**
@@ -1534,9 +781,9 @@ const App = {
     if (presetSelect) {
       presetSelect.addEventListener('change', (e) => {
         const val = e.target.value;
-        if (Presets.styles[val]) {
+        if (typeof Presets !== 'undefined' && Presets.styles && Presets.styles[val]) {
           this.applyPreset(val);
-        } else {
+        } else if (typeof PresetManager !== 'undefined') {
           const userPresets = PresetManager.getUserPresets();
           const found = userPresets.find(p => p.id === val);
           if (found) {
@@ -1567,7 +814,7 @@ const App = {
       if (closeSavePresetModalBtn) closeSavePresetModalBtn.addEventListener('click', closeSaveModal);
       if (cancelSavePresetBtn) cancelSavePresetBtn.addEventListener('click', closeSaveModal);
 
-      if (confirmSavePresetBtn) {
+      if (confirmSavePresetBtn && typeof PresetManager !== 'undefined') {
         confirmSavePresetBtn.addEventListener('click', () => {
           const nameInput = document.getElementById('savePresetName');
           const descInput = document.getElementById('savePresetDesc');
@@ -1606,7 +853,7 @@ const App = {
 
       // Export All JSON Backup
       const exportAllBtn = document.getElementById('exportAllPresetsJsonBtn');
-      if (exportAllBtn) {
+      if (exportAllBtn && typeof PresetManager !== 'undefined') {
         exportAllBtn.addEventListener('click', () => {
           PresetManager.exportAllUserPresets();
           this.showToast('Exported preset backup JSON!', 'success');
@@ -1615,7 +862,7 @@ const App = {
 
       // Import JSON File
       const importInput = document.getElementById('importPresetJsonFileInput');
-      if (importInput) {
+      if (importInput && typeof PresetManager !== 'undefined') {
         importInput.addEventListener('change', (e) => {
           const file = e.target.files[0];
           if (!file) return;
@@ -1718,7 +965,6 @@ const App = {
       });
     }
 
-    // Company Logo (External HTTPS Link & Local File Upload)
     const logoUrlInput = document.getElementById('logoUrlInput');
     if (logoUrlInput) {
       logoUrlInput.addEventListener('input', (e) => {
@@ -1792,7 +1038,7 @@ const App = {
 
     // Sample CSV Download
     const sampleCsvBtn = document.getElementById('downloadSampleCsvBtn');
-    if (sampleCsvBtn) {
+    if (sampleCsvBtn && typeof TeamEngine !== 'undefined') {
       sampleCsvBtn.addEventListener('click', () => {
         TeamEngine.downloadSampleCsv();
         this.showToast('Downloaded sample team CSV template', 'success');
@@ -1801,7 +1047,7 @@ const App = {
 
     // Add Single Team Member
     const addTeamMemberBtn = document.getElementById('addTeamMemberBtn');
-    if (addTeamMemberBtn) {
+    if (addTeamMemberBtn && typeof TeamEngine !== 'undefined') {
       addTeamMemberBtn.addEventListener('click', () => {
         const newMember = TeamEngine.addMember({
           fullName: 'New Team Member',
@@ -1819,7 +1065,7 @@ const App = {
 
     // 1-Click Batch Zip Export
     const exportTeamZipBtn = document.getElementById('exportTeamZipBtn');
-    if (exportTeamZipBtn) {
+    if (exportTeamZipBtn && typeof TeamEngine !== 'undefined') {
       exportTeamZipBtn.addEventListener('click', async () => {
         try {
           this.showToast('Compiling batch HTML signatures...', 'info');
@@ -1871,8 +1117,8 @@ const App = {
       copyRawHtmlBtn.addEventListener('click', () => {
         const isDark = this.inboxTheme === 'dark';
         const html = this.mode === 'template'
-          ? EmailTemplateEngine.generateEmailHtml(this.state.templateData, this.state.data, this.state.settings, isDark, true)
-          : SignatureEngine.generateHtml(this.state.data, this.state.settings, isDark, true);
+          ? (typeof EmailTemplateEngine !== 'undefined' ? EmailTemplateEngine.generateEmailHtml(this.state.templateData, this.state.data, this.state.settings, isDark, true) : '')
+          : (typeof SignatureEngine !== 'undefined' ? SignatureEngine.generateHtml(this.state.data, this.state.settings, isDark, true) : '');
 
         if (rawCodeViewer) rawCodeViewer.value = html;
         codeModalOverlay.classList.add('active');
@@ -1908,8 +1154,8 @@ const App = {
 
       const isDark = this.inboxTheme === 'dark';
       const html = this.mode === 'template'
-        ? EmailTemplateEngine.generateEmailHtml(this.state.templateData, this.state.data, this.state.settings, isDark, true)
-        : SignatureEngine.generateHtml(this.state.data, this.state.settings, isDark, true);
+        ? (typeof EmailTemplateEngine !== 'undefined' ? EmailTemplateEngine.generateEmailHtml(this.state.templateData, this.state.data, this.state.settings, isDark, true) : '')
+        : (typeof SignatureEngine !== 'undefined' ? SignatureEngine.generateHtml(this.state.data, this.state.settings, isDark, true) : '');
 
       if (typeof ClipboardHelper !== 'undefined') {
         const success = await ClipboardHelper.copyHtmlDirectly(html);
@@ -1930,8 +1176,8 @@ const App = {
       downloadHtmlBtn.addEventListener('click', () => {
         const isDark = this.inboxTheme === 'dark';
         const html = this.mode === 'template'
-          ? EmailTemplateEngine.generateEmailHtml(this.state.templateData, this.state.data, this.state.settings, isDark, true)
-          : SignatureEngine.generateHtml(this.state.data, this.state.settings, isDark, true);
+          ? (typeof EmailTemplateEngine !== 'undefined' ? EmailTemplateEngine.generateEmailHtml(this.state.templateData, this.state.data, this.state.settings, isDark, true) : '')
+          : (typeof SignatureEngine !== 'undefined' ? SignatureEngine.generateHtml(this.state.data, this.state.settings, isDark, true) : '');
 
         const fullDoc = `<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<title>${this.state.data.fullName || 'Signature'}</title>\n</head>\n<body>\n${html}\n</body>\n</html>`;
         const blob = new Blob([fullDoc], { type: 'text/html;charset=utf-8;' });
@@ -2118,1940 +1364,172 @@ const App = {
     this.bindCustomFieldChips();
   },
 
-  /**
-   * Bind Email Compatibility & Size Linter modal events
-   */
-  bindLinterEvents() {
-    const linterBtn = document.getElementById('linterStatusBtn');
-    const modal = document.getElementById('compatibilityModalOverlay');
-    const closeBtn1 = document.getElementById('closeCompatibilityModalBtn');
-    const closeBtn2 = document.getElementById('closeCompatibilityModalBtn2');
-    const copyAuditBtn = document.getElementById('copyAuditSummaryBtn');
+  // ==========================================
+  // DELEGATED SUBSYSTEMS (BACKWARD COMPATIBILITY)
+  // ==========================================
 
-    if (linterBtn && modal) {
-      linterBtn.addEventListener('click', () => {
-        this.populateLinterModal();
-        modal.classList.add('active');
-      });
-    }
-
-    const closeModal = () => modal && modal.classList.remove('active');
-    if (closeBtn1) closeBtn1.addEventListener('click', closeModal);
-    if (closeBtn2) closeBtn2.addEventListener('click', closeModal);
-
-    if (copyAuditBtn) {
-      copyAuditBtn.addEventListener('click', () => {
-        if (!this.lastLintReport) {
-          this.populateLinterModal();
-        }
-        const rep = this.lastLintReport;
-        if (!rep) return;
-        const text = [
-          `=========================================`,
-          `MailCraft Email Architecture Audit Report`,
-          `=========================================`,
-          `HTML Payload Size: ${rep.sizeFormatted} (${rep.sizePercentOfLimit}% of Gmail 102KB limit)`,
-          `Overall Score:     ${rep.score}% [${rep.rating}]`,
-          `Gmail Safety:      ${rep.isSizeSafe ? 'PASSED (Zero Truncation)' : 'WARNING (May be clipped)'}`,
-          `-----------------------------------------`,
-          `Detailed Checks:`,
-          ...rep.checks.map(c => `[${c.status.toUpperCase()}] ${c.title}\n   ${c.message}`)
-        ].join('\n');
-
-        navigator.clipboard.writeText(text).then(() => {
-          this.showToast('Copied linter audit report to clipboard!', 'success');
-        });
-      });
+  // --- Form Controls Subsystem Delegations ---
+  syncFormWithState() {
+    if (typeof FormControls !== 'undefined' && FormControls.syncFormWithState) {
+      return FormControls.syncFormWithState(this);
     }
   },
 
-  /**
-   * Populate Linter Modal UI with live audit checks
-   */
-  populateLinterModal() {
-    const isDark = this.inboxTheme === 'dark';
-    const html = this.mode === 'template'
-      ? (typeof EmailTemplateEngine !== 'undefined' ? EmailTemplateEngine.generateEmailHtml(this.state.templateData, this.state.data, this.state.settings, isDark, true) : '')
-      : (typeof SignatureEngine !== 'undefined' ? SignatureEngine.generateHtml(this.state.data, this.state.settings, isDark, true) : '');
-
-    if (typeof LinterEngine === 'undefined' || !html) return;
-    const report = LinterEngine.audit(html);
-    this.lastLintReport = report;
-
-    const gaugeFill = document.getElementById('linterGaugeFill');
-    const sizeLabel = document.getElementById('linterSizeLabel');
-    const safetyText = document.getElementById('linterSafetyText');
-    const checklistContainer = document.getElementById('linterChecklistContainer');
-
-    if (gaugeFill) {
-      gaugeFill.style.width = `${report.sizePercentOfLimit}%`;
-      gaugeFill.style.backgroundColor = report.isSizeSafe ? (report.sizePercentOfLimit < 40 ? '#00DC82' : '#F59E0B') : '#EF4444';
-    }
-
-    if (sizeLabel) {
-      sizeLabel.textContent = `${report.sizeFormatted} / 102 KB (${report.sizePercentOfLimit}%)`;
-      sizeLabel.style.color = report.isSizeSafe ? '#00DC82' : '#EF4444';
-    }
-
-    if (safetyText) {
-      safetyText.textContent = report.isSizeSafe
-        ? 'Safe from message truncation across Gmail iOS, Android, and Web clients.'
-        : 'CRITICAL: Exceeds 102KB. Gmail will clip this signature with "[Message clipped]".';
-      safetyText.style.color = report.isSizeSafe ? 'var(--sahinur-text-dim)' : '#EF4444';
-    }
-
-    if (checklistContainer) {
-      checklistContainer.innerHTML = report.checks.map(chk => {
-        const badgeColor = chk.status === 'pass' ? 'var(--sahinur-accent)' : (chk.status === 'warn' ? '#F59E0B' : '#EF4444');
-        const badgeBg = chk.status === 'pass' ? 'rgba(0, 220, 130, 0.12)' : (chk.status === 'warn' ? 'rgba(245, 158, 11, 0.12)' : 'rgba(239, 68, 68, 0.12)');
-        const icon = chk.status === 'pass' ? '✓' : (chk.status === 'warn' ? '⚠' : '✕');
-
-        return `
-          <div style="background: var(--sahinur-surface-2); border: 1px solid var(--sahinur-border); border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div style="font-weight: 700; font-size: 12px; color: var(--sahinur-text-bright); display: flex; align-items: center; gap: 6px;">
-                <span style="color: ${badgeColor}; font-weight: 900;">${icon}</span>
-                <span>${chk.title}</span>
-              </div>
-              <span style="font-family: var(--font-mono); font-size: 10px; padding: 2px 6px; border-radius: 3px; background: ${badgeBg}; color: ${badgeColor}; font-weight: 700; text-transform: uppercase;">
-                ${chk.status}
-              </span>
-            </div>
-            <div style="font-size: 11px; color: var(--sahinur-text-dim); line-height: 1.4;">
-              ${chk.message}
-            </div>
-          </div>
-        `;
-      }).join('');
+  syncSocialsFromDom() {
+    if (typeof FormControls !== 'undefined' && FormControls.syncSocialsFromDom) {
+      return FormControls.syncSocialsFromDom(this);
     }
   },
 
-  /**
-   * Bind Direct Desktop Signature Exporter Modal
-   */
-  bindDesktopExportEvents() {
-    const openBtn = document.getElementById('openDesktopExportBtn');
-    const modal = document.getElementById('desktopExporterModalOverlay');
-    const closeBtn = document.getElementById('closeDesktopExporterModalBtn');
-    const dlApple = document.getElementById('downloadAppleMailBtn');
-    const dlOutlook = document.getElementById('downloadOutlookHtmBtn');
-    const dlThunderbird = document.getElementById('downloadThunderbirdBtn');
-
-    if (openBtn && modal) {
-      openBtn.addEventListener('click', () => modal.classList.add('active'));
-    }
-
-    if (closeBtn && modal) {
-      closeBtn.addEventListener('click', () => modal.classList.remove('active'));
-    }
-
-    const getHtml = () => {
-      const isDark = this.inboxTheme === 'dark';
-      return this.mode === 'template'
-        ? EmailTemplateEngine.generateEmailHtml(this.state.templateData, this.state.data, this.state.settings, isDark, true)
-        : SignatureEngine.generateHtml(this.state.data, this.state.settings, isDark, true);
-    };
-
-    const getBaseName = () => (this.state.data.fullName || 'signature').toLowerCase().replace(/\s+/g, '-');
-
-    if (dlApple && typeof AdminTools !== 'undefined') {
-      dlApple.addEventListener('click', () => {
-        AdminTools.downloadAppleMailSignature(getHtml(), getBaseName());
-        this.showToast('Downloaded Apple Mail .mailsignature!', 'success');
-      });
-    }
-
-    if (dlOutlook && typeof AdminTools !== 'undefined') {
-      dlOutlook.addEventListener('click', () => {
-        AdminTools.downloadOutlookHtm(getHtml(), getBaseName());
-        this.showToast('Downloaded Outlook .htm signature!', 'success');
-      });
-    }
-
-    if (dlThunderbird && typeof AdminTools !== 'undefined') {
-      dlThunderbird.addEventListener('click', () => {
-        AdminTools.downloadThunderbirdHtml(getHtml(), getBaseName());
-        this.showToast('Downloaded Thunderbird .html signature!', 'success');
-      });
+  syncEmailTemplateFromDom() {
+    if (typeof FormControls !== 'undefined' && FormControls.syncEmailTemplateFromDom) {
+      return FormControls.syncEmailTemplateFromDom(this);
     }
   },
 
-  /**
-   * Bind Enterprise Admin Script Deployer Modal
-   */
-  bindAdminDeployerEvents() {
-    const openBtn = document.getElementById('openAdminDeployBtn');
-    const modal = document.getElementById('adminDeployerModalOverlay');
-    const closeBtn = document.getElementById('closeAdminDeployerModalBtn');
-    const tabGoogle = document.getElementById('adminTabGoogleBtn');
-    const tabM365 = document.getElementById('adminTabM365Btn');
-    const emailInput = document.getElementById('adminTargetEmail');
-    const copyBtn = document.getElementById('copyAdminScriptBtn');
-    const dlBtn = document.getElementById('downloadAdminScriptFileBtn');
-
-    this.adminPlatform = 'google';
-
-    if (openBtn && modal) {
-      openBtn.addEventListener('click', () => {
-        this.updateAdminScriptViewer();
-        modal.classList.add('active');
-      });
-    }
-
-    if (closeBtn && modal) {
-      closeBtn.addEventListener('click', () => modal.classList.remove('active'));
-    }
-
-    if (tabGoogle && tabM365) {
-      tabGoogle.addEventListener('click', () => {
-        this.adminPlatform = 'google';
-        tabGoogle.classList.add('active');
-        tabM365.classList.remove('active');
-        this.updateAdminScriptViewer();
-      });
-
-      tabM365.addEventListener('click', () => {
-        this.adminPlatform = 'm365';
-        tabM365.classList.add('active');
-        tabGoogle.classList.remove('active');
-        this.updateAdminScriptViewer();
-      });
-    }
-
-    if (emailInput) {
-      emailInput.addEventListener('input', () => this.updateAdminScriptViewer());
-    }
-
-    if (copyBtn) {
-      copyBtn.addEventListener('click', () => {
-        const viewer = document.getElementById('adminScriptViewer');
-        if (viewer) {
-          navigator.clipboard.writeText(viewer.value).then(() => {
-            this.showToast(`Copied ${this.adminPlatform === 'google' ? 'Google Apps Script' : 'PowerShell'} code!`, 'success');
-          });
-        }
-      });
-    }
-
-    if (dlBtn && typeof AdminTools !== 'undefined') {
-      dlBtn.addEventListener('click', () => {
-        const isDark = this.inboxTheme === 'dark';
-        const html = this.mode === 'template'
-          ? EmailTemplateEngine.generateEmailHtml(this.state.templateData, this.state.data, this.state.settings, isDark, true)
-          : SignatureEngine.generateHtml(this.state.data, this.state.settings, isDark, true);
-        const email = (emailInput && emailInput.value.trim()) || 'user@yourdomain.com';
-
-        if (this.adminPlatform === 'google') {
-          AdminTools.downloadGoogleAppsScript(html, email);
-          this.showToast('Downloaded Google Apps Script (.gs)!', 'success');
-        } else {
-          AdminTools.downloadExchangePowerShell(html, email);
-          this.showToast('Downloaded Exchange PowerShell (.ps1)!', 'success');
-        }
-      });
-    }
-
-    // Chrome Extension Package ZIP Downloader
-    const extZipBtn = document.getElementById('downloadExtensionZipBtn');
-    if (extZipBtn && typeof AdminTools !== 'undefined') {
-      extZipBtn.addEventListener('click', async () => {
-        try {
-          await AdminTools.downloadChromeExtensionZip(this.state);
-          this.showToast('Downloaded Chrome Extension (.zip) package!', 'success');
-        } catch (err) {
-          console.error('Failed to export Chrome extension package:', err);
-          this.showToast('Failed to generate extension zip package', 'error');
-        }
-      });
-    }
-  },
-
-  /**
-   * Update script content inside Admin Deployer textarea
-   */
-  updateAdminScriptViewer() {
-    const viewer = document.getElementById('adminScriptViewer');
-    const emailInput = document.getElementById('adminTargetEmail');
-    if (!viewer || typeof AdminTools === 'undefined') return;
-
-    const isDark = this.inboxTheme === 'dark';
-    const html = this.mode === 'template'
-      ? EmailTemplateEngine.generateEmailHtml(this.state.templateData, this.state.data, this.state.settings, isDark, true)
-      : SignatureEngine.generateHtml(this.state.data, this.state.settings, isDark, true);
-    const email = (emailInput && emailInput.value.trim()) || 'user@yourdomain.com';
-
-    if (this.adminPlatform === 'google') {
-      viewer.value = AdminTools.generateGoogleAppsScript(html, email);
-    } else {
-      viewer.value = AdminTools.generateExchangePowerShell(html, email);
-    }
-  },
-
-  /**
-   * Bind HTML5 Canvas Promo Banner Designer
-   */
-  bindBannerDesignerEvents() {
-    const openBtn = document.getElementById('openBannerDesignerBtn');
-    const modal = document.getElementById('bannerDesignerModalOverlay');
-    const closeBtn = document.getElementById('closeBannerDesignerModalBtn');
-    const presetSelect = document.getElementById('bannerPresetSelect');
-    const tagInput = document.getElementById('bannerTagInput');
-    const titleInput = document.getElementById('bannerTitleInput');
-    const subInput = document.getElementById('bannerSubtitleInput');
-    const ctaInput = document.getElementById('bannerCtaInput');
-    const gradSelect = document.getElementById('bannerGradientSelect');
-    const btnBgInput = document.getElementById('bannerButtonBgColor');
-    const btnBgHex = document.getElementById('bannerButtonBgColorHex');
-    const btnTxtInput = document.getElementById('bannerButtonTextColor');
-    const btnTxtHex = document.getElementById('bannerButtonTextColorHex');
-    const applyBtn = document.getElementById('applyBannerToSigBtn');
-    const dlBtn = document.getElementById('downloadBannerPngBtn');
-
-    if (openBtn && modal) {
-      openBtn.addEventListener('click', () => {
-        this.renderBannerDesignerPreview();
-        modal.classList.add('active');
-      });
-    }
-
-    if (closeBtn && modal) {
-      closeBtn.addEventListener('click', () => modal.classList.remove('active'));
-    }
-
-    if (presetSelect && typeof BannerBuilder !== 'undefined') {
-      presetSelect.addEventListener('change', (e) => {
-        const p = BannerBuilder.presets[e.target.value];
-        if (p) {
-          if (tagInput) tagInput.value = p.tag;
-          if (titleInput) titleInput.value = p.title;
-          if (subInput) subInput.value = p.subtitle;
-          if (ctaInput) ctaInput.value = p.ctaText;
-          if (gradSelect) gradSelect.value = p.gradient;
-          if (p.buttonBgColor) {
-            if (btnBgInput) btnBgInput.value = p.buttonBgColor;
-            if (btnBgHex) btnBgHex.value = p.buttonBgColor;
-          }
-          if (p.buttonTextColor) {
-            if (btnTxtInput) btnTxtInput.value = p.buttonTextColor;
-            if (btnTxtHex) btnTxtHex.value = p.buttonTextColor;
-          }
-          this.renderBannerDesignerPreview();
-        }
-      });
-    }
-
-    // 2-Way Color & Hex input sync for button colors
-    if (btnBgInput && btnBgHex) {
-      btnBgInput.addEventListener('input', (e) => {
-        btnBgHex.value = e.target.value;
-        this.renderBannerDesignerPreview();
-      });
-      btnBgHex.addEventListener('input', (e) => {
-        const val = e.target.value.trim();
-        if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
-          btnBgInput.value = val;
-        }
-        this.renderBannerDesignerPreview();
-      });
-    }
-
-    if (btnTxtInput && btnTxtHex) {
-      btnTxtInput.addEventListener('input', (e) => {
-        btnTxtHex.value = e.target.value;
-        this.renderBannerDesignerPreview();
-      });
-      btnTxtHex.addEventListener('input', (e) => {
-        const val = e.target.value.trim();
-        if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
-          btnTxtInput.value = val;
-        }
-        this.renderBannerDesignerPreview();
-      });
-    }
-
-    // Quick swatches for button colors
-    document.querySelectorAll('[data-btn-color]').forEach(swatch => {
-      swatch.addEventListener('click', () => {
-        const col = swatch.getAttribute('data-btn-color');
-        if (btnBgInput) btnBgInput.value = col;
-        if (btnBgHex) btnBgHex.value = col;
-        this.renderBannerDesignerPreview();
-      });
-    });
-
-    document.querySelectorAll('[data-btn-txt-color]').forEach(swatch => {
-      swatch.addEventListener('click', () => {
-        const col = swatch.getAttribute('data-btn-txt-color');
-        if (btnTxtInput) btnTxtInput.value = col;
-        if (btnTxtHex) btnTxtHex.value = col;
-        this.renderBannerDesignerPreview();
-      });
-    });
-
-    const inputs = [tagInput, titleInput, subInput, ctaInput, gradSelect];
-    inputs.forEach(el => {
-      if (el) {
-        el.addEventListener('input', () => this.renderBannerDesignerPreview());
-        el.addEventListener('change', () => this.renderBannerDesignerPreview());
-      }
-    });
-
-    if (applyBtn) {
-      applyBtn.addEventListener('click', () => {
-        const canvas = document.getElementById('bannerCanvas');
-        if (canvas) {
-          const dataUrl = (typeof BannerBuilder !== 'undefined' && typeof BannerBuilder.compressCanvas === 'function')
-            ? BannerBuilder.compressCanvas(canvas)
-            : canvas.toDataURL('image/jpeg', 0.86);
-
-          if (!this.state.data.promoBanner) {
-            this.state.data.promoBanner = { enabled: true, imageUrl: '', targetUrl: '', alt: '' };
-          }
-          this.state.data.promoBanner.imageUrl = dataUrl;
-          this.state.data.promoBanner.enabled = true;
-
-          const cb = document.getElementById('showPromoBanner');
-          if (cb) cb.checked = true;
-          const grp = document.getElementById('promoBannerGroup');
-          if (grp) grp.style.display = 'flex';
-
-          this.updateLivePreview();
-          if (modal) modal.classList.remove('active');
-          this.showToast('Inserted lightweight promo banner into signature!', 'success');
-        }
-      });
-    }
-
-    if (dlBtn && typeof BannerBuilder !== 'undefined') {
-      dlBtn.addEventListener('click', () => {
-        const cfg = this.getBannerCurrentConfig();
-        BannerBuilder.downloadBannerPng(cfg, 'mailcraft-promo-banner');
-        this.showToast('Downloaded banner PNG!', 'success');
-      });
-    }
-  },
-
-  /**
-   * Get current banner designer config from inputs
-   */
-  getBannerCurrentConfig() {
-    const tagInput = document.getElementById('bannerTagInput');
-    const titleInput = document.getElementById('bannerTitleInput');
-    const subInput = document.getElementById('bannerSubtitleInput');
-    const ctaInput = document.getElementById('bannerCtaInput');
-    const gradSelect = document.getElementById('bannerGradientSelect');
-    const btnBgHex = document.getElementById('bannerButtonBgColorHex');
-    const btnBgInput = document.getElementById('bannerButtonBgColor');
-    const btnTxtHex = document.getElementById('bannerButtonTextColorHex');
-    const btnTxtInput = document.getElementById('bannerButtonTextColor');
-
-    const buttonBgColor = (btnBgHex && btnBgHex.value) || (btnBgInput && btnBgInput.value) || this.state.settings.accentColor || '#00DC82';
-    const buttonTextColor = (btnTxtHex && btnTxtHex.value) || (btnTxtInput && btnTxtInput.value) || '#090D16';
-
-    return {
-      tag: tagInput ? tagInput.value.trim() : 'ANNOUNCEMENT',
-      title: titleInput ? titleInput.value.trim() : 'Headline',
-      subtitle: subInput ? subInput.value.trim() : 'Subtitle description',
-      ctaText: ctaInput ? ctaInput.value.trim() : 'Learn More',
-      gradient: gradSelect ? gradSelect.value : 'emerald',
-      accentColor: buttonBgColor,
-      buttonBgColor: buttonBgColor,
-      buttonTextColor: buttonTextColor
-    };
-  },
-
-  /**
-   * Render Banner Designer Canvas
-   */
-  renderBannerDesignerPreview() {
-    const canvas = document.getElementById('bannerCanvas');
-    if (!canvas || typeof BannerBuilder === 'undefined') return;
-    const config = this.getBannerCurrentConfig();
-    BannerBuilder.renderToCanvas(canvas, config);
-  },
-
-  /**
-   * Update real-time DPI resolution & compressed payload telemetry pill
-   */
   updateAvatarTelemetry() {
-    const pixelEl = document.getElementById('avatarPixelDim');
-    const sizeEl = document.getElementById('avatarPayloadSize');
-    if (this.state.data.avatarUrl && /^https?:\/\//i.test(this.state.data.avatarUrl)) {
-      if (pixelEl) pixelEl.textContent = 'Remote HTTPS Asset';
-      if (sizeEl) {
-        sizeEl.textContent = '0 KB Base64 (Mobile Gmail Safe)';
-        sizeEl.style.color = 'var(--sahinur-accent)';
-      }
-      return;
-    }
-    if (typeof ImageProcessor === 'undefined' || !ImageProcessor.getPayloadStats) return;
-    const stats = ImageProcessor.getPayloadStats();
-    if (pixelEl) pixelEl.textContent = `${stats.pixels} (${stats.dpi}x DPI)`;
-    if (sizeEl) {
-      sizeEl.textContent = `~${stats.kb} KB (${stats.isOptimized ? '100% Crisp · Safe' : 'Uncompressed'})`;
-      sizeEl.style.color = stats.isOptimized ? 'var(--sahinur-accent)' : '#F59E0B';
+    if (typeof FormControls !== 'undefined' && FormControls.updateAvatarTelemetry) {
+      return FormControls.updateAvatarTelemetry(this);
     }
   },
 
-  /**
-   * Bind Add-ons (QR / vCard, Status Badge, Booking Badge)
-   */
   bindAddonControls() {
-    // 1. Live Status Badge
-    const showStatus = document.getElementById('showStatusBadge');
-    if (showStatus) {
-      showStatus.addEventListener('change', (e) => {
-        if (!this.state.data.statusBadge) this.state.data.statusBadge = {};
-        this.state.data.statusBadge.enabled = e.target.checked;
-        this.state.data.showStatusBadge = e.target.checked;
-        const txtEl = document.getElementById('statusBadgeText');
-        if (txtEl && (!this.state.data.statusBadge.text || !this.state.data.statusBadge.text.trim())) {
-          this.state.data.statusBadge.text = txtEl.value || 'Available for Projects';
-        }
-        const colorEl = document.getElementById('statusBadgeColor');
-        if (colorEl && !this.state.data.statusBadge.color) {
-          this.state.data.statusBadge.color = colorEl.value || '#10B981';
-        }
-        const grp = document.getElementById('statusBadgeGroup');
-        if (grp) grp.style.display = e.target.checked ? 'flex' : 'none';
-        this.updateLivePreview();
-      });
-    }
-
-    const statusPresetSelect = document.getElementById('statusPresetSelect');
-    if (statusPresetSelect) {
-      statusPresetSelect.addEventListener('change', (e) => {
-        if (e.target.value !== 'custom') {
-          if (!this.state.data.statusBadge) this.state.data.statusBadge = {};
-          this.state.data.statusBadge.text = e.target.value;
-          const txt = document.getElementById('statusBadgeText');
-          if (txt) txt.value = e.target.value;
-          this.updateLivePreview();
-        }
-      });
-    }
-
-    const statusText = document.getElementById('statusBadgeText');
-    if (statusText) {
-      statusText.addEventListener('input', (e) => {
-        if (!this.state.data.statusBadge) this.state.data.statusBadge = {};
-        this.state.data.statusBadge.text = e.target.value;
-        this.updateLivePreview();
-      });
-    }
-
-    const statusColor = document.getElementById('statusBadgeColor');
-    const statusColorHex = document.getElementById('statusBadgeColorHex');
-    if (statusColor && statusColorHex) {
-      statusColor.addEventListener('input', (e) => {
-        statusColorHex.value = e.target.value;
-        if (!this.state.data.statusBadge) this.state.data.statusBadge = {};
-        this.state.data.statusBadge.color = e.target.value;
-        this.updateLivePreview();
-      });
-      statusColorHex.addEventListener('input', (e) => {
-        if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
-          statusColor.value = e.target.value;
-          if (!this.state.data.statusBadge) this.state.data.statusBadge = {};
-          this.state.data.statusBadge.color = e.target.value;
-          this.updateLivePreview();
-        }
-      });
-    }
-
-    // 2. Calendar Booking Badge
-    const showBooking = document.getElementById('showBookingBadge');
-    if (showBooking) {
-      showBooking.addEventListener('change', (e) => {
-        if (!this.state.data.bookingBadge) this.state.data.bookingBadge = {};
-        this.state.data.bookingBadge.enabled = e.target.checked;
-        this.state.data.showBookingBadge = e.target.checked;
-        const txtEl = document.getElementById('bookingBadgeText');
-        if (txtEl && (!this.state.data.bookingBadge.text || !this.state.data.bookingBadge.text.trim())) {
-          this.state.data.bookingBadge.text = txtEl.value || 'Schedule 1:1 Call';
-        }
-        const urlEl = document.getElementById('bookingBadgeUrl');
-        if (urlEl && (!this.state.data.bookingBadge.url || !this.state.data.bookingBadge.url.trim())) {
-          this.state.data.bookingBadge.url = urlEl.value || 'https://calendly.com';
-        }
-        const provEl = document.getElementById('bookingProviderSelect');
-        if (provEl && !this.state.data.bookingBadge.provider) {
-          this.state.data.bookingBadge.provider = provEl.value || 'calendly';
-        }
-        const grp = document.getElementById('bookingBadgeGroup');
-        if (grp) grp.style.display = e.target.checked ? 'flex' : 'none';
-        this.updateLivePreview();
-      });
-    }
-
-    const bookingProvider = document.getElementById('bookingProviderSelect');
-    if (bookingProvider) {
-      bookingProvider.addEventListener('change', (e) => {
-        if (!this.state.data.bookingBadge) this.state.data.bookingBadge = {};
-        this.state.data.bookingBadge.provider = e.target.value;
-        this.updateLivePreview();
-      });
-    }
-
-    const bookingText = document.getElementById('bookingBadgeText');
-    if (bookingText) {
-      bookingText.addEventListener('input', (e) => {
-        if (!this.state.data.bookingBadge) this.state.data.bookingBadge = {};
-        this.state.data.bookingBadge.text = e.target.value;
-        this.updateLivePreview();
-      });
-    }
-
-    const bookingUrl = document.getElementById('bookingBadgeUrl');
-    if (bookingUrl) {
-      bookingUrl.addEventListener('input', (e) => {
-        if (!this.state.data.bookingBadge) this.state.data.bookingBadge = {};
-        this.state.data.bookingBadge.url = e.target.value;
-        this.updateLivePreview();
-      });
-    }
-
-    // 3. QR Code & vCard Hub
-    const showQr = document.getElementById('showQrCode');
-    if (showQr) {
-      showQr.addEventListener('change', (e) => {
-        if (!this.state.data.qrCode) this.state.data.qrCode = {};
-        this.state.data.qrCode.enabled = e.target.checked;
-        this.state.data.showQrCode = e.target.checked;
-        if (!this.state.data.qrCode.size) this.state.data.qrCode.size = 64;
-        if (!this.state.data.qrCode.targetMode) this.state.data.qrCode.targetMode = 'vcard';
-        const grp = document.getElementById('qrCodeGroup');
-        if (grp) grp.style.display = e.target.checked ? 'flex' : 'none';
-        this.updateLivePreview();
-      });
-    }
-
-    const qrMode = document.getElementById('qrTargetMode');
-    if (qrMode) {
-      qrMode.addEventListener('change', (e) => {
-        if (!this.state.data.qrCode) this.state.data.qrCode = {};
-        this.state.data.qrCode.targetMode = e.target.value;
-        const customGrp = document.getElementById('qrCustomUrlGroup');
-        if (customGrp) customGrp.style.display = (e.target.value === 'custom') ? 'block' : 'none';
-        this.updateLivePreview();
-      });
-    }
-
-    const qrCustomUrl = document.getElementById('qrCustomUrl');
-    if (qrCustomUrl) {
-      qrCustomUrl.addEventListener('input', (e) => {
-        if (!this.state.data.qrCode) this.state.data.qrCode = {};
-        this.state.data.qrCode.customUrl = e.target.value;
-        this.updateLivePreview();
-      });
-    }
-
-    const qrSize = document.getElementById('qrSize');
-    if (qrSize) {
-      qrSize.addEventListener('input', (e) => {
-        const val = Number(e.target.value);
-        if (!this.state.data.qrCode) this.state.data.qrCode = {};
-        this.state.data.qrCode.size = val;
-        const valBadge = document.getElementById('qrSizeVal');
-        if (valBadge) valBadge.textContent = `${val}px`;
-        this.updateLivePreview();
-      });
-    }
-
-    const dlVcfBtn = document.getElementById('downloadVcfBtn');
-    if (dlVcfBtn && typeof VCardEngine !== 'undefined') {
-      dlVcfBtn.addEventListener('click', () => {
-        VCardEngine.downloadVCard(this.state.data);
-        this.showToast('Downloaded RFC 2426 .vcf contact card!', 'success');
-      });
-    }
-
-    const dlQrBtn = document.getElementById('downloadQrPngBtn');
-    if (dlQrBtn && typeof QrEngine !== 'undefined') {
-      dlQrBtn.addEventListener('click', () => {
-        const qrObj = this.state.data.qrCode || {};
-        let payload = '';
-        if (qrObj.targetMode === 'website') {
-          payload = this.state.data.website || 'https://www.dhrubojyoti.dev';
-        } else if (qrObj.targetMode === 'custom') {
-          payload = qrObj.customUrl || this.state.data.website || 'https://www.dhrubojyoti.dev';
-        } else {
-          payload = typeof VCardEngine !== 'undefined' ? VCardEngine.generateVCardString(this.state.data) : (this.state.data.website || '');
-        }
-
-        const dataUrl = QrEngine.generatePngDataUrl(payload, { scale: 8, margin: 2 });
-        if (dataUrl) {
-          const a = document.createElement('a');
-          a.href = dataUrl;
-          a.download = `mailcraft-qr-${(this.state.data.fullName || 'contact').toLowerCase().replace(/\s+/g, '-')}.png`;
-          document.body.appendChild(a);
-          a.click();
-          setTimeout(() => document.body.removeChild(a), 200);
-          this.showToast('Downloaded high-resolution QR PNG!', 'success');
-        }
-      });
+    if (typeof FormControls !== 'undefined' && FormControls.bindAddonControls) {
+      return FormControls.bindAddonControls(this);
     }
   },
 
-  /**
-   * Bind Custom Field Preset Tag Chips in Identity and Custom tabs
-   */
   bindCustomFieldChips() {
-    document.querySelectorAll('.custom-field-preset-tag').forEach(tag => {
-      tag.addEventListener('click', () => {
-        const label = tag.dataset.label;
-        const val = tag.dataset.val;
-        if (!Array.isArray(this.state.data.customFields)) {
-          this.state.data.customFields = [];
-        }
-
-        this.state.data.customFields.push({
-          label: label || 'Field',
-          value: val || '',
-          url: ''
-        });
-
-        this.renderCustomFieldsInputs();
-        this.updateLivePreview();
-        this.showToast(`Added custom field "${label}"!`, 'success');
-      });
-    });
-  },
-
-  /**
-   * Handle CSV file drop or upload
-   */
-  handleCsvFile(file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const parsed = TeamEngine.parseCsv(e.target.result);
-      if (parsed.length > 0) {
-        this.renderTeamRosterList();
-        this.syncActiveTeamMemberToSimulator();
-        this.showToast(`Imported ${parsed.length} team members from CSV!`, 'success');
-      } else {
-        this.showToast('Could not parse members from CSV. Please check format.', 'error');
-      }
-    };
-    reader.readAsText(file);
-  },
-
-  /**
-   * Render custom preset cards inside preset manager modal
-   */
-  renderPresetManagerModalList() {
-    const container = document.getElementById('customPresetsListModal');
-    if (!container) return;
-
-    const presets = PresetManager.getUserPresets();
-    if (!presets.length) {
-      container.innerHTML = `<div class="form-label-desc" style="padding: 20px; text-align: center;">No custom presets saved yet. Create your unique design and click "Save Preset".</div>`;
-      return;
+    if (typeof FormControls !== 'undefined' && FormControls.bindCustomFieldChips) {
+      return FormControls.bindCustomFieldChips(this);
     }
-
-    container.innerHTML = presets.map(p => {
-      const dateStr = p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : '';
-      return `
-        <div class="custom-preset-card" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--sahinur-surface-2); border: 1px solid var(--sahinur-border); border-radius: 6px;">
-          <div>
-            <div style="font-weight: 700; font-size: 13px; color: var(--sahinur-text-bright);">${p.name}</div>
-            <div style="font-size: 11px; color: var(--sahinur-text-dim); margin-top: 2px;">${p.description || 'Custom template configuration'} ${dateStr ? `&bull; ${dateStr}` : ''}</div>
-          </div>
-          <div style="display: flex; gap: 6px;">
-            <button class="btn-primary apply-preset-modal-btn" data-preset-id="${p.id}" style="padding: 4px 10px; font-size: 11px;">Apply</button>
-            <button class="btn-secondary dup-preset-modal-btn" data-preset-id="${p.id}" style="padding: 4px 8px; font-size: 11px;" title="Duplicate">Copy</button>
-            <button class="btn-secondary export-preset-modal-btn" data-preset-id="${p.id}" style="padding: 4px 8px; font-size: 11px;" title="Export JSON">JSON</button>
-            <button class="btn-secondary del-preset-modal-btn" data-preset-id="${p.id}" style="padding: 4px 8px; font-size: 11px; color: #EF4444;" title="Delete">&times;</button>
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    // Modal buttons wiring
-    container.querySelectorAll('.apply-preset-modal-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const id = btn.dataset.presetId;
-        const target = PresetManager.getUserPresets().find(p => p.id === id);
-        if (target) {
-          this.applyUserPresetObject(target);
-          document.getElementById('presetManagerModalOverlay')?.classList.remove('active');
-        }
-      });
-    });
-
-    container.querySelectorAll('.dup-preset-modal-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        PresetManager.duplicatePreset(btn.dataset.presetId);
-        this.refreshPresetDropdown();
-        this.renderPresetManagerModalList();
-        this.showToast('Preset duplicated!', 'success');
-      });
-    });
-
-    container.querySelectorAll('.export-preset-modal-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const target = PresetManager.getUserPresets().find(p => p.id === btn.dataset.presetId);
-        if (target) PresetManager.exportPresetAsJson(target);
-      });
-    });
-
-    container.querySelectorAll('.del-preset-modal-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        PresetManager.deletePreset(btn.dataset.presetId);
-        this.refreshPresetDropdown();
-        this.renderPresetManagerModalList();
-        this.showToast('Preset deleted.', 'info');
-      });
-    });
   },
 
-  /**
-   * Render Team Directory Modal list with instant copy buttons
-   */
-  renderTeamDirectoryModalList(searchQuery = '') {
-    const container = document.getElementById('teamDirectoryListModal');
-    if (!container) return;
-
-    let list = TeamEngine.roster;
-    if (searchQuery) {
-      list = list.filter(m => {
-        const hay = `${m.fullName} ${m.jobTitle} ${m.department} ${m.email} ${m.location}`.toLowerCase();
-        return hay.includes(searchQuery);
-      });
-    }
-
-    if (!list.length) {
-      container.innerHTML = `<div class="form-label-desc" style="padding: 20px; text-align: center;">No matching members found.</div>`;
-      return;
-    }
-
-    container.innerHTML = list.map(m => {
-      return `
-        <div class="team-directory-card" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--sahinur-surface-2); border: 1px solid var(--sahinur-border); border-radius: 6px;">
-          <div>
-            <div style="font-weight: 700; font-size: 13px; color: var(--sahinur-text-bright);">${m.fullName}</div>
-            <div style="font-size: 11px; color: var(--sahinur-text-dim); margin-top: 2px;">
-              ${m.jobTitle || 'Role'} &bull; ${m.department || 'Department'} &bull; <a href="mailto:${m.email}" style="color: var(--sahinur-accent);">${m.email}</a>
-            </div>
-          </div>
-          <div style="display: flex; gap: 6px;">
-            <button class="btn-primary copy-member-rich-btn" data-member-id="${m.id}" style="padding: 4px 10px; font-size: 11px;">Copy Rich</button>
-            <button class="btn-secondary copy-member-html-btn" data-member-id="${m.id}" style="padding: 4px 8px; font-size: 11px;">Copy HTML</button>
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    // Wire instant copy buttons for each member
-    container.querySelectorAll('.copy-member-rich-btn').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const member = TeamEngine.roster.find(m => m.id === btn.dataset.memberId);
-        if (!member) return;
-        const memberData = {
-          ...this.state.data,
-          fullName: member.fullName,
-          jobTitle: member.jobTitle,
-          department: member.department,
-          company: member.company || this.state.data.company,
-          email: member.email,
-          phone: member.phone || this.state.data.phone,
-          website: member.website || this.state.data.website,
-          address: member.location || this.state.data.address
-        };
-        const html = SignatureEngine.generateHtml(memberData, this.state.settings, false, true);
-        if (typeof ClipboardHelper !== 'undefined') {
-          await ClipboardHelper.copyHtmlDirectly(html);
-          this.showToast(`Copied signature for ${member.fullName}!`, 'success');
-        }
-      });
-    });
-
-    container.querySelectorAll('.copy-member-html-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const member = TeamEngine.roster.find(m => m.id === btn.dataset.memberId);
-        if (!member) return;
-        const memberData = {
-          ...this.state.data,
-          fullName: member.fullName,
-          jobTitle: member.jobTitle,
-          department: member.department,
-          company: member.company || this.state.data.company,
-          email: member.email,
-          phone: member.phone || this.state.data.phone,
-          website: member.website || this.state.data.website,
-          address: member.location || this.state.data.address
-        };
-        const html = SignatureEngine.generateHtml(memberData, this.state.settings, false, true);
-        navigator.clipboard.writeText(html).then(() => {
-          this.showToast(`Copied raw HTML for ${member.fullName}!`, 'success');
-        });
-      });
-    });
-  },
-
-  /**
-   * Bind mobile bottom bar view switcher & quick copy
-   */
   bindMobileNavigation() {
-    const workspace = document.querySelector('.studio-workspace-container');
-    const formBtn = document.getElementById('mobileFormTabBtn');
-    const previewBtn = document.getElementById('mobilePreviewTabBtn');
-    const copyBtn = document.getElementById('mobileQuickCopyBtn');
-
-    if (formBtn && previewBtn && workspace) {
-      formBtn.addEventListener('click', () => {
-        workspace.classList.remove('mobile-preview-active');
-        formBtn.classList.add('active');
-        previewBtn.classList.remove('active');
-      });
-
-      previewBtn.addEventListener('click', () => {
-        workspace.classList.add('mobile-preview-active');
-        previewBtn.classList.add('active');
-        formBtn.classList.remove('active');
-        this.updateLivePreview();
-      });
-    }
-
-    if (copyBtn) {
-      copyBtn.addEventListener('click', () => {
-        const copyRichBtn = document.getElementById('copyRichTextBtn') || document.getElementById('headerCopyBtn');
-        if (copyRichBtn) {
-          copyRichBtn.click();
-        } else {
-          const html = SignatureEngine.generateHtml(this.state.data, this.state.settings, false, true);
-          ClipboardExporter.copyRichHtml(html, this.generatePlainText(), (success, msg) => {
-            this.showToast(msg, success ? 'success' : 'error');
-          });
-        }
-      });
+    if (typeof FormControls !== 'undefined' && FormControls.bindMobileNavigation) {
+      return FormControls.bindMobileNavigation(this);
     }
   },
 
-  /**
-   * Pillar 4A: WYSIWYG Direct Inline Canvas Editing with 2-Way Input Sync
-   */
-  bindInlineCanvasEditing() {
-    const canvas = document.getElementById('liveRenderCanvas');
-    if (!canvas) return;
-
-    // Prevent navigation when clicking links containing inline editable spans
-    canvas.addEventListener('click', (e) => {
-      const fieldSpan = e.target.closest('[data-inline-field]');
-      if (fieldSpan) {
-        const anchor = e.target.closest('a');
-        if (anchor) {
-          e.preventDefault();
-        }
-      }
-    });
-
-    // Direct input typing on editable canvas fields
-    canvas.addEventListener('input', (e) => {
-      const fieldSpan = e.target.closest('[data-inline-field]');
-      if (!fieldSpan) return;
-
-      const fieldName = fieldSpan.getAttribute('data-inline-field');
-      const val = fieldSpan.innerText || fieldSpan.textContent || '';
-
-      if (fieldName.startsWith('customField_')) {
-        const idx = parseInt(fieldName.replace('customField_', ''), 10);
-        if (this.state.data.customFields && this.state.data.customFields[idx]) {
-          this.state.data.customFields[idx].value = val;
-          const input = document.getElementById(`customFieldVal_${idx}`);
-          if (input) input.value = val;
-        }
-      } else if (fieldName === 'statusText') {
-        if (!this.state.data.statusBadge) this.state.data.statusBadge = {};
-        this.state.data.statusBadge.text = val;
-        this.state.data.statusText = val;
-        const input = document.getElementById('statusBadgeText');
-        if (input) input.value = val;
-      } else if (fieldName === 'bookingBadgeText') {
-        if (!this.state.data.bookingBadge) this.state.data.bookingBadge = {};
-        this.state.data.bookingBadge.text = val;
-        const input = document.getElementById('bookingBadgeText');
-        if (input) input.value = val;
-      } else if (fieldName in this.state.data) {
-        this.state.data[fieldName] = val;
-        const input = document.getElementById(fieldName);
-        if (input) input.value = val;
-      }
-
-      this.saveToStorage();
-    });
-
-    // Blur / Focusout: Re-run live preview for complete layout sync & linter audit
-    canvas.addEventListener('focusout', (e) => {
-      const fieldSpan = e.target.closest('[data-inline-field]');
-      if (!fieldSpan) return;
-      this.updateLivePreview();
-    });
-
-    // Keydown: Prevent unwanted newline line breaks on single-line header fields
-    canvas.addEventListener('keydown', (e) => {
-      const fieldSpan = e.target.closest('[data-inline-field]');
-      if (!fieldSpan) return;
-      const fieldName = fieldSpan.getAttribute('data-inline-field');
-      const multilineFields = ['disclaimerText', 'quoteText', 'address'];
-      if (e.key === 'Enter' && !multilineFields.includes(fieldName)) {
-        e.preventDefault();
-        fieldSpan.blur();
-      }
-    });
-  },
-
-  /**
-   * Pillar 4B: Modular Block Organizer (Drag & Drop + Up/Down Reordering)
-   */
-  bindBlockOrganizerEvents() {
-    const container = document.getElementById('blockOrganizerList');
-    const resetBtn = document.getElementById('resetBlockOrderBtn');
-    if (!container) return;
-
-    const defaultOrder = ['identity', 'contact', 'socials', 'badges', 'banner', 'footer'];
-    if (!Array.isArray(this.state.settings.blockOrder) || this.state.settings.blockOrder.length === 0) {
-      this.state.settings.blockOrder = [...defaultOrder];
-    }
-
-    const syncOrganizerDom = () => {
-      const order = this.state.settings.blockOrder || defaultOrder;
-      const items = Array.from(container.querySelectorAll('.block-item'));
-      order.forEach(blockKey => {
-        const item = items.find(el => el.dataset.block === blockKey);
-        if (item) container.appendChild(item);
-      });
-    };
-
-    syncOrganizerDom();
-
-    // Up / Down reorder button clicks
-    container.addEventListener('click', (e) => {
-      const btnUp = e.target.closest('.block-btn-up');
-      const btnDown = e.target.closest('.block-btn-down');
-      if (!btnUp && !btnDown) return;
-
-      const item = e.target.closest('.block-item');
-      if (!item) return;
-      const blockKey = item.dataset.block;
-      let order = [...(this.state.settings.blockOrder || defaultOrder)];
-      const idx = order.indexOf(blockKey);
-      if (idx === -1) return;
-
-      if (btnUp && idx > 0) {
-        const temp = order[idx];
-        order[idx] = order[idx - 1];
-        order[idx - 1] = temp;
-      } else if (btnDown && idx < order.length - 1) {
-        const temp = order[idx];
-        order[idx] = order[idx + 1];
-        order[idx + 1] = temp;
-      }
-
-      this.state.settings.blockOrder = order;
-      syncOrganizerDom();
-      this.updateLivePreview();
-      this.saveToStorage();
-    });
-
-    // HTML5 Drag and Drop Handlers
-    let draggedItem = null;
-
-    container.addEventListener('dragstart', (e) => {
-      draggedItem = e.target.closest('.block-item');
-      if (draggedItem) {
-        draggedItem.classList.add('dragging');
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', draggedItem.dataset.block);
-      }
-    });
-
-    container.addEventListener('dragend', () => {
-      if (draggedItem) {
-        draggedItem.classList.remove('dragging');
-        draggedItem = null;
-      }
-      container.querySelectorAll('.block-item').forEach(el => el.classList.remove('drag-over'));
-    });
-
-    container.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      const targetItem = e.target.closest('.block-item');
-      if (targetItem && targetItem !== draggedItem) {
-        container.querySelectorAll('.block-item').forEach(el => el.classList.remove('drag-over'));
-        targetItem.classList.add('drag-over');
-      }
-    });
-
-    container.addEventListener('drop', (e) => {
-      e.preventDefault();
-      const targetItem = e.target.closest('.block-item');
-      if (targetItem && draggedItem && targetItem !== draggedItem) {
-        const items = Array.from(container.querySelectorAll('.block-item'));
-        const draggedIdx = items.indexOf(draggedItem);
-        const targetIdx = items.indexOf(targetItem);
-
-        let order = [...(this.state.settings.blockOrder || defaultOrder)];
-        const [removed] = order.splice(draggedIdx, 1);
-        order.splice(targetIdx, 0, removed);
-
-        this.state.settings.blockOrder = order;
-        syncOrganizerDom();
-        this.updateLivePreview();
-        this.saveToStorage();
-      }
-      container.querySelectorAll('.block-item').forEach(el => el.classList.remove('drag-over'));
-    });
-
-    if (resetBtn) {
-      resetBtn.addEventListener('click', () => {
-        this.state.settings.blockOrder = [...defaultOrder];
-        syncOrganizerDom();
-        this.updateLivePreview();
-        this.saveToStorage();
-        this.showToast('Reset block order to default hierarchy', 'info');
-      });
+  bindStudioFormControls() {
+    if (typeof FormControls !== 'undefined' && FormControls.bindStudioFormControls) {
+      return FormControls.bindStudioFormControls(this);
     }
   },
 
-  /**
-   * Bind all input events for real-time live preview updates
-   */
   bindWebsiteInteractions() {
-    const bindInput = (id, prop, target = 'data') => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('input', (e) => {
-          this.state[target][prop] = e.target.value;
-          this.updateLivePreview();
-        });
-      }
-    };
-
-    const bindSettingInput = (id, prop, isNum = false) => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('input', (e) => {
-          this.state.settings[prop] = isNum ? Number(e.target.value) : e.target.value;
-          this.updateLivePreview();
-        });
-      }
-    };
-
-    // Identity Inputs
-    bindInput('fullName', 'fullName');
-    bindInput('jobTitle', 'jobTitle');
-    bindInput('company', 'company');
-    bindInput('department', 'department');
-    bindInput('phone', 'phone');
-    bindInput('email', 'email');
-    bindInput('website', 'website');
-    bindInput('address', 'address');
-    bindInput('country', 'country');
-
-    // Granular Line-by-Line Identity Settings
-    bindSettingInput('namePrefix', 'namePrefix');
-    bindSettingInput('nameSuffix', 'nameSuffix');
-    bindSettingInput('nameTag', 'nameTag');
-    bindSettingInput('labelPhone', 'labelPhone');
-    bindSettingInput('labelEmail', 'labelEmail');
-    bindSettingInput('labelWebsite', 'labelWebsite');
-    bindSettingInput('labelAddress', 'labelAddress');
-
-    // Headshot (External HTTPS Link & Local Upload)
-    const avatarUrlInput = document.getElementById('avatarUrlInput');
-    if (avatarUrlInput) {
-      avatarUrlInput.addEventListener('input', (e) => {
-        const val = e.target.value.trim();
-        if (val) {
-          this.state.data.avatarUrl = val;
-        } else {
-          this.state.data.avatarUrl = (typeof ImageProcessor !== 'undefined' && ImageProcessor.processedDataUrl)
-            ? ImageProcessor.processedDataUrl
-            : '';
-        }
-        this.updateLivePreview();
-        this.updateAvatarTelemetry();
-      });
-    }
-
-    const avatarInput = document.getElementById('avatarFileInput');
-    if (avatarInput) {
-      avatarInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file && typeof ImageProcessor !== 'undefined') {
-          ImageProcessor.loadImageFile(file, (dataUrl) => {
-            this.state.data.avatarUrl = dataUrl;
-            if (avatarUrlInput) avatarUrlInput.value = '';
-            this.updateLivePreview();
-            this.updateAvatarTelemetry();
-            this.showToast('Uploaded and optimized headshot with High-DPI!', 'success');
-          });
-        }
-      });
-    }
-
-    document.querySelectorAll('.dpi-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        document.querySelectorAll('.dpi-chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-        const dpi = Number(chip.dataset.dpi);
-        if (typeof ImageProcessor !== 'undefined') {
-          ImageProcessor.config.dpi = dpi;
-          ImageProcessor.process((dataUrl) => {
-            this.state.data.avatarUrl = dataUrl;
-            this.updateLivePreview();
-            this.updateAvatarTelemetry();
-          });
-        }
-        const label = document.getElementById('dpiLabel');
-        if (label) label.textContent = `[${dpi}x RETINA]`;
-        const hdBadge = document.getElementById('hdBadge');
-        if (hdBadge) hdBadge.textContent = `ONLINE // RETINA ${dpi}X`;
-      });
-    });
-
-    // Smart DPI Compression Engine Selector
-    const avatarCompSelect = document.getElementById('avatarCompressionSelect');
-    if (avatarCompSelect) {
-      avatarCompSelect.addEventListener('change', (e) => {
-        if (typeof ImageProcessor !== 'undefined') {
-          ImageProcessor.config.compressionMode = e.target.value;
-          ImageProcessor.process((dataUrl) => {
-            this.state.data.avatarUrl = dataUrl;
-            this.updateLivePreview();
-            this.updateAvatarTelemetry();
-          });
-        }
-      });
-    }
-
-    // Avatar Shapes
-    document.querySelectorAll('.shape-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const shape = btn.dataset.shape;
-        this.state.settings.avatarShape = shape;
-        this.updateLivePreview();
-      });
-    });
-
-    // Avatar Size
-    const avatarSize = document.getElementById('avatarSize');
-    if (avatarSize) {
-      avatarSize.addEventListener('input', (e) => {
-        const val = Number(e.target.value);
-        this.state.settings.avatarSize = val;
-        const valBadge = document.getElementById('avatarSizeVal');
-        if (valBadge) valBadge.textContent = `${val}px`;
-        if (typeof ImageProcessor !== 'undefined') {
-          ImageProcessor.config.size = val;
-          ImageProcessor.process((dataUrl) => {
-            this.state.data.avatarUrl = dataUrl;
-            this.updateLivePreview();
-            this.updateAvatarTelemetry();
-          });
-        } else {
-          this.updateLivePreview();
-        }
-      });
-    }
-
-    // Avatar Zoom
-    const avatarZoom = document.getElementById('avatarZoom');
-    if (avatarZoom) {
-      avatarZoom.addEventListener('input', (e) => {
-        const val = parseFloat(e.target.value);
-        const valBadge = document.getElementById('avatarZoomVal');
-        if (valBadge) valBadge.textContent = `${val.toFixed(1)}x`;
-        if (typeof ImageProcessor !== 'undefined') {
-          ImageProcessor.config.zoom = val;
-          ImageProcessor.process((dataUrl) => {
-            this.state.data.avatarUrl = dataUrl;
-            this.updateLivePreview();
-            this.updateAvatarTelemetry();
-          });
-        }
-      });
-    }
-
-    // Avatar Border
-    const avatarBorderWidth = document.getElementById('avatarBorderWidth');
-    if (avatarBorderWidth) {
-      avatarBorderWidth.addEventListener('input', (e) => {
-        const val = Number(e.target.value);
-        this.state.settings.avatarBorderWidth = val;
-        const valBadge = document.getElementById('avatarBorderVal');
-        if (valBadge) valBadge.textContent = `${val}px`;
-        this.updateLivePreview();
-      });
-    }
-
-    // Filters (Brightness, Contrast, Saturation)
-    const bindFilter = (id, prop, badgeId) => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('input', (e) => {
-          const val = Number(e.target.value);
-          const badge = document.getElementById(badgeId);
-          if (badge) badge.textContent = `${val}%`;
-          if (typeof ImageProcessor !== 'undefined') {
-            ImageProcessor.config[prop] = val;
-            ImageProcessor.process((dataUrl) => {
-              this.state.data.avatarUrl = dataUrl;
-              this.updateLivePreview();
-            });
-          }
-        });
-      }
-    };
-
-    bindFilter('imgBrightness', 'brightness', 'brightnessVal');
-    bindFilter('imgContrast', 'contrast', 'contrastVal');
-    bindFilter('imgSaturation', 'saturation', 'saturationVal');
-
-    // Layout Architecture Cards
-    document.querySelectorAll('.template-card').forEach(card => {
-      card.addEventListener('click', () => {
-        document.querySelectorAll('.template-card').forEach(c => c.classList.remove('active'));
-        card.classList.add('active');
-        this.state.settings.template = card.dataset.template;
-        this.updateLivePreview();
-      });
-    });
-
-    // Generic Color Pair Binding Helper
-    const bindColorPair = (id, setter) => {
-      const picker = document.getElementById(id);
-      const hex = document.getElementById(id + 'Hex');
-      if (picker) {
-        picker.addEventListener('input', (e) => {
-          if (hex) hex.value = e.target.value;
-          setter(e.target.value);
-          this.updateLivePreview();
-        });
-      }
-      if (hex) {
-        hex.addEventListener('input', (e) => {
-          if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
-            if (picker) picker.value = e.target.value;
-            setter(e.target.value);
-            this.updateLivePreview();
-          }
-        });
-      }
-    };
-
-    // Helper: Synchronize Color Picker and Hex Input Pair
-    const syncColorInput = (id, val) => {
-      const p = document.getElementById(id);
-      const h = document.getElementById(id + 'Hex');
-      if (p && val) p.value = val;
-      if (h && val) h.value = val;
-    };
-
-    // Master Accent Color & Quick Swatches Controller
-    const accentColor = document.getElementById('accentColor');
-    const accentColorHex = document.getElementById('accentColorHex');
-
-    const setAccentColor = (val, cascade = true) => {
-      if (!val) return;
-
-      // 1. Update master accent in settings and DOM
-      this.state.settings.accentColor = val;
-      if (accentColor) accentColor.value = val;
-      if (accentColorHex) accentColorHex.value = val;
-
-      if (cascade) {
-        // 2. Cascade master accent to design system elements
-        this.state.settings.dividerColor = val;
-        this.state.settings.titleColor = val;
-        this.state.settings.labelColor = val;
-        this.state.settings.linkColor = val;
-        this.state.settings.avatarBorderColor = val;
-
-        // Cascade to Email Template highlights & CTA
-        if (this.state.templateData) {
-          this.state.templateData.highlightTitleColor = val;
-          this.state.templateData.ctaBgColor = val;
-        }
-
-        // 3. Synchronize all UI inputs in the DOM
-        syncColorInput('dividerColor', val);
-        syncColorInput('titleColor', val);
-        syncColorInput('labelColor', val);
-        syncColorInput('linkColor', val);
-        syncColorInput('avatarBorderColor', val);
-        syncColorInput('tplHighlightTitleColor', val);
-        syncColorInput('tplCtaBgColor', val);
-
-        // 4. Update ImageProcessor border color if active
-        if (typeof ImageProcessor !== 'undefined') {
-          ImageProcessor.config.borderColor = val;
-          if (ImageProcessor.rawSourceImage) {
-            ImageProcessor.process((dataUrl) => {
-              this.state.data.avatarUrl = dataUrl;
-              this.updateLivePreview();
-            });
-          }
-        }
-      }
-
-      // 5. Update active swatch indicator in the palette
-      const valLower = val.toLowerCase();
-      document.querySelectorAll('.color-swatch[data-color]').forEach(swatch => {
-        const swatchColor = (swatch.dataset.color || '').toLowerCase();
-        swatch.classList.toggle('active', swatchColor === valLower);
-      });
-
-      // 6. Refresh live previews
-      this.updateLivePreview();
-    };
-
-    // Expose setAccentColor on App instance for programmatic & preset control
-    this.setAccentColor = setAccentColor;
-
-    if (accentColor) {
-      accentColor.addEventListener('input', (e) => setAccentColor(e.target.value, true));
-    }
-    if (accentColorHex) {
-      accentColorHex.addEventListener('input', (e) => {
-        if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
-          setAccentColor(e.target.value, true);
-        }
-      });
-    }
-
-    document.querySelectorAll('.color-swatch[data-color]').forEach(swatch => {
-      swatch.addEventListener('click', () => {
-        const color = swatch.dataset.color;
-        if (color) setAccentColor(color, true);
-      });
-    });
-
-    // "Sync All to Accent" button in Section 02
-    const btnSyncAllAccent = document.getElementById('btnSyncAllAccent');
-    if (btnSyncAllAccent) {
-      btnSyncAllAccent.addEventListener('click', () => {
-        const currentAccent = this.state.settings.accentColor || '#00DC82';
-        setAccentColor(currentAccent, true);
-        if (typeof this.showToast === 'function') {
-          this.showToast('Synchronized all accent elements with Master Accent', 'success');
-        }
-      });
-    }
-
-    // Per-field "Match Accent" buttons
-    document.querySelectorAll('.btn-match-accent').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const targetField = btn.dataset.syncTarget;
-        const currentAccent = this.state.settings.accentColor || '#00DC82';
-        if (targetField && this.state.settings) {
-          this.state.settings[targetField] = currentAccent;
-          syncColorInput(targetField, currentAccent);
-          this.updateLivePreview();
-          if (typeof this.showToast === 'function') {
-            this.showToast(`Matched ${targetField} with Master Accent`, 'info');
-          }
-        }
-      });
-    });
-
-    // Granular Signature Text & Element Colors (Manual Overrides)
-    bindColorPair('nameColor', (v) => { this.state.settings.nameColor = v; });
-    bindColorPair('titleColor', (v) => { this.state.settings.titleColor = v; });
-    bindColorPair('bodyColor', (v) => { this.state.settings.bodyColor = v; });
-    bindColorPair('labelColor', (v) => { this.state.settings.labelColor = v; });
-    bindColorPair('linkColor', (v) => { this.state.settings.linkColor = v; });
-    bindColorPair('dividerColor', (v) => { this.state.settings.dividerColor = v; });
-    bindColorPair('quoteColor', (v) => { this.state.settings.quoteColor = v; });
-    bindColorPair('disclaimerColor', (v) => { this.state.settings.disclaimerColor = v; });
-    bindColorPair('avatarBorderColor', (v) => {
-      this.state.settings.avatarBorderColor = v;
-      if (typeof ImageProcessor !== 'undefined') {
-        ImageProcessor.config.borderColor = v;
-        if (ImageProcessor.rawSourceImage) {
-          ImageProcessor.process((dataUrl) => {
-            this.state.data.avatarUrl = dataUrl;
-            this.updateLivePreview();
-          });
-        }
-      }
-    });
-
-    // Granular Email Message Text & Theme Colors
-    bindColorPair('tplHeaderColor', (v) => { this.state.templateData.headerTextColor = v; });
-    bindColorPair('tplHeaderBgColor', (v) => { this.state.templateData.headerBgColor = v; });
-    bindColorPair('tplGreetingColor', (v) => { this.state.templateData.greetingColor = v; });
-    bindColorPair('tplBodyColor', (v) => { this.state.templateData.bodyColor = v; });
-    bindColorPair('tplHighlightTitleColor', (v) => { this.state.templateData.highlightTitleColor = v; });
-    bindColorPair('tplHighlightTextColor', (v) => { this.state.templateData.highlightTextColor = v; });
-    bindColorPair('tplHighlightBgColor', (v) => { this.state.templateData.highlightBgColor = v; });
-    bindColorPair('tplCtaTextColor', (v) => { this.state.templateData.ctaTextColor = v; });
-    bindColorPair('tplCtaBgColor', (v) => { this.state.templateData.ctaBgColor = v; });
-    bindColorPair('tplClosingColor', (v) => { this.state.templateData.closingColor = v; });
-    bindColorPair('tplFooterColor', (v) => { this.state.templateData.footerTextColor = v; });
-
-    // Typography & Line-by-Line Granular Customization
-    const fontFamily = document.getElementById('fontFamily');
-    if (fontFamily) {
-      fontFamily.addEventListener('change', (e) => {
-        this.state.settings.fontFamily = e.target.value;
-        this.updateLivePreview();
-      });
-    }
-
-    const nameFontSize = document.getElementById('nameFontSize');
-    if (nameFontSize) {
-      nameFontSize.addEventListener('input', (e) => {
-        this.state.settings.nameFontSize = Number(e.target.value);
-        const valBadge = document.getElementById('nameFontSizeVal');
-        if (valBadge) valBadge.textContent = `${e.target.value}px`;
-        this.updateLivePreview();
-      });
-    }
-
-    const nameFontWeight = document.getElementById('nameFontWeight');
-    if (nameFontWeight) {
-      nameFontWeight.addEventListener('change', (e) => {
-        this.state.settings.nameFontWeight = e.target.value;
-        this.updateLivePreview();
-      });
-    }
-
-    const nameTransform = document.getElementById('nameTransform');
-    if (nameTransform) {
-      nameTransform.addEventListener('change', (e) => {
-        this.state.settings.nameTransform = e.target.value;
-        this.updateLivePreview();
-      });
-    }
-
-    const titleFontStyle = document.getElementById('titleFontStyle');
-    if (titleFontStyle) {
-      titleFontStyle.addEventListener('change', (e) => {
-        this.state.settings.titleFontStyle = e.target.value;
-        this.updateLivePreview();
-      });
-    }
-
-    const titleSeparator = document.getElementById('titleSeparator');
-    if (titleSeparator) {
-      titleSeparator.addEventListener('change', (e) => {
-        this.state.settings.titleSeparator = e.target.value;
-        this.updateLivePreview();
-      });
-    }
-
-    const titleFontSize = document.getElementById('titleFontSize');
-    if (titleFontSize) {
-      titleFontSize.addEventListener('input', (e) => {
-        this.state.settings.titleFontSize = parseFloat(e.target.value);
-        const valBadge = document.getElementById('titleFontSizeVal');
-        if (valBadge) valBadge.textContent = `${e.target.value}px`;
-        this.updateLivePreview();
-      });
-    }
-
-    const bodyFontSize = document.getElementById('bodyFontSize');
-    if (bodyFontSize) {
-      bodyFontSize.addEventListener('input', (e) => {
-        this.state.settings.bodyFontSize = parseFloat(e.target.value);
-        const valBadge = document.getElementById('bodyFontSizeVal');
-        if (valBadge) valBadge.textContent = `${e.target.value}px`;
-        this.updateLivePreview();
-      });
-    }
-
-    const labelScheme = document.getElementById('labelScheme');
-    if (labelScheme) {
-      labelScheme.addEventListener('change', (e) => {
-        this.state.settings.labelScheme = e.target.value;
-        const customGroup = document.getElementById('customLabelInputsGroup');
-        if (customGroup) customGroup.style.display = (e.target.value === 'custom') ? 'flex' : 'none';
-        this.updateLivePreview();
-      });
-    }
-
-    const dividerThickness = document.getElementById('dividerThickness');
-    if (dividerThickness) {
-      dividerThickness.addEventListener('input', (e) => {
-        this.state.settings.dividerThickness = Number(e.target.value);
-        const valBadge = document.getElementById('dividerThicknessVal');
-        if (valBadge) valBadge.textContent = `${e.target.value}px`;
-        this.updateLivePreview();
-      });
-    }
-
-    const dividerStyle = document.getElementById('dividerStyle');
-    if (dividerStyle) {
-      dividerStyle.addEventListener('change', (e) => {
-        this.state.settings.dividerStyle = e.target.value;
-        this.updateLivePreview();
-      });
-    }
-
-    const dividerSpacing = document.getElementById('dividerSpacing');
-    if (dividerSpacing) {
-      dividerSpacing.addEventListener('input', (e) => {
-        this.state.settings.dividerSpacing = Number(e.target.value);
-        const valBadge = document.getElementById('dividerSpacingVal');
-        if (valBadge) valBadge.textContent = `${e.target.value}px`;
-        this.updateLivePreview();
-      });
-    }
-
-    // Line Spacing Density Chips
-    document.querySelectorAll('#lineSpacingChips .dpi-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        document.querySelectorAll('#lineSpacingChips .dpi-chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-        this.state.settings.lineSpacing = chip.dataset.spacing;
-        this.updateLivePreview();
-      });
-    });
-
-    // Socials
-    const iconStyle = document.getElementById('iconStyle');
-    if (iconStyle) {
-      iconStyle.addEventListener('change', (e) => {
-        this.state.settings.iconStyle = e.target.value;
-        this.updateLivePreview();
-      });
-    }
-
-    const iconSize = document.getElementById('iconSize');
-    if (iconSize) {
-      iconSize.addEventListener('input', (e) => {
-        this.state.settings.iconSize = Number(e.target.value);
-        const valBadge = document.getElementById('iconSizeVal');
-        if (valBadge) valBadge.textContent = `${e.target.value}px`;
-        this.updateLivePreview();
-      });
-    }
-
-    const iconSpacing = document.getElementById('iconSpacing');
-    if (iconSpacing) {
-      iconSpacing.addEventListener('input', (e) => {
-        this.state.settings.iconSpacing = Number(e.target.value);
-        const valBadge = document.getElementById('iconSpacingVal');
-        if (valBadge) valBadge.textContent = `${e.target.value}px`;
-        this.updateLivePreview();
-      });
-    }
-
-    const socialsContainer = document.getElementById('socialsListContainer');
-    if (socialsContainer) {
-      socialsContainer.addEventListener('input', () => this.syncSocialsFromDom());
-      socialsContainer.addEventListener('change', () => this.syncSocialsFromDom());
-    }
-
-    // Badges & Add-ons
-    const showBadge = document.getElementById('showBadge');
-    if (showBadge) {
-      showBadge.addEventListener('change', (e) => {
-        this.state.data.showBadge = e.target.checked;
-        const group = document.getElementById('badgeInputGroup');
-        if (group) group.style.display = e.target.checked ? 'block' : 'none';
-        this.updateLivePreview();
-      });
-    }
-    bindInput('badgeText', 'badgeText');
-
-    const showCta = document.getElementById('showCta');
-    if (showCta) {
-      showCta.addEventListener('change', (e) => {
-        this.state.data.showCta = e.target.checked;
-        const group = document.getElementById('ctaInputGroup');
-        if (group) group.style.display = e.target.checked ? 'flex' : 'none';
-        this.updateLivePreview();
-      });
-    }
-    bindInput('ctaText', 'ctaText');
-    bindInput('ctaUrl', 'ctaUrl');
-
-    const showGreenNote = document.getElementById('showGreenNote');
-    if (showGreenNote) {
-      showGreenNote.addEventListener('change', (e) => {
-        this.state.data.showGreenNote = e.target.checked;
-        const group = document.getElementById('greenNoteInputGroup');
-        if (group) group.style.display = e.target.checked ? 'block' : 'none';
-        this.updateLivePreview();
-      });
-    }
-    bindInput('greenNoteText', 'greenNoteText');
-
-    const showQuote = document.getElementById('showQuote');
-    if (showQuote) {
-      showQuote.addEventListener('change', (e) => {
-        this.state.data.showQuote = e.target.checked;
-        const group = document.getElementById('quoteInputGroup');
-        if (group) group.style.display = e.target.checked ? 'block' : 'none';
-        if (e.target.checked && (!this.state.data.quoteText || !this.state.data.quoteText.trim())) {
-          if (typeof Quotes !== 'undefined') {
-            const randomQ = Quotes.getRandomQuote();
-            this.state.data.quoteText = randomQ;
-            const quoteInput = document.getElementById('quoteText');
-            if (quoteInput) quoteInput.value = randomQ;
-          }
-        }
-        this.updateLivePreview();
-      });
-    }
-
-    const rollQuoteBtn = document.getElementById('rollQuoteBtn');
-    if (rollQuoteBtn) {
-      rollQuoteBtn.addEventListener('click', () => {
-        if (typeof Quotes !== 'undefined') {
-          const randomQ = Quotes.getRandomQuote();
-          this.state.data.quoteText = randomQ;
-          const quoteInput = document.getElementById('quoteText');
-          if (quoteInput) quoteInput.value = randomQ;
-          this.updateLivePreview();
-          this.showToast('🎲 Rolled a new inspirational quote!', 'info');
-        }
-      });
-    }
-
-    bindInput('quoteText', 'quoteText');
-
-    const autoShuffleQuote = document.getElementById('autoShuffleQuote');
-    if (autoShuffleQuote) {
-      autoShuffleQuote.addEventListener('change', (e) => {
-        this.state.data.autoShuffleQuote = e.target.checked;
-      });
-    }
-
-    const showDisclaimer = document.getElementById('showDisclaimer');
-    if (showDisclaimer) {
-      showDisclaimer.addEventListener('change', (e) => {
-        this.state.data.showDisclaimer = e.target.checked;
-        const group = document.getElementById('disclaimerInputGroup');
-        if (group) group.style.display = e.target.checked ? 'block' : 'none';
-        this.updateLivePreview();
-      });
-    }
-    bindInput('disclaimerText', 'disclaimerText');
-
-    // Email Template Builder Inputs
-    const emailBlueprintSelect = document.getElementById('emailBlueprintSelect');
-    if (emailBlueprintSelect && typeof Presets !== 'undefined') {
-      emailBlueprintSelect.addEventListener('change', (e) => {
-        const bp = Presets.emailTemplates.find(t => t.id === e.target.value);
-        if (bp) {
-          const setV = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
-          setV('tplSubject', bp.subject);
-          setV('tplGreeting', bp.greeting);
-          setV('tplParagraph1', bp.paragraphs[0] || '');
-          setV('tplParagraph2', bp.paragraphs[1] || '');
-          setV('tplClosing', bp.closing);
-          setV('tplCtaText', bp.ctaText);
-          setV('tplCtaUrl', bp.ctaUrl);
-          this.syncEmailTemplateFromDom();
-          this.updateLivePreview();
-        }
-      });
-    }
-
-    const tplInputs = ['tplSubject', 'tplPreheader', 'tplHeaderLogoText', 'tplHeaderTag', 'tplGreeting', 'tplParagraph1', 'tplParagraph2', 'tplClosing', 'tplCtaText', 'tplCtaUrl', 'tplHighlightTitle', 'tplHighlightContent'];
-    tplInputs.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('input', () => {
-          this.syncEmailTemplateFromDom();
-          this.updateLivePreview();
-        });
-      }
-    });
-
-    const tplShowHighlight = document.getElementById('tplShowHighlight');
-    if (tplShowHighlight) {
-      tplShowHighlight.addEventListener('change', (e) => {
-        const grp = document.getElementById('tplHighlightInputGroup');
-        if (grp) grp.style.display = e.target.checked ? 'flex' : 'none';
-        this.syncEmailTemplateFromDom();
-        this.updateLivePreview();
-      });
-    }
-
-    // Rich Text Formatting Toolbars for Email Paragraphs
-    this.initParagraphFormattingToolbars();
+    return this.bindStudioFormControls();
   },
 
-  /**
-   * Initialize rich text formatting toolbars for paragraph textareas
-   */
+  // --- Preview & Simulator Subsystem Delegations ---
+  updatePreheaderPreview() {
+    if (typeof PreviewSimulator !== 'undefined' && PreviewSimulator.updatePreheaderPreview) {
+      return PreviewSimulator.updatePreheaderPreview(this);
+    }
+  },
+
+  renderSimulatorInboxView() {
+    if (typeof PreviewSimulator !== 'undefined' && PreviewSimulator.renderSimulatorInboxView) {
+      return PreviewSimulator.renderSimulatorInboxView(this);
+    }
+  },
+
+  renderClientChrome(clientName) {
+    if (typeof PreviewSimulator !== 'undefined' && PreviewSimulator.renderClientChrome) {
+      return PreviewSimulator.renderClientChrome(clientName, this);
+    }
+  },
+
+  // --- Modal Controller Subsystem Delegations ---
+  bindLinterEvents() {
+    if (typeof ModalController !== 'undefined' && ModalController.bindLinterEvents) {
+      return ModalController.bindLinterEvents(this);
+    }
+  },
+
+  populateLinterModal() {
+    if (typeof ModalController !== 'undefined' && ModalController.populateLinterModal) {
+      return ModalController.populateLinterModal(this);
+    }
+  },
+
+  bindDesktopExportEvents() {
+    if (typeof ModalController !== 'undefined' && ModalController.bindDesktopExportEvents) {
+      return ModalController.bindDesktopExportEvents(this);
+    }
+  },
+
+  bindAdminDeployerEvents() {
+    if (typeof ModalController !== 'undefined' && ModalController.bindAdminDeployerEvents) {
+      return ModalController.bindAdminDeployerEvents(this);
+    }
+  },
+
+  updateAdminScriptViewer() {
+    if (typeof ModalController !== 'undefined' && ModalController.updateAdminScriptViewer) {
+      return ModalController.updateAdminScriptViewer(this);
+    }
+  },
+
+  bindBannerDesignerEvents() {
+    if (typeof ModalController !== 'undefined' && ModalController.bindBannerDesignerEvents) {
+      return ModalController.bindBannerDesignerEvents(this);
+    }
+  },
+
+  getBannerCurrentConfig() {
+    if (typeof ModalController !== 'undefined' && ModalController.getBannerCurrentConfig) {
+      return ModalController.getBannerCurrentConfig(this);
+    }
+    return {};
+  },
+
+  renderBannerDesignerPreview() {
+    if (typeof ModalController !== 'undefined' && ModalController.renderBannerDesignerPreview) {
+      return ModalController.renderBannerDesignerPreview(this);
+    }
+  },
+
+  renderPresetManagerModalList() {
+    if (typeof ModalController !== 'undefined' && ModalController.renderPresetManagerModalList) {
+      return ModalController.renderPresetManagerModalList(this);
+    }
+  },
+
+  renderTeamDirectoryModalList(searchQuery = '') {
+    if (typeof ModalController !== 'undefined' && ModalController.renderTeamDirectoryModalList) {
+      return ModalController.renderTeamDirectoryModalList(this, searchQuery);
+    }
+  },
+
+  // --- Rich Text & WYSIWYG Subsystem Delegations ---
+  bindInlineCanvasEditing() {
+    if (typeof RichTextEditor !== 'undefined' && RichTextEditor.bindInlineCanvasEditing) {
+      return RichTextEditor.bindInlineCanvasEditing(this);
+    }
+  },
+
+  bindBlockOrganizerEvents() {
+    if (typeof RichTextEditor !== 'undefined' && RichTextEditor.bindBlockOrganizerEvents) {
+      return RichTextEditor.bindBlockOrganizerEvents(this);
+    }
+  },
+
   initParagraphFormattingToolbars() {
-    const toolbars = document.querySelectorAll('.rich-format-toolbar');
-    toolbars.forEach(toolbar => {
-      const targetId = toolbar.dataset.target;
-      const textarea = document.getElementById(targetId);
-      if (!textarea) return;
-
-      const buttons = toolbar.querySelectorAll('.format-btn');
-      buttons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.preventDefault();
-          const action = btn.dataset.action;
-          this.applyTextareaFormatting(textarea, action);
-        });
-      });
-    });
-  },
-
-  /**
-   * Apply rich text formatting (markdown/HTML) to a textarea selection
-   * @param {HTMLTextAreaElement} textarea
-   * @param {string} action - 'bold' | 'italic' | 'underline' | 'link' | 'highlight' | 'code' | 'bullet' | 'clear'
-   */
-  applyTextareaFormatting(textarea, action) {
-    textarea.focus();
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const val = textarea.value;
-    const selected = val.substring(start, end);
-
-    let replacement = '';
-    let newCursorStart = start;
-    let newCursorEnd = end;
-
-    switch (action) {
-      case 'bold':
-        if (selected) {
-          if (selected.startsWith('**') && selected.endsWith('**') && selected.length >= 4) {
-            replacement = selected.slice(2, -2);
-          } else {
-            replacement = `**${selected}**`;
-          }
-          newCursorStart = start;
-          newCursorEnd = start + replacement.length;
-        } else {
-          replacement = '**bold text**';
-          newCursorStart = start + 2;
-          newCursorEnd = start + 11;
-        }
-        break;
-
-      case 'italic':
-        if (selected) {
-          if (selected.startsWith('*') && selected.endsWith('*') && selected.length >= 2 && !selected.startsWith('**')) {
-            replacement = selected.slice(1, -1);
-          } else {
-            replacement = `*${selected}*`;
-          }
-          newCursorStart = start;
-          newCursorEnd = start + replacement.length;
-        } else {
-          replacement = '*italic text*';
-          newCursorStart = start + 1;
-          newCursorEnd = start + 12;
-        }
-        break;
-
-      case 'underline':
-        if (selected) {
-          if (selected.startsWith('<u>') && selected.endsWith('</u>')) {
-            replacement = selected.slice(3, -4);
-          } else {
-            replacement = `<u>${selected}</u>`;
-          }
-          newCursorStart = start;
-          newCursorEnd = start + replacement.length;
-        } else {
-          replacement = '<u>underlined text</u>';
-          newCursorStart = start + 3;
-          newCursorEnd = start + 18;
-        }
-        break;
-
-      case 'link': {
-        const linkUrl = prompt('Enter Link Destination URL (https://...):', 'https://');
-        if (!linkUrl) return;
-        const linkText = selected || 'link text';
-        replacement = `[${linkText}](${linkUrl})`;
-        newCursorStart = start;
-        newCursorEnd = start + replacement.length;
-        break;
-      }
-
-      case 'highlight':
-        if (selected) {
-          if (selected.startsWith('<mark>') && selected.endsWith('</mark>')) {
-            replacement = selected.slice(6, -7);
-          } else {
-            replacement = `<mark>${selected}</mark>`;
-          }
-          newCursorStart = start;
-          newCursorEnd = start + replacement.length;
-        } else {
-          replacement = '<mark>highlighted text</mark>';
-          newCursorStart = start + 6;
-          newCursorEnd = start + 22;
-        }
-        break;
-
-      case 'code':
-        if (selected) {
-          if (selected.startsWith('`') && selected.endsWith('`') && selected.length >= 2) {
-            replacement = selected.slice(1, -1);
-          } else {
-            replacement = `\`${selected}\``;
-          }
-          newCursorStart = start;
-          newCursorEnd = start + replacement.length;
-        } else {
-          replacement = '`code`';
-          newCursorStart = start + 1;
-          newCursorEnd = start + 5;
-        }
-        break;
-
-      case 'bullet':
-        if (selected) {
-          const lines = selected.split('\n');
-          const bulleted = lines.map(line => line.startsWith('- ') ? line.slice(2) : `- ${line}`).join('\n');
-          replacement = bulleted;
-          newCursorStart = start;
-          newCursorEnd = start + replacement.length;
-        } else {
-          replacement = '\n- ';
-          newCursorStart = start + replacement.length;
-          newCursorEnd = start + replacement.length;
-        }
-        break;
-
-      case 'clear':
-        if (selected) {
-          let cleaned = selected;
-          // Strip markdown symbols
-          cleaned = cleaned.replace(/\*\*(.*?)\*\*/g, '$1');
-          cleaned = cleaned.replace(/\*(.*?)\*/g, '$1');
-          cleaned = cleaned.replace(/\[(.*?)\]\((.*?)\)/g, '$1');
-          cleaned = cleaned.replace(/`(.*?)`/g, '$1');
-          // Strip HTML tags
-          cleaned = cleaned.replace(/<\/?(strong|b|em|i|u|ins|mark|code|a|p|span)[^>]*>/gi, '');
-          replacement = cleaned;
-          newCursorStart = start;
-          newCursorEnd = start + replacement.length;
-        } else {
-          return;
-        }
-        break;
-
-      default:
-        return;
+    if (typeof RichTextEditor !== 'undefined' && RichTextEditor.initParagraphFormattingToolbars) {
+      return RichTextEditor.initParagraphFormattingToolbars(this);
     }
-
-    textarea.value = val.substring(0, start) + replacement + val.substring(end);
-    textarea.setSelectionRange(newCursorStart, newCursorEnd);
-
-    // Trigger input event to update live preview and sync state
-    textarea.dispatchEvent(new Event('input', { bubbles: true }));
-    textarea.dispatchEvent(new Event('change', { bubbles: true }));
   },
+
+  applyTextareaFormatting(textarea, action) {
+    if (typeof RichTextEditor !== 'undefined' && RichTextEditor.applyTextareaFormatting) {
+      return RichTextEditor.applyTextareaFormatting(textarea, action, this);
+    }
+  },
+
+  // ==========================================
+  // RETINA EXPORTERS & UTILITIES
+  // ==========================================
 
   /**
    * Export signature canvas as high-res 3x HD PNG image
@@ -4062,7 +1540,6 @@ const App = {
     const isDark = this.inboxTheme === 'dark';
     const isTemplateMode = this.mode === 'template';
 
-    // 1. Generate clean standalone HTML
     let html = '';
     if (isTemplateMode && typeof EmailTemplateEngine !== 'undefined') {
       html = EmailTemplateEngine.generateEmailHtml(
@@ -4086,7 +1563,7 @@ const App = {
       return;
     }
 
-    // 2. Create isolated off-screen rendering container to avoid CSS transform/zoom distortion
+    // Create isolated off-screen rendering container to avoid CSS transform/zoom distortion
     const tempContainer = document.createElement('div');
     tempContainer.style.position = 'fixed';
     tempContainer.style.left = '-9999px';
@@ -4104,7 +1581,7 @@ const App = {
     document.body.appendChild(tempContainer);
 
     try {
-      // Ensure all images (e.g. avatar base64 or logos) are loaded before rasterizing
+      // Ensure all images are loaded before rasterizing
       const images = Array.from(tempContainer.querySelectorAll('img'));
       await Promise.all(images.map(img => {
         if (img.complete) return Promise.resolve();
@@ -4118,7 +1595,7 @@ const App = {
       const fullName = (this.state.data && this.state.data.fullName) ? this.state.data.fullName : 'signature';
       const filename = `mailcraft-${fullName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-3x-hd.png`;
 
-      // 3. Render using html2canvas at scale 3 (3x Retina HD)
+      // Render using html2canvas at scale 3 (3x Retina HD)
       if (typeof html2canvas !== 'undefined') {
         const canvas = await html2canvas(tempContainer, {
           scale: 3,
@@ -4150,7 +1627,6 @@ const App = {
           this.downloadCanvasFallback(canvas, filename);
         }
       } else {
-        // Secondary fallback
         this.fallbackExportPng(tempContainer, html, isDark, filename);
       }
     } catch (err) {
@@ -4255,6 +1731,23 @@ const App = {
   },
 
   /**
+   * Debounced state persistence scheduler to prevent excessive JSON serialization on rapid keypresses
+   */
+  scheduleSaveToStorage(delay = 250) {
+    if (typeof window === 'undefined' || !window.setTimeout) {
+      this.saveToStorage();
+      return;
+    }
+    if (this._saveStorageTimer) {
+      clearTimeout(this._saveStorageTimer);
+    }
+    this._saveStorageTimer = setTimeout(() => {
+      this.saveToStorage();
+      this._saveStorageTimer = null;
+    }, delay);
+  },
+
+  /**
    * Save complete active state to temporary session cache (sessionStorage) & localStorage
    */
   saveToStorage() {
@@ -4350,15 +1843,17 @@ const App = {
       if (raw) {
         const parsed = JSON.parse(raw);
         if (parsed.data) {
-          this.state.data = Object.assign({}, Presets.defaultData, parsed.data);
+          this.state.data = Object.assign({}, (typeof Presets !== 'undefined' && Presets.defaultData) ? Presets.defaultData : {}, parsed.data);
           const av = this.state.data.avatarUrl;
-          // Only provide default avatar if avatarUrl is completely missing/empty
           if (!av) {
             this.state.data.avatarUrl = trueDefaultAvatar;
           }
         }
         if (parsed.settings) {
-          this.state.settings = Object.assign({}, Presets.styles.developerTerminal.settings, parsed.settings);
+          const fallbackSettings = (typeof Presets !== 'undefined' && Presets.styles && Presets.styles.developerTerminal)
+            ? Presets.styles.developerTerminal.settings
+            : {};
+          this.state.settings = Object.assign({}, fallbackSettings, parsed.settings);
         }
         if (parsed.templateData) {
           this.state.templateData = Object.assign({}, this.state.templateData, parsed.templateData);

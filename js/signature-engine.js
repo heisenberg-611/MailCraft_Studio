@@ -34,6 +34,48 @@ const SignatureEngine = {
   isRemoteUrl(url) {
     return typeof url === 'string' && /^https?:\/\//i.test(url.trim());
   },
+
+  /**
+   * Helper: Escape HTML special characters to prevent XSS
+   */
+  escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  },
+
+  /**
+   * Helper: Escape HTML attribute string
+   */
+  escapeAttr(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  },
+
+  /**
+   * Helper: Validate and sanitize URLs to prevent script injection
+   */
+  sanitizeUrl(url, allowData = false) {
+    if (!url || typeof url !== 'string') return '#';
+    const trimmed = url.trim();
+    if (/^(https?:|mailto:|tel:|\/|\.\/|#)/i.test(trimmed)) {
+      return trimmed;
+    }
+    if (allowData && /^data:image\/(png|jpe?g|gif|webp|svg\+xml);base64,/i.test(trimmed)) {
+      return trimmed;
+    }
+    return '#';
+  },
+
   /**
    * Helper: Parse 3-digit or 6-digit hex color to RGB object
    */
@@ -1228,11 +1270,12 @@ const SignatureEngine = {
     if (Array.isArray(d.customFields) && d.customFields.length > 0) {
       d.customFields.forEach((field, index) => {
         if (!field || !field.label || !field.value) return;
+        const safeLabel = this.escapeHtml(field.label);
         const valText = this.wrapInline(`customField_${index}`, field.value, s.isExport);
         const valContent = field.url
-          ? `<a href="${field.url}" class="sig-dark-link" target="_blank" style="${linkStyle}">${valText}</a>`
+          ? `<a href="${this.escapeAttr(this.sanitizeUrl(field.url))}" class="sig-dark-link" target="_blank" style="${linkStyle}">${valText}</a>`
           : valText;
-        rows.push(`<div style="line-height: ${lineH}; padding-bottom: ${linePad};"><span class="sig-dark-label" style="${labelStyle}">${field.label}:</span> <span class="sig-dark-body" style="color: ${s.bodyColor};">${valContent}</span></div>`);
+        rows.push(`<div style="line-height: ${lineH}; padding-bottom: ${linePad};"><span class="sig-dark-label" style="${labelStyle}">${safeLabel}:</span> <span class="sig-dark-body" style="color: ${s.bodyColor};">${valContent}</span></div>`);
       });
     }
 
@@ -1280,7 +1323,7 @@ const SignatureEngine = {
       case 'linkedin':
         return url.startsWith('http') ? url : `https://linkedin.com/in/${url}`;
       default:
-        return url;
+        return this.sanitizeUrl(url);
     }
   },
 
@@ -1370,11 +1413,13 @@ const SignatureEngine = {
 
       const paddingRight = (index < activeSocials.length - 1) ? `padding-right: ${spacing}px;` : '';
       const fallbackAttr = (!s.isExport && dataUri) ? ` onerror="this.onerror=null;this.src='${dataUri}';"` : '';
+      const safeTargetUrl = this.escapeAttr(targetUrl);
+      const safeName = this.escapeAttr(meta.name);
 
       return `
 <td align="center" valign="middle" style="vertical-align: middle; ${paddingRight} line-height: 1;">
-  <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none; border: 0; outline: none; ${bgStyle} ${paddingStyle} ${borderStyle}">
-    <img src="${iconSrc}"${fallbackAttr} alt="${meta.name}" class="${imgClass}" width="${iconSize}" height="${iconSize}" border="0" style="display: block; border: 0; outline: none; width: ${iconSize}px; height: ${iconSize}px; max-width: ${iconSize}px; max-height: ${iconSize}px; image-rendering: -webkit-optimize-contrast;" />
+  <a href="${safeTargetUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none; border: 0; outline: none; ${bgStyle} ${paddingStyle} ${borderStyle}">
+    <img src="${iconSrc}"${fallbackAttr} alt="${safeName}" class="${imgClass}" width="${iconSize}" height="${iconSize}" border="0" style="display: block; border: 0; outline: none; width: ${iconSize}px; height: ${iconSize}px; max-width: ${iconSize}px; max-height: ${iconSize}px; image-rendering: -webkit-optimize-contrast;" />
   </a>
 </td>
       `.trim();
@@ -1401,7 +1446,9 @@ const SignatureEngine = {
     const links = activeSocials.map(item => {
       const meta = (typeof Icons !== 'undefined' && Icons.social && Icons.social[item.id]) ? Icons.social[item.id] : { name: item.id };
       const targetUrl = this.formatSocialUrl(item.id, item.url);
-      return `<a href="${targetUrl}" target="_blank" class="sig-dark-link" style="color: ${linkColor}; text-decoration: none; font-weight: 500;">${meta.name}</a>`;
+      const safeTargetUrl = this.escapeAttr(targetUrl);
+      const safeName = this.escapeHtml(meta.name);
+      return `<a href="${safeTargetUrl}" target="_blank" class="sig-dark-link" style="color: ${linkColor}; text-decoration: none; font-weight: 500;">${safeName}</a>`;
     });
 
     return `
@@ -1424,7 +1471,9 @@ const SignatureEngine = {
     const chips = activeSocials.map(item => {
       const meta = (typeof Icons !== 'undefined' && Icons.social && Icons.social[item.id]) ? Icons.social[item.id] : { name: item.id };
       const targetUrl = this.formatSocialUrl(item.id, item.url);
-      return `<a href="${targetUrl}" target="_blank" class="sig-dark-badge" style="display: inline-block; padding: 2.5px 8px; margin: 2px 4px 2px 0; border-radius: 4px; background-color: ${accent}15; color: ${linkColor}; border: 1px solid ${accent}35; font-size: 10.5px; font-weight: 600; text-decoration: none; line-height: 1.3;">${meta.name} &rarr;</a>`;
+      const safeTargetUrl = this.escapeAttr(targetUrl);
+      const safeName = this.escapeHtml(meta.name);
+      return `<a href="${safeTargetUrl}" target="_blank" class="sig-dark-badge" style="display: inline-block; padding: 2.5px 8px; margin: 2px 4px 2px 0; border-radius: 4px; background-color: ${accent}15; color: ${linkColor}; border: 1px solid ${accent}35; font-size: 10.5px; font-weight: 600; text-decoration: none; line-height: 1.3;">${safeName} &rarr;</a>`;
     });
 
     return `

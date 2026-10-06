@@ -252,6 +252,7 @@
 
       return {
         totalBytes,
+        sizeBytes: totalBytes,
         sizeFormatted,
         isSizeSafe,
         sizePercentOfLimit,

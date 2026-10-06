@@ -252,6 +252,20 @@ const EmailTemplateEngine = {
   },
 
   /**
+   * Helper: Sanitize text to remove executable scripts and event handlers
+   */
+  sanitizeText(text) {
+    if (!text || typeof text !== 'string') return '';
+    return text
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+      .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
+      .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '')
+      .replace(/\s*on\w+\s*=\s*(['"]).*?\1/gi, '')
+      .replace(/\s*on\w+\s*=\s*[^>\s]+/gi, '');
+  },
+
+  /**
    * Format rich text supporting markdown and inline HTML tags
    * @param {string} text - Raw paragraph text
    * @param {string} emailBodyColor - Paragraph body text color
@@ -261,11 +275,14 @@ const EmailTemplateEngine = {
   formatRichText(text, emailBodyColor, accentColor, isDark = false) {
     if (!text || typeof text !== 'string') return '';
 
-    let out = String(text);
+    let out = this.sanitizeText(String(text));
 
     // 1. Convert markdown links [text](url) -> <a href="url" ...>text</a>
     out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, label, url) => {
-      return `<a href="${url}" target="_blank" style="color: ${accentColor}; font-weight: 600; text-decoration: underline;">${label}</a>`;
+      const safeUrl = (typeof SignatureEngine !== 'undefined' && typeof SignatureEngine.sanitizeUrl === 'function')
+        ? SignatureEngine.sanitizeUrl(url)
+        : url;
+      return `<a href="${safeUrl}" target="_blank" style="color: ${accentColor}; font-weight: 600; text-decoration: underline;">${label}</a>`;
     });
 
     // 2. Bold: **text** or __text__ or <b>/<strong>

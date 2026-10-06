@@ -319,6 +319,10 @@ const scripts = [
   'email-template-engine.js',
   'guides.js',
   'clipboard.js',
+  'preview-simulator.js',
+  'modal-controller.js',
+  'rich-text-editor.js',
+  'form-controls.js',
   'app.js'
 ];
 

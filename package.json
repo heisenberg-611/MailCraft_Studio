@@ -1,0 +1,23 @@
+{
+  "name": "mailcraft-studio",
+  "version": "2.2.0",
+  "description": "High-Definition Email Signature & Architecture Engine with real-time HTML/CSS builder",
+  "main": "studio.html",
+  "scripts": {
+    "test": "node scratch/test_all_features.js && node scratch/test_suite.js && node scratch/test_refactoring_audit.js && node scratch/test-https-implementation.js && node scratch/test_session_cache.js && node scratch/test_no_image_templates.js && node scratch/test_wysiwyg_all_templates.js && node scratch/test_block_order_all_templates.js && node scratch/test_extension_and_fonts.js && node scratch/test_paragraph_formatting.js",
+    "test:refactor": "node scratch/test_refactoring_audit.js",
+    "test:features": "node scratch/test_all_features.js",
+    "sync:extension": "node scratch/sync_extension.js",
+    "audit:icons": "node scratch/audit_all_icons.js"
+  },
+  "keywords": [
+    "email-signature",
+    "email-template",
+    "html-signature",
+    "wysiwyg",
+    "retina",
+    "responsive-email"
+  ],
+  "author": "MailCraft Studio",
+  "license": "MIT"
+}
